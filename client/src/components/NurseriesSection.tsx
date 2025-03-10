@@ -10,6 +10,7 @@ interface NurseryCardProps {
   description: string;
   ages: string;
   hours: string;
+  id: string;
 }
 
 const nurseries: NurseryCardProps[] = [
@@ -18,27 +19,30 @@ const nurseries: NurseryCardProps[] = [
     title: "Islington",
     description: "A bright, spacious nursery with a beautiful garden, located in the heart of Islington.",
     ages: "Ages 0-5",
-    hours: "7AM-7PM"
+    hours: "7AM-7PM",
+    id: "islington"
   },
   {
     image: "https://images.unsplash.com/photo-1544487660-b86394cba400?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     title: "Camden",
     description: "A cozy nursery with state-of-the-art learning facilities and a dedicated sensory room.",
     ages: "Ages 2-5",
-    hours: "8AM-6PM"
+    hours: "8AM-6PM",
+    id: "camden"
   },
   {
     image: "https://images.unsplash.com/photo-1543248939-4296e1fea89b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     title: "Greenwich",
     description: "A nature-focused nursery with large outdoor play areas and forest school activities.",
     ages: "Ages 1-5",
-    hours: "7:30AM-6:30PM"
+    hours: "7:30AM-6:30PM",
+    id: "greenwich"
   }
 ];
 
-function NurseryCard({ image, title, description, ages, hours }: NurseryCardProps) {
+function NurseryCard({ image, title, description, ages, hours, id }: NurseryCardProps) {
   return (
-    <div className="w-full md:w-1/2 lg:w-1/3 flex-shrink-0 px-4">
+    <div id={id} className="w-full md:w-1/2 lg:w-1/3 flex-shrink-0 px-4 scroll-mt-24">
       <div className="bg-white rounded-xl shadow-md overflow-hidden card-hover h-full">
         <div className="h-64 overflow-hidden">
           <img 
@@ -58,7 +62,7 @@ function NurseryCard({ image, title, description, ages, hours }: NurseryCardProp
               <span className="inline-block px-3 py-1 bg-gray-100 text-gray-800 text-sm rounded-full">{hours}</span>
             </div>
             <motion.a 
-              href="#" 
+              href={`#${id}`} 
               className="text-primary font-heading font-semibold flex items-center"
               whileHover={{ x: 5 }}
             >
@@ -99,6 +103,18 @@ export default function NurseriesSection() {
     return () => {
       window.removeEventListener('resize', updateDimensions);
     };
+  }, []);
+
+  // Check URL hash to show the specific nursery if linked from dropdown
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      const nurseryId = hash.substring(1); // Remove the # symbol
+      const nurseryIndex = nurseries.findIndex(n => n.id === nurseryId);
+      if (nurseryIndex !== -1) {
+        setCurrentSlide(nurseryIndex);
+      }
+    }
   }, []);
 
   const prevSlide = () => {
@@ -157,6 +173,7 @@ export default function NurseriesSection() {
                   description={nursery.description}
                   ages={nursery.ages}
                   hours={nursery.hours}
+                  id={nursery.id}
                 />
               ))}
             </motion.div>
@@ -178,11 +195,12 @@ export default function NurseriesSection() {
           
           {/* Carousel Indicators */}
           <div className="flex justify-center mt-6 space-x-2">
-            {nurseries.map((_, index) => (
+            {nurseries.map((nursery, index) => (
               <button 
                 key={index}
                 className={`w-3 h-3 rounded-full transition-all ${index === currentSlide ? 'bg-primary' : 'bg-gray-300'}`}
                 onClick={() => goToSlide(index)}
+                aria-label={`Go to ${nursery.title} slide`}
               />
             ))}
           </div>
