@@ -85,6 +85,7 @@
 
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 100px;
   }
 }
 
@@ -129,4 +130,40 @@
 
 .card-hover:hover {
   transform: translateY(-8px);
+}
+
+/* Navigation specific styles */
+.backdrop-blur-sm {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Custom dropdown animation */
+.dropdown-transition {
+  transition: all 0.2s ease-in-out;
+}
+
+.dropdown-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.dropdown-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.dropdown-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* Make navbar appear over other elements */
+header.fixed {
+  z-index: 50;
 }
