@@ -114,8 +114,8 @@ export default function UxbridgeNursery() {
           
           <div className="grid gap-6 md:grid-cols-2">
             <a href="#" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
-              <div className="bg-primary/10 p-3 rounded-full mr-4">
-                <Download className="text-primary w-6 h-6" />
+              <div className="bg-uxbridge/10 p-3 rounded-full mr-4">
+                <Download className="text-uxbridge w-6 h-6" />
               </div>
               <div>
                 <h3 className="font-heading font-medium text-lg">Uxbridge Nursery Policies</h3>
@@ -124,8 +124,8 @@ export default function UxbridgeNursery() {
             </a>
             
             <a href="#" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
-              <div className="bg-primary/10 p-3 rounded-full mr-4">
-                <Download className="text-primary w-6 h-6" />
+              <div className="bg-uxbridge/10 p-3 rounded-full mr-4">
+                <Download className="text-uxbridge w-6 h-6" />
               </div>
               <div>
                 <h3 className="font-heading font-medium text-lg">STEM Activities Guide</h3>
@@ -134,8 +134,8 @@ export default function UxbridgeNursery() {
             </a>
             
             <a href="#" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
-              <div className="bg-primary/10 p-3 rounded-full mr-4">
-                <Download className="text-primary w-6 h-6" />
+              <div className="bg-uxbridge/10 p-3 rounded-full mr-4">
+                <Download className="text-uxbridge w-6 h-6" />
               </div>
               <div>
                 <h3 className="font-heading font-medium text-lg">Weekly Menu Sample</h3>
@@ -144,8 +144,8 @@ export default function UxbridgeNursery() {
             </a>
             
             <a href="#" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
-              <div className="bg-primary/10 p-3 rounded-full mr-4">
-                <Download className="text-primary w-6 h-6" />
+              <div className="bg-uxbridge/10 p-3 rounded-full mr-4">
+                <Download className="text-uxbridge w-6 h-6" />
               </div>
               <div>
                 <h3 className="font-heading font-medium text-lg">Parent Handbook</h3>
