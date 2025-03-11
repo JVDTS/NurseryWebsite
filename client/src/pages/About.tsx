@@ -237,30 +237,34 @@ export default function AboutPage() {
               </motion.div>
               
               <div className="relative">
-                <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-0.5 bg-primary/20 transform md:translate-x-px"></div>
+                {/* Timeline center line */}
+                <div className="absolute left-1/2 top-0 h-full w-0.5 bg-primary/20 transform -translate-x-1/2"></div>
                 
-                <div className="space-y-20">
+                <div className="space-y-16">
                   {timeline.map((event, index) => (
                     <motion.div 
                       key={event.year}
                       variants={childFadeIn}
                       custom={index}
-                      className={`relative flex flex-col md:flex-row ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}
+                      className="relative"
                     >
-                      <div className="flex items-center md:w-1/2 relative">
-                        <div className={`md:absolute ${index % 2 === 0 ? 'md:right-0' : 'md:left-0'} transform md:translate-x-8 z-10`}>
-                          <div className="bg-white shadow-md rounded-lg p-6 md:p-8 border border-primary/10 md:max-w-sm">
-                            <div className="bg-primary text-white text-lg font-bold rounded-full w-12 h-12 flex items-center justify-center mb-4">
+                      <div className={`flex flex-col ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} items-center`}>
+                        {/* Timeline center dot */}
+                        <div className="absolute left-1/2 top-10 w-5 h-5 bg-white border-4 border-primary rounded-full transform -translate-x-1/2 z-20"></div>
+                        
+                        {/* Content card */}
+                        <div className={`md:w-1/2 ${index % 2 === 0 ? 'md:pr-12' : 'md:pl-12'}`}>
+                          <div className="bg-white shadow-md rounded-lg p-6 md:p-8 border border-primary/10">
+                            <div className="bg-primary text-white text-lg font-bold rounded-full w-14 h-14 flex items-center justify-center mb-4">
                               {event.year}
                             </div>
                             <h3 className="text-xl font-heading font-bold mb-2">{event.title}</h3>
                             <p className="text-muted-foreground">{event.description}</p>
                           </div>
                         </div>
-                      </div>
-                      
-                      <div className="md:w-1/2 relative">
-                        <div className="absolute left-0 md:left-1/2 top-10 w-5 h-5 bg-white border-4 border-primary rounded-full transform -translate-x-2.5 md:-translate-x-2.5 z-20"></div>
+                        
+                        {/* Empty space for the other side */}
+                        <div className="md:w-1/2"></div>
                       </div>
                     </motion.div>
                   ))}
