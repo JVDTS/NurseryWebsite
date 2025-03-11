@@ -81,6 +81,7 @@ export default function UxbridgeNursery() {
     <NurseryLayout 
       title="Uxbridge Nursery" 
       heroImage="https://images.unsplash.com/photo-1544487660-b86394cba400?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+      themeColor="uxbridge"
     >
       <NurseryDescription 
         description="Our Uxbridge nursery is a cozy, innovative environment with state-of-the-art learning facilities and a dedicated sensory room. We cater to children aged 2-5, providing a nurturing space where curious minds flourish. Our approach focuses on hands-on learning experiences that develop cognitive, social, and emotional skills while celebrating each child's unique personality and learning style."

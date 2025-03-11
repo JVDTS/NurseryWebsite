@@ -7,15 +7,22 @@ interface NurseryLayoutProps {
   children: React.ReactNode;
   title: string;
   heroImage: string;
+  themeColor?: string;
 }
 
-export default function NurseryLayout({ children, title, heroImage }: NurseryLayoutProps) {
+export default function NurseryLayout({ children, title, heroImage, themeColor = "primary" }: NurseryLayoutProps) {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  // Create CSS variables for theme color
+  const themeStyles = {
+    "--theme-color": `var(--${themeColor})`,
+    "--theme-color-foreground": `var(--${themeColor}-foreground)`
+  } as React.CSSProperties;
+
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen" style={themeStyles}>
       <NavBar />
       
       <div className="relative w-full h-[50vh] md:h-[70vh] overflow-hidden">
@@ -36,7 +43,8 @@ export default function NurseryLayout({ children, title, heroImage }: NurseryLay
             {title}
           </motion.h1>
           <motion.div 
-            className="w-20 h-1 bg-primary mb-6"
+            style={{ backgroundColor: `hsl(var(--${themeColor}))` }} 
+            className="w-20 h-1 mb-6"
             initial={{ width: 0 }}
             animate={{ width: 80 }}
             transition={{ duration: 1, delay: 0.4 }}
@@ -44,7 +52,7 @@ export default function NurseryLayout({ children, title, heroImage }: NurseryLay
         </div>
       </div>
       
-      <main className="flex-grow">
+      <main className="flex-grow theme-context">
         {children}
       </main>
       
