@@ -4,6 +4,8 @@ import NurseryDescription from "@/components/nursery/NurseryDescription";
 import NurseryFacilities from "@/components/nursery/NurseryFacilities";
 import NurseryLocation from "@/components/nursery/NurseryLocation";
 import NurseryGallery from "@/components/nursery/NurseryGallery";
+import UpcomingEvents from "@/components/nursery/UpcomingEvents";
+import Newsletter from "@/components/nursery/Newsletter";
 import { 
   Trees, 
   Leaf, 
@@ -11,10 +13,28 @@ import {
   BookOpen, 
   PawPrint, 
   ShieldCheck,
-  HeartHandshake
+  HeartHandshake,
+  Download
 } from "lucide-react";
 
 export default function HounslowNursery() {
+  const events = [
+    {
+      title: "Nature Exploration Day",
+      date: "April 28, 2025",
+      time: "9:30 AM - 11:30 AM",
+      location: "Hounslow Nursery Forest School Area",
+      description: "Join us for a morning of outdoor exploration! Children and parents will discover local plants and wildlife through guided activities led by our forest school specialists."
+    },
+    {
+      title: "Community Garden Planting",
+      date: "May 15, 2025",
+      time: "10:00 AM - 12:00 PM",
+      location: "Hounslow Nursery Community Garden",
+      description: "Help us plant our seasonal garden! Families are invited to plant vegetables and flowers while learning about sustainable gardening. All materials provided."
+    }
+  ];
+
   const facilities = [
     {
       icon: <Trees className="text-primary w-6 h-6" />,
@@ -77,6 +97,63 @@ export default function HounslowNursery() {
       />
       
       <NurseryGallery images={galleryImages} />
+      
+      <UpcomingEvents events={events} nurseryName="Hounslow" />
+      
+      <Newsletter />
+      
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-heading font-bold mb-4">Downloadable Resources</h2>
+            <p className="text-gray-600 mb-8">
+              Download useful documents and resources for parents at our Hounslow nursery
+            </p>
+          </div>
+          
+          <div className="grid gap-6 md:grid-cols-2">
+            <a href="#" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
+              <div className="bg-primary/10 p-3 rounded-full mr-4">
+                <Download className="text-primary w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-heading font-medium text-lg">Hounslow Nursery Policies</h3>
+                <p className="text-gray-500 text-sm">PDF document • 2.3MB</p>
+              </div>
+            </a>
+            
+            <a href="#" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
+              <div className="bg-primary/10 p-3 rounded-full mr-4">
+                <Download className="text-primary w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-heading font-medium text-lg">Forest School Activities</h3>
+                <p className="text-gray-500 text-sm">PDF document • 1.7MB</p>
+              </div>
+            </a>
+            
+            <a href="#" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
+              <div className="bg-primary/10 p-3 rounded-full mr-4">
+                <Download className="text-primary w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-heading font-medium text-lg">Seasonal Menu Sample</h3>
+                <p className="text-gray-500 text-sm">PDF document • 0.9MB</p>
+              </div>
+            </a>
+            
+            <a href="#" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
+              <div className="bg-primary/10 p-3 rounded-full mr-4">
+                <Download className="text-primary w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-heading font-medium text-lg">Nature Journal Templates</h3>
+                <p className="text-gray-500 text-sm">PDF document • 1.1MB</p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
     </NurseryLayout>
   );
 }
