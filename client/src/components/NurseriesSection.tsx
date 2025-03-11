@@ -17,25 +17,25 @@ const nurseries: NurseryCardProps[] = [
   {
     image: "https://images.unsplash.com/photo-1565538810643-b5bdb714032a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     title: "Hayes",
-    description: "A bright, spacious nursery with a beautiful garden, located in the heart of Hayes.",
+    description: "A bright, spacious nursery with a beautiful garden, located at 192 Church Road, Hayes, UB3 2LT.",
     ages: "Ages 0-5",
-    hours: "7AM-7PM",
+    hours: "7:30AM-6PM",
     id: "hayes"
   },
   {
     image: "https://images.unsplash.com/photo-1544487660-b86394cba400?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     title: "Uxbridge",
-    description: "A cozy nursery with state-of-the-art learning facilities and a dedicated sensory room.",
+    description: "A cozy nursery with state-of-the-art learning facilities at 4 New Windsor Street, Uxbridge, UB8 2TU.",
     ages: "Ages 2-5",
-    hours: "8AM-6PM",
+    hours: "7:30AM-6PM",
     id: "uxbridge"
   },
   {
     image: "https://images.unsplash.com/photo-1543248939-4296e1fea89b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     title: "Hounslow",
-    description: "A nature-focused nursery with large outdoor play areas and forest school activities.",
+    description: "A nature-focused nursery with large outdoor play areas at 488, 490 Great West Rd, Hounslow TW5 0TA.",
     ages: "Ages 1-5",
-    hours: "7:30AM-6:30PM",
+    hours: "7:30AM-6PM",
     id: "hounslow"
   }
 ];
@@ -62,7 +62,7 @@ function NurseryCard({ image, title, description, ages, hours, id }: NurseryCard
               <span className="inline-block px-3 py-1 bg-gray-100 text-gray-800 text-sm rounded-full">{hours}</span>
             </div>
             <motion.a 
-              href={`#${id}`} 
+              href={`/nurseries/${id}`} 
               className="text-primary font-heading font-semibold flex items-center"
               whileHover={{ x: 5 }}
             >
@@ -158,16 +158,15 @@ export default function NurseriesSection() {
           animate={inView ? "visible" : "hidden"}
           variants={fadeUp}
         >
-          <div className="overflow-hidden" ref={carouselRef}>
-            <motion.div 
-              className="flex transition-transform duration-500 ease-in-out"
-              style={{ 
-                transform: `translateX(-${currentSlide * slideWidth}px)` 
-              }}
-            >
-              {nurseries.map((nursery, index) => (
+          <div className="flex flex-wrap -mx-4">
+            {nurseries.map((nursery, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.2 }}
+              >
                 <NurseryCard 
-                  key={index}
                   image={nursery.image}
                   title={nursery.title}
                   description={nursery.description}
@@ -175,33 +174,7 @@ export default function NurseriesSection() {
                   hours={nursery.hours}
                   id={nursery.id}
                 />
-              ))}
-            </motion.div>
-          </div>
-          
-          {/* Carousel Controls */}
-          <button 
-            className="absolute top-1/2 left-0 transform -translate-y-1/2 -translate-x-1/2 bg-white rounded-full w-12 h-12 flex items-center justify-center shadow-md z-10 focus:outline-none lg:flex hidden"
-            onClick={prevSlide}
-          >
-            <ChevronLeft className="h-6 w-6 text-gray-700" />
-          </button>
-          <button 
-            className="absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-1/2 bg-white rounded-full w-12 h-12 flex items-center justify-center shadow-md z-10 focus:outline-none lg:flex hidden"
-            onClick={nextSlide}
-          >
-            <ChevronRight className="h-6 w-6 text-gray-700" />
-          </button>
-          
-          {/* Carousel Indicators */}
-          <div className="flex justify-center mt-6 space-x-2">
-            {nurseries.map((nursery, index) => (
-              <button 
-                key={index}
-                className={`w-3 h-3 rounded-full transition-all ${index === currentSlide ? 'bg-primary' : 'bg-gray-300'}`}
-                onClick={() => goToSlide(index)}
-                aria-label={`Go to ${nursery.title} slide`}
-              />
+              </motion.div>
             ))}
           </div>
         </motion.div>

@@ -1,5 +1,6 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+import { useState, useEffect } from "react";
 import Cloud from "@/assets/illustrations/Cloud";
 import { fadeIn, fadeLeft, fadeUp } from "@/lib/animations";
 
@@ -8,6 +9,30 @@ export default function HeroSection() {
     triggerOnce: false,
     threshold: 0.1,
   });
+  
+  const [currentImage, setCurrentImage] = useState(0);
+  const images = [
+    {
+      src: "https://images.unsplash.com/photo-1526634332515-d56c5fd16991?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      alt: "Happy children playing at nursery"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      alt: "Children engaged in creative activities"
+    },
+    {
+      src: "https://images.unsplash.com/photo-1555791019-72d3af01da82?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      alt: "Children learning and exploring together"
+    }
+  ];
+  
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImage(current => (current + 1) % images.length);
+    }, 5000);
+    
+    return () => clearInterval(timer);
+  }, [images.length]);
 
   return (
     <section id="home" className="pt-24 pb-16 min-h-screen flex flex-col justify-center relative overflow-hidden">
@@ -55,11 +80,22 @@ export default function HeroSection() {
           >
             <div className="relative">
               <div className="w-full h-80 md:h-[450px] rounded-2xl overflow-hidden shadow-xl">
-                <img 
-                  src="https://images.unsplash.com/photo-1526634332515-d56c5fd16991?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                  alt="Happy children playing at nursery" 
-                  className="w-full h-full object-cover"
-                />
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentImage}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1 }}
+                    className="absolute inset-0"
+                  >
+                    <img 
+                      src={images[currentImage].src}
+                      alt={images[currentImage].alt}
+                      className="w-full h-full object-cover"
+                    />
+                  </motion.div>
+                </AnimatePresence>
               </div>
               
               {/* Decorative elements */}
