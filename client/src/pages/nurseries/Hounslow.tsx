@@ -37,32 +37,32 @@ export default function HounslowNursery() {
 
   const facilities = [
     {
-      icon: <Trees className="text-primary w-6 h-6" />,
+      icon: <Trees className="text-hounslow w-6 h-6" />,
       title: "Forest School Area",
       description: "Dedicated outdoor learning environment where children connect with nature and develop confidence through hands-on activities."
     },
     {
-      icon: <Leaf className="text-primary w-6 h-6" />,
+      icon: <Leaf className="text-hounslow w-6 h-6" />,
       title: "Community Garden",
       description: "Child-friendly gardening spaces where children learn about growing plants, sustainability, and healthy eating."
     },
     {
-      icon: <CloudSun className="text-primary w-6 h-6" />,
+      icon: <CloudSun className="text-hounslow w-6 h-6" />,
       title: "All-Weather Play Zone",
       description: "Specially designed outdoor area for play in all weather conditions, encouraging year-round outdoor learning."
     },
     {
-      icon: <BookOpen className="text-primary w-6 h-6" />,
+      icon: <BookOpen className="text-hounslow w-6 h-6" />,
       title: "Nature Library",
       description: "Collection of nature-focused books and resources to deepen children's understanding of the natural world."
     },
     {
-      icon: <PawPrint className="text-primary w-6 h-6" />,
+      icon: <PawPrint className="text-hounslow w-6 h-6" />,
       title: "Wildlife Observation Area",
       description: "Safe spaces where children can observe local wildlife, building respect and appreciation for animals."
     },
     {
-      icon: <HeartHandshake className="text-primary w-6 h-6" />,
+      icon: <HeartHandshake className="text-hounslow w-6 h-6" />,
       title: "Community Connection",
       description: "Regular engagement with the local community through visits, partnerships and joint environmental projects."
     }

@@ -37,32 +37,32 @@ export default function UxbridgeNursery() {
 
   const facilities = [
     {
-      icon: <Brain className="text-primary w-6 h-6" />,
+      icon: <Brain className="text-uxbridge w-6 h-6" />,
       title: "Sensory Room",
       description: "A dedicated sensory room designed to stimulate children's senses and support their cognitive development."
     },
     {
-      icon: <BookOpen className="text-primary w-6 h-6" />,
+      icon: <BookOpen className="text-uxbridge w-6 h-6" />,
       title: "Learning Laboratory",
       description: "Interactive space with educational materials to encourage exploration and discovery."
     },
     {
-      icon: <Puzzle className="text-primary w-6 h-6" />,
+      icon: <Puzzle className="text-uxbridge w-6 h-6" />,
       title: "STEM Discovery Zone",
       description: "Area equipped with age-appropriate science and math materials to foster early STEM skills."
     },
     {
-      icon: <Trees className="text-primary w-6 h-6" />,
+      icon: <Trees className="text-uxbridge w-6 h-6" />,
       title: "Nature Garden",
       description: "Carefully designed outdoor space with plants, small wildlife habitats, and natural play elements."
     },
     {
-      icon: <HeartPulse className="text-primary w-6 h-6" />,
+      icon: <HeartPulse className="text-uxbridge w-6 h-6" />,
       title: "Physical Development Area",
       description: "Space dedicated to developing gross motor skills, balance, and coordination through active play."
     },
     {
-      icon: <ShieldCheck className="text-primary w-6 h-6" />,
+      icon: <ShieldCheck className="text-uxbridge w-6 h-6" />,
       title: "Secure Environment",
       description: "State-of-the-art security systems and protocols to ensure children's safety at all times."
     }
