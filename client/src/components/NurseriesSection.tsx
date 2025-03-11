@@ -16,27 +16,27 @@ interface NurseryCardProps {
 const nurseries: NurseryCardProps[] = [
   {
     image: "https://images.unsplash.com/photo-1565538810643-b5bdb714032a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    title: "Islington",
-    description: "A bright, spacious nursery with a beautiful garden, located in the heart of Islington.",
+    title: "Hayes",
+    description: "A bright, spacious nursery with a beautiful garden, located in the heart of Hayes.",
     ages: "Ages 0-5",
     hours: "7AM-7PM",
-    id: "islington"
+    id: "hayes"
   },
   {
     image: "https://images.unsplash.com/photo-1544487660-b86394cba400?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    title: "Camden",
+    title: "Uxbridge",
     description: "A cozy nursery with state-of-the-art learning facilities and a dedicated sensory room.",
     ages: "Ages 2-5",
     hours: "8AM-6PM",
-    id: "camden"
+    id: "uxbridge"
   },
   {
     image: "https://images.unsplash.com/photo-1543248939-4296e1fea89b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-    title: "Greenwich",
+    title: "Hounslow",
     description: "A nature-focused nursery with large outdoor play areas and forest school activities.",
     ages: "Ages 1-5",
     hours: "7:30AM-6:30PM",
-    id: "greenwich"
+    id: "hounslow"
   }
 ];
 

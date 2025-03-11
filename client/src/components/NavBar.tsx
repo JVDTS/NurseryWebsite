@@ -6,8 +6,10 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showNurseriesDropdown, setShowNurseriesDropdown] = useState(false);
+  const [showParentInfoDropdown, setShowParentInfoDropdown] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const nurseriesRef = useRef<HTMLDivElement>(null);
+  const parentInfoRef = useRef<HTMLDivElement>(null);
   
   // Handle scrolling effect
   useEffect(() => {
@@ -29,11 +31,14 @@ export default function NavBar() {
       if (nurseriesRef.current && !nurseriesRef.current.contains(event.target as Node)) {
         setShowNurseriesDropdown(false);
       }
+      if (parentInfoRef.current && !parentInfoRef.current.contains(event.target as Node)) {
+        setShowParentInfoDropdown(false);
+      }
     };
     
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [nurseriesRef]);
+  }, [nurseriesRef, parentInfoRef]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -45,6 +50,12 @@ export default function NavBar() {
   
   const toggleNurseriesDropdown = () => {
     setShowNurseriesDropdown(!showNurseriesDropdown);
+    if (showParentInfoDropdown) setShowParentInfoDropdown(false);
+  };
+  
+  const toggleParentInfoDropdown = () => {
+    setShowParentInfoDropdown(!showParentInfoDropdown);
+    if (showNurseriesDropdown) setShowNurseriesDropdown(false);
   };
 
   const navLinks = [
@@ -54,9 +65,17 @@ export default function NavBar() {
   ];
   
   const nurseryLocations = [
-    { href: "#islington", label: "Islington" },
-    { href: "#camden", label: "Camden" },
-    { href: "#greenwich", label: "Greenwich" },
+    { href: "#hayes", label: "Hayes" },
+    { href: "#uxbridge", label: "Uxbridge" },
+    { href: "#hounslow", label: "Hounslow" },
+  ];
+  
+  const parentInfoItems = [
+    { href: "#policies", label: "Policies" },
+    { href: "#daily-routine", label: "Daily Routine" },
+    { href: "#sample-menu", label: "Sample Menu" },
+    { href: "#term-dates", label: "Term Dates" },
+    { href: "#fees", label: "Fees" },
   ];
 
   return (
@@ -122,6 +141,48 @@ export default function NavBar() {
                 )}
               </AnimatePresence>
             </div>
+            
+            {/* Parent Info dropdown menu */}
+            <div className="relative" ref={parentInfoRef}>
+              <button 
+                onClick={toggleParentInfoDropdown}
+                className="font-heading font-semibold text-foreground hover:text-primary transition-colors flex items-center"
+              >
+                Parent Info
+                <ChevronDown className={`ml-1 h-4 w-4 transition-transform ${showParentInfoDropdown ? 'rotate-180' : ''}`} />
+              </button>
+              
+              <AnimatePresence>
+                {showParentInfoDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 mt-2 w-48 py-2 bg-white rounded-lg shadow-xl z-50"
+                  >
+                    {parentInfoItems.map(item => (
+                      <a
+                        key={item.href}
+                        href={item.href}
+                        className="block px-4 py-2 text-sm font-heading font-medium text-foreground hover:bg-primary hover:text-white transition-colors"
+                        onClick={() => setShowParentInfoDropdown(false)}
+                      >
+                        {item.label}
+                      </a>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            
+            {/* Newsletters link */}
+            <a 
+              href="#newsletters" 
+              className="font-heading font-semibold text-foreground hover:text-primary transition-colors"
+            >
+              Newsletters
+            </a>
             
             <a 
               href="#contact" 
@@ -201,6 +262,49 @@ export default function NavBar() {
                     )}
                   </AnimatePresence>
                 </div>
+                
+                {/* Mobile parent info dropdown */}
+                <div className="relative">
+                  <button 
+                    onClick={toggleParentInfoDropdown}
+                    className="font-heading w-full text-left font-semibold py-2 px-4 rounded-md hover:bg-gray-100 flex items-center justify-between"
+                  >
+                    Parent Info
+                    <ChevronDown className={`h-4 w-4 transition-transform ${showParentInfoDropdown ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  <AnimatePresence>
+                    {showParentInfoDropdown && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="pl-6"
+                      >
+                        {parentInfoItems.map(item => (
+                          <a
+                            key={item.href}
+                            href={item.href}
+                            className="block py-2 px-4 font-heading font-medium text-gray-600 hover:text-primary"
+                            onClick={closeMenu}
+                          >
+                            {item.label}
+                          </a>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+                
+                {/* Mobile newsletters link */}
+                <a
+                  href="#newsletters"
+                  className="font-heading font-semibold py-2 px-4 rounded-md hover:bg-gray-100"
+                  onClick={closeMenu}
+                >
+                  Newsletters
+                </a>
                 
                 <a
                   href="#contact"
