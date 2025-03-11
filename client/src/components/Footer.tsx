@@ -39,24 +39,24 @@ export default function Footer() {
           <div>
             <h4 className="font-heading font-bold text-lg mb-6">Quick Links</h4>
             <ul className="space-y-3">
-              <li><a href="#home" className="text-gray-400 hover:text-white transition-colors">Home</a></li>
-              <li><a href="#about" className="text-gray-400 hover:text-white transition-colors">About Us</a></li>
-              <li><a href="#mission" className="text-gray-400 hover:text-white transition-colors">Our Mission</a></li>
-              <li><a href="#nurseries" className="text-gray-400 hover:text-white transition-colors">Our Nurseries</a></li>
-              <li><a href="#contact" className="text-gray-400 hover:text-white transition-colors">Contact</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Careers</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">News & Events</a></li>
+              <li><Link href="/" className="text-gray-400 hover:text-white transition-colors">Home</Link></li>
+              <li><Link href="/about" className="text-gray-400 hover:text-white transition-colors">About Us</Link></li>
+              <li><Link href="/mission" className="text-gray-400 hover:text-white transition-colors">Our Mission</Link></li>
+              <li><Link href="/#nurseries" className="text-gray-400 hover:text-white transition-colors">Our Nurseries</Link></li>
+              <li><Link href="/#contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link></li>
+              <li><Link href="/parent-info/policies" className="text-gray-400 hover:text-white transition-colors">Policies</Link></li>
+              <li><Link href="/parent-info/daily-routine" className="text-gray-400 hover:text-white transition-colors">Daily Routine</Link></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-heading font-bold text-lg mb-6">Our Nurseries</h4>
             <ul className="space-y-3">
-              <li><a href="/nurseries/hayes" className="text-gray-400 hover:text-white transition-colors">Hayes - 192 Church Road, UB3 2LT</a></li>
-              <li><a href="/nurseries/uxbridge" className="text-gray-400 hover:text-white transition-colors">Uxbridge - 4 New Windsor Street, UB8 2TU</a></li>
-              <li><a href="/nurseries/hounslow" className="text-gray-400 hover:text-white transition-colors">Hounslow - 488, 490 Great West Rd, TW5 0TA</a></li>
-              <li><a href="#contact" className="text-gray-400 hover:text-white transition-colors">Book a Tour</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Enrollment Process</a></li>
+              <li><Link href="/nurseries/hayes" className="text-gray-400 hover:text-white transition-colors">Hayes - 192 Church Road, UB3 2LT</Link></li>
+              <li><Link href="/nurseries/uxbridge" className="text-gray-400 hover:text-white transition-colors">Uxbridge - 4 New Windsor Street, UB8 2TU</Link></li>
+              <li><Link href="/nurseries/hounslow" className="text-gray-400 hover:text-white transition-colors">Hounslow - 488, 490 Great West Rd, TW5 0TA</Link></li>
+              <li><Link href="/#contact" className="text-gray-400 hover:text-white transition-colors">Book a Tour</Link></li>
+              <li><Link href="/parent-info/fees" className="text-gray-400 hover:text-white transition-colors">Enrollment Process</Link></li>
             </ul>
           </div>
           
@@ -78,9 +78,9 @@ export default function Footer() {
             </ul>
             
             <div className="mt-6">
-              <a href="#contact" className="inline-block px-6 py-2 bg-primary text-white font-heading font-semibold rounded-lg transition-all hover:bg-opacity-90">
+              <Link href="/#contact" className="inline-block px-6 py-2 bg-primary text-white font-heading font-semibold rounded-lg transition-all hover:bg-opacity-90">
                 Contact Us
-              </a>
+              </Link>
             </div>
           </div>
         </div>
