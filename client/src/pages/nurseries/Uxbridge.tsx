@@ -4,6 +4,8 @@ import NurseryDescription from "@/components/nursery/NurseryDescription";
 import NurseryFacilities from "@/components/nursery/NurseryFacilities";
 import NurseryLocation from "@/components/nursery/NurseryLocation";
 import NurseryGallery from "@/components/nursery/NurseryGallery";
+import UpcomingEvents from "@/components/nursery/UpcomingEvents";
+import Newsletter from "@/components/nursery/Newsletter";
 import { 
   Brain, 
   BookOpen, 
@@ -11,10 +13,28 @@ import {
   Trees, 
   HeartPulse, 
   ShieldCheck, 
-  Heart 
+  Heart,
+  Download
 } from "lucide-react";
 
 export default function UxbridgeNursery() {
+  const events = [
+    {
+      title: "STEM Workshop for Parents",
+      date: "April 18, 2025",
+      time: "5:30 PM - 7:00 PM",
+      location: "Uxbridge Nursery, Learning Lab",
+      description: "Learn how to support your child's early STEM development at home. Our educators will demonstrate simple, engaging activities that promote scientific thinking and curiosity."
+    },
+    {
+      title: "Family Fun Day",
+      date: "May 9, 2025",
+      time: "11:00 AM - 2:00 PM",
+      location: "Uxbridge Nursery Garden",
+      description: "Join us for a day of fun activities, games, and refreshments. A great opportunity for families to socialize and for children to play together in our beautiful garden."
+    }
+  ];
+
   const facilities = [
     {
       icon: <Brain className="text-primary w-6 h-6" />,
@@ -77,6 +97,63 @@ export default function UxbridgeNursery() {
       />
       
       <NurseryGallery images={galleryImages} />
+      
+      <UpcomingEvents events={events} nurseryName="Uxbridge" />
+      
+      <Newsletter />
+      
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-heading font-bold mb-4">Downloadable Resources</h2>
+            <p className="text-gray-600 mb-8">
+              Download useful documents and resources for parents at our Uxbridge nursery
+            </p>
+          </div>
+          
+          <div className="grid gap-6 md:grid-cols-2">
+            <a href="#" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
+              <div className="bg-primary/10 p-3 rounded-full mr-4">
+                <Download className="text-primary w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-heading font-medium text-lg">Uxbridge Nursery Policies</h3>
+                <p className="text-gray-500 text-sm">PDF document • 2.1MB</p>
+              </div>
+            </a>
+            
+            <a href="#" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
+              <div className="bg-primary/10 p-3 rounded-full mr-4">
+                <Download className="text-primary w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-heading font-medium text-lg">STEM Activities Guide</h3>
+                <p className="text-gray-500 text-sm">PDF document • 1.5MB</p>
+              </div>
+            </a>
+            
+            <a href="#" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
+              <div className="bg-primary/10 p-3 rounded-full mr-4">
+                <Download className="text-primary w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-heading font-medium text-lg">Weekly Menu Sample</h3>
+                <p className="text-gray-500 text-sm">PDF document • 0.8MB</p>
+              </div>
+            </a>
+            
+            <a href="#" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
+              <div className="bg-primary/10 p-3 rounded-full mr-4">
+                <Download className="text-primary w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-heading font-medium text-lg">Parent Handbook</h3>
+                <p className="text-gray-500 text-sm">PDF document • 3.2MB</p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
     </NurseryLayout>
   );
 }
