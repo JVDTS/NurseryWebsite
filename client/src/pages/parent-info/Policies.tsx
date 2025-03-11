@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
-import { FileText, Shield, HeartPulse, UserPlus, FileCheck, MessageCircle } from "lucide-react";
+import { FileText, Shield, HeartPulse, UserPlus, FileCheck, MessageCircle, Download } from "lucide-react";
 import ParentInfoLayout from "@/components/ParentInfoLayout";
 import { fadeUp, staggerContainer, childFadeIn } from "@/lib/animations";
+import { Button } from "@/components/ui/button";
 
 export default function PoliciesPage() {
   const policyCategories = [
