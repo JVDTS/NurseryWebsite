@@ -71,11 +71,11 @@ export default function NavBar() {
   ];
   
   const parentInfoItems = [
-    { href: "#policies", label: "Policies" },
-    { href: "#daily-routine", label: "Daily Routine" },
-    { href: "#sample-menu", label: "Sample Menu" },
-    { href: "#term-dates", label: "Term Dates" },
-    { href: "#fees", label: "Fees" },
+    { href: "/parent-info/policies", label: "Policies" },
+    { href: "/parent-info/daily-routine", label: "Daily Routine" },
+    { href: "/parent-info/sample-menu", label: "Sample Menu" },
+    { href: "/parent-info/term-dates", label: "Term Dates" },
+    { href: "/parent-info/fees", label: "Fees" },
   ];
 
   return (
@@ -162,14 +162,14 @@ export default function NavBar() {
                     className="absolute right-0 mt-2 w-48 py-2 bg-white rounded-lg shadow-xl z-50"
                   >
                     {parentInfoItems.map(item => (
-                      <a
+                      <Link
                         key={item.href}
                         href={item.href}
                         className="block px-4 py-2 text-sm font-heading font-medium text-foreground hover:bg-primary hover:text-white transition-colors"
                         onClick={() => setShowParentInfoDropdown(false)}
                       >
                         {item.label}
-                      </a>
+                      </Link>
                     ))}
                   </motion.div>
                 )}
@@ -283,14 +283,14 @@ export default function NavBar() {
                         className="pl-6"
                       >
                         {parentInfoItems.map(item => (
-                          <a
+                          <Link
                             key={item.href}
                             href={item.href}
                             className="block py-2 px-4 font-heading font-medium text-gray-600 hover:text-primary"
                             onClick={closeMenu}
                           >
                             {item.label}
-                          </a>
+                          </Link>
                         ))}
                       </motion.div>
                     )}
