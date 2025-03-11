@@ -52,10 +52,10 @@ export default function Footer() {
           <div>
             <h4 className="font-heading font-bold text-lg mb-6">Our Nurseries</h4>
             <ul className="space-y-3">
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Islington</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Camden</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Greenwich</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Book a Tour</a></li>
+              <li><a href="/nurseries/hayes" className="text-gray-400 hover:text-white transition-colors">Hayes - 192 Church Road, UB3 2LT</a></li>
+              <li><a href="/nurseries/uxbridge" className="text-gray-400 hover:text-white transition-colors">Uxbridge - 4 New Windsor Street, UB8 2TU</a></li>
+              <li><a href="/nurseries/hounslow" className="text-gray-400 hover:text-white transition-colors">Hounslow - 488, 490 Great West Rd, TW5 0TA</a></li>
+              <li><a href="#contact" className="text-gray-400 hover:text-white transition-colors">Book a Tour</a></li>
               <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Enrollment Process</a></li>
             </ul>
           </div>
@@ -65,15 +65,15 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex">
                 <Mail className="mr-3 mt-1 text-primary" size={18} />
-                <span className="text-gray-400">info@coatofmanycolours.co.uk</span>
+                <span className="text-gray-400">admin@cmcnursery.co.uk</span>
               </li>
               <li className="flex">
                 <Phone className="mr-3 mt-1 text-primary" size={18} />
-                <span className="text-gray-400">020 7123 4567</span>
+                <span className="text-gray-400">01895 272885</span>
               </li>
               <li className="flex">
                 <Clock className="mr-3 mt-1 text-primary" size={18} />
-                <span className="text-gray-400">Mon-Fri: 7AM-7PM<br />Sat: 8AM-5PM</span>
+                <span className="text-gray-400">Mon-Fri: 7:30AM-6PM</span>
               </li>
             </ul>
             
