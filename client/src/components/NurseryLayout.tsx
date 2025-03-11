@@ -1,8 +1,7 @@
-import React from "react";
+import { useEffect } from "react";
 import NavBar from "./NavBar";
 import Footer from "./Footer";
 import { motion } from "framer-motion";
-import { fadeUp } from "@/lib/animations";
 
 interface NurseryLayoutProps {
   children: React.ReactNode;
@@ -11,34 +10,40 @@ interface NurseryLayoutProps {
 }
 
 export default function NurseryLayout({ children, title, heroImage }: NurseryLayoutProps) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col min-h-screen">
       <NavBar />
       
-      {/* Hero Section */}
-      <section className="pt-24 relative">
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <div 
-            className="w-full h-full bg-cover bg-center"
-            style={{ 
-              backgroundImage: `url(${heroImage})`,
-              filter: 'brightness(0.7)'
-            }}
-          />
+      <div className="relative w-full h-[50vh] md:h-[70vh] overflow-hidden">
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${heroImage})` }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30" />
         </div>
-        <div className="container mx-auto px-4 py-24 relative z-10">
+        
+        <div className="relative z-10 h-full flex flex-col items-center justify-center text-white px-4">
           <motion.h1 
-            className="font-heading font-bold text-5xl md:text-6xl lg:text-7xl text-white mb-6"
+            className="text-4xl md:text-6xl font-bold text-center mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.8 }}
           >
             {title}
           </motion.h1>
+          <motion.div 
+            className="w-20 h-1 bg-primary mb-6"
+            initial={{ width: 0 }}
+            animate={{ width: 80 }}
+            transition={{ duration: 1, delay: 0.4 }}
+          />
         </div>
-      </section>
+      </div>
       
-      {/* Main Content */}
       <main className="flex-grow">
         {children}
       </main>

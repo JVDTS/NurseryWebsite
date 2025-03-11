@@ -1,6 +1,5 @@
-import { useInView } from "react-intersection-observer";
 import { motion } from "framer-motion";
-import { fadeUp, fadeLeft } from "@/lib/animations";
+import { fadeIn, fadeUp, fadeLeft, fadeRight } from "@/lib/animations";
 
 interface NurseryDescriptionProps {
   description: string;
@@ -8,43 +7,33 @@ interface NurseryDescriptionProps {
 }
 
 export default function NurseryDescription({ description, imageSrc }: NurseryDescriptionProps) {
-  const [ref, inView] = useInView({
-    triggerOnce: false,
-    threshold: 0.2,
-  });
-
   return (
-    <section className="py-20 bg-gray-50" ref={ref}>
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col lg:flex-row items-center gap-12">
-          <motion.div 
-            className="lg:w-1/2"
-            initial="hidden"
-            animate={inView ? "visible" : "hidden"}
-            variants={fadeLeft}
-          >
-            <div className="bg-white rounded-lg p-2 shadow-md overflow-hidden">
-              <img 
-                src={imageSrc} 
-                alt="Nursery facility" 
-                className="w-full h-auto rounded object-cover"
-                style={{ minHeight: "300px" }}
-              />
-            </div>
-          </motion.div>
-          
-          <motion.div 
-            className="lg:w-1/2"
-            initial="hidden"
-            animate={inView ? "visible" : "hidden"}
-            variants={fadeUp}
-          >
-            <h2 className="font-heading font-bold text-3xl mb-8">Our Nursery</h2>
-            <div className="prose prose-lg">
-              <p className="text-gray-700 leading-relaxed">{description}</p>
-            </div>
-          </motion.div>
-        </div>
+    <section className="py-16 px-4 md:px-10 lg:px-20 max-w-7xl mx-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+        <motion.div
+          className="order-2 md:order-1"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={fadeLeft}
+        >
+          <h2 className="text-3xl font-bold mb-6 text-primary">About Our Nursery</h2>
+          <p className="text-gray-700 leading-relaxed">{description}</p>
+        </motion.div>
+        
+        <motion.div 
+          className="order-1 md:order-2 rounded-xl overflow-hidden shadow-lg"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={fadeRight}
+        >
+          <img
+            src={imageSrc}
+            alt="Nursery interior"
+            className="w-full h-80 md:h-96 object-cover rounded-xl transition-transform duration-500 hover:scale-105"
+          />
+        </motion.div>
       </div>
     </section>
   );
