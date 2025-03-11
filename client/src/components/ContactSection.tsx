@@ -19,6 +19,7 @@ import {
   MapPin, 
   Phone, 
   Clock, 
+  Mail,
   Facebook, 
   Instagram, 
   Twitter, 
@@ -36,21 +37,21 @@ interface LocationProps {
 
 const locations: LocationProps[] = [
   {
-    title: "Islington",
-    address: "123 Upper Street, Islington, London N1 0PN",
-    phone: "020 7123 4567",
+    title: "Hayes",
+    address: "192 Church Road, Hayes, UB3 2LT",
+    phone: "01895 272885",
     colorClass: "bg-primary"
   },
   {
-    title: "Camden",
-    address: "45 Camden High Street, Camden, London NW1 7JH",
-    phone: "020 7123 8901",
+    title: "Uxbridge",
+    address: "4 New Windsor Street, Uxbridge, UB8 2TU",
+    phone: "01895 272885",
     colorClass: "bg-secondary"
   },
   {
-    title: "Greenwich",
-    address: "78 Greenwich High Road, Greenwich, London SE10 8NN",
-    phone: "020 7123 2345",
+    title: "Hounslow",
+    address: "488, 490 Great West Rd, Hounslow TW5 0TA",
+    phone: "01895 272885",
     colorClass: "bg-accent"
   }
 ];
@@ -257,15 +258,15 @@ export default function ContactSection() {
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span className="font-heading font-medium">Monday - Friday</span>
-                  <span>7:00 AM - 7:00 PM</span>
+                  <span>7:30 AM - 6:00 PM</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="font-heading font-medium">Saturday</span>
-                  <span>8:00 AM - 5:00 PM</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="font-heading font-medium">Sunday</span>
+                  <span className="font-heading font-medium">Saturday & Sunday</span>
                   <span>Closed</span>
+                </div>
+                <div className="flex items-center mt-4">
+                  <Mail className="w-5 h-5 mr-2 text-primary" />
+                  <span className="text-gray-600">admin@cmcnursery.co.uk</span>
                 </div>
               </div>
               

@@ -70,9 +70,9 @@ export default function HayesNursery() {
       <NurseryFacilities facilities={facilities} />
       
       <NurseryLocation 
-        address="123 Hayes High Street, Hayes, Middlesex UB3 2AB"
-        hoursText="Monday - Friday: 7:00 AM - 7:00 PM"
-        phoneNumber="020 7123 4567"
+        address="192 Church Road, Hayes, UB3 2LT"
+        hoursText="Monday - Friday: 7:30 AM - 6:00 PM"
+        phoneNumber="01895 272885"
         mapImage="https://images.unsplash.com/photo-1569336415962-a4bd9f69cd83?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
       />
       
