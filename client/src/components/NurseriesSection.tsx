@@ -42,7 +42,7 @@ const nurseries: NurseryCardProps[] = [
 
 function NurseryCard({ image, title, description, ages, hours, id }: NurseryCardProps) {
   return (
-    <div id={id} className="w-full md:w-1/2 lg:w-1/3 flex-shrink-0 px-4 scroll-mt-24">
+    <div id={id} className="h-full">
       <div className="bg-white rounded-xl shadow-md overflow-hidden card-hover h-full">
         <div className="h-64 overflow-hidden">
           <img 
@@ -165,6 +165,7 @@ export default function NurseriesSection() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.2 }}
+                className="w-full md:w-1/2 lg:w-1/3 px-4 mb-8"
               >
                 <NurseryCard 
                   image={nursery.image}
