@@ -60,8 +60,8 @@ export default function NavBar() {
 
   const navLinks = [
     { href: "/", label: "Home" },
-    { href: "#about", label: "About Us" },
-    { href: "#mission", label: "Our Mission" },
+    { href: "/about", label: "About Us" },
+    { href: "/mission", label: "Our Mission" },
   ];
   
   const nurseryLocations = [

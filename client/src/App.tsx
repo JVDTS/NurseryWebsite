@@ -5,6 +5,10 @@ import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 
+// Main pages
+import AboutPage from "@/pages/About";
+import MissionPage from "@/pages/Mission";
+
 // Nursery pages
 import HayesNursery from "@/pages/nurseries/Hayes";
 import UxbridgeNursery from "@/pages/nurseries/Uxbridge";
@@ -21,6 +25,10 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      
+      {/* Main routes */}
+      <Route path="/about" component={AboutPage} />
+      <Route path="/mission" component={MissionPage} />
       
       {/* Nursery routes */}
       <Route path="/nurseries/hayes" component={HayesNursery} />
