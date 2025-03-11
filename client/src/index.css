@@ -68,6 +68,48 @@
   }
 }
 
+/* Nursery-specific theme colors */
+:root {
+  /* Hayes Nursery Theme - Red */
+  --hayes: 0 100% 71%;
+  --hayes-foreground: 0 0% 100%;
+  
+  /* Uxbridge Nursery Theme - Blue */
+  --uxbridge: 210 100% 56%;
+  --uxbridge-foreground: 0 0% 100%;
+  
+  /* Hounslow Nursery Theme - Green */
+  --hounslow: 152 76% 40%;
+  --hounslow-foreground: 0 0% 100%;
+}
+
+.bg-hayes {
+  background-color: hsl(var(--hayes));
+  color: hsl(var(--hayes-foreground));
+}
+
+.text-hayes {
+  color: hsl(var(--hayes));
+}
+
+.bg-uxbridge {
+  background-color: hsl(var(--uxbridge));
+  color: hsl(var(--uxbridge-foreground));
+}
+
+.text-uxbridge {
+  color: hsl(var(--uxbridge));
+}
+
+.bg-hounslow {
+  background-color: hsl(var(--hounslow));
+  color: hsl(var(--hounslow-foreground));
+}
+
+.text-hounslow {
+  color: hsl(var(--hounslow));
+}
+
 @layer base {
   * {
     @apply border-border;
