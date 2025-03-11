@@ -1,6 +1,5 @@
-import { useInView } from "react-intersection-observer";
 import { motion } from "framer-motion";
-import { fadeUp } from "@/lib/animations";
+import { fadeUp, staggerContainer, childFadeIn } from "@/lib/animations";
 
 interface Facility {
   icon: React.ReactNode;
@@ -13,53 +12,41 @@ interface NurseryFacilitiesProps {
 }
 
 export default function NurseryFacilities({ facilities }: NurseryFacilitiesProps) {
-  const [ref, inView] = useInView({
-    triggerOnce: false,
-    threshold: 0.1,
-  });
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
-  };
-
   return (
-    <section className="py-20 bg-white" ref={ref}>
-      <div className="container mx-auto px-4">
-        <motion.div
-          className="text-center mb-16"
+    <section className="py-16 px-4 md:px-10 lg:px-20 bg-gray-50">
+      <div className="max-w-7xl mx-auto">
+        <motion.div 
+          className="text-center mb-12"
           initial="hidden"
-          animate={inView ? "visible" : "hidden"}
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
           variants={fadeUp}
         >
-          <h2 className="font-heading font-bold text-3xl md:text-4xl mb-6">Our Facilities</h2>
-          <p className="text-gray-600 max-w-3xl mx-auto">
-            Our purpose-built environment is designed to provide the best possible care and learning experiences for your child.
+          <h2 className="text-3xl font-bold mb-4 text-primary">Our Facilities</h2>
+          <div className="w-20 h-1 bg-primary mx-auto mb-6"></div>
+          <p className="text-gray-700 max-w-2xl mx-auto">
+            Our carefully designed spaces and resources support children's learning and development across all areas.
           </p>
         </motion.div>
 
         <motion.div 
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          variants={containerVariants}
+          variants={staggerContainer}
           initial="hidden"
-          animate={inView ? "visible" : "hidden"}
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
         >
           {facilities.map((facility, index) => (
             <motion.div
               key={index}
-              className="bg-gray-50 p-8 rounded-xl shadow-sm"
-              variants={fadeUp}
+              className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300"
+              variants={childFadeIn}
               custom={index}
             >
-              <div className="w-14 h-14 bg-primary bg-opacity-20 rounded-full flex items-center justify-center mb-6">
+              <div className="bg-primary bg-opacity-10 w-14 h-14 rounded-full flex items-center justify-center mb-4">
                 {facility.icon}
               </div>
-              <h3 className="font-heading font-bold text-xl mb-4">{facility.title}</h3>
+              <h3 className="text-xl font-semibold mb-3 text-gray-900">{facility.title}</h3>
               <p className="text-gray-600">{facility.description}</p>
             </motion.div>
           ))}
