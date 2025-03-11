@@ -70,9 +70,9 @@ export default function UxbridgeNursery() {
       <NurseryFacilities facilities={facilities} />
       
       <NurseryLocation 
-        address="45 Uxbridge High Street, Uxbridge, Middlesex UB8 1JN"
-        hoursText="Monday - Friday: 8:00 AM - 6:00 PM"
-        phoneNumber="01895 123 456"
+        address="4 New Windsor Street, Uxbridge, UB8 2TU"
+        hoursText="Monday - Friday: 7:30 AM - 6:00 PM"
+        phoneNumber="01895 272885"
         mapImage="https://images.unsplash.com/photo-1577086664693-894d8405334a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
       />
       
