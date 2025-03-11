@@ -181,12 +181,16 @@ export default function PoliciesPage() {
               Our policies are reviewed at least annually, and more frequently if required by regulatory changes or operational needs. 
               Parents will be informed of any significant policy changes, and the latest versions are always available upon request.
             </p>
-            <div className="p-4 bg-primary/10 rounded-md">
+            <div className="p-4 bg-primary/10 rounded-md mb-6">
               <h4 className="font-semibold text-primary mb-2">Request a Policy</h4>
-              <p className="text-sm">
+              <p className="text-sm mb-4">
                 If you would like to receive a copy of any specific policy or the complete policy manual, please complete a policy 
                 request form at reception or speak to the nursery manager.
               </p>
+              <Button className="w-full flex items-center justify-center gap-2">
+                <Download className="h-4 w-4" />
+                Download Complete Policy Document (PDF)
+              </Button>
             </div>
           </div>
         </motion.div>
