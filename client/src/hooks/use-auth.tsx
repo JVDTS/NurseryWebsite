@@ -44,16 +44,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       
-      // Use returnNull for 401 responses instead of throwing
-      const response = await apiRequest<AuthResponse>(
-        'GET', 
-        '/api/admin/me', 
-        undefined, 
-        { on401: 'returnNull' }
-      );
+      // We'll handle 401 errors ourselves
+      const response = await fetch('/api/admin/me', {
+        credentials: 'include'
+      });
       
-      if (response && response.success && response.user) {
-        setUser(response.user);
+      if (response.status === 401) {
+        setUser(null);
+        return false;
+      }
+      
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
+      
+      const data = await response.json() as AuthResponse;
+      
+      if (data.success && data.user) {
+        setUser(data.user);
         return true;
       } else {
         setUser(null);
@@ -71,24 +79,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
-      const response = await apiRequest<AuthResponse>(
-        'POST', 
-        '/api/admin/login', 
-        { username, password }
-      );
       
-      if (response.success && response.user) {
-        setUser(response.user);
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+        credentials: 'include'
+      });
+      
+      const data = await response.json() as AuthResponse;
+      
+      if (data.success && data.user) {
+        setUser(data.user);
         toast({
           title: 'Login Successful',
-          description: `Welcome back, ${response.user.firstName}!`,
+          description: `Welcome back, ${data.user.firstName}!`,
         });
         return true;
       } else {
         setUser(null);
         toast({
           title: 'Login Failed',
-          description: response.message || 'Invalid username or password',
+          description: data.message || 'Invalid username or password',
           variant: 'destructive',
         });
         return false;
@@ -109,7 +121,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async (): Promise<void> => {
     try {
       setIsLoading(true);
-      await apiRequest<{success: boolean}>('POST', '/api/admin/logout');
+      
+      await fetch('/api/admin/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+      
       setUser(null);
       toast({
         title: 'Logged Out',
