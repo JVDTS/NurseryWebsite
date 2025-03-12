@@ -1,15 +1,38 @@
-import React from 'react';
 import { Button } from "@/components/ui/button";
-import { ExternalLink } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+
+interface ReplitUser {
+  username?: string;
+  email?: string;
+  [key: string]: any;
+}
 
 export function LoginWithReplit() {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const userData = user as ReplitUser;
+
+  if (isLoading) {
+    return <Button variant="outline" disabled>Loading...</Button>;
+  }
+
+  if (isAuthenticated && userData) {
+    return (
+      <div className="flex items-center gap-2">
+        <span className="text-sm">
+          Welcome, {userData.username || userData.email || 'User'}!
+        </span>
+        <Button variant="outline" size="sm" onClick={() => window.location.href = "/api/logout"}>
+          Log out
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <Button 
-      variant="outline" 
-      className="w-full flex items-center justify-center gap-2 bg-primary text-white hover:bg-primary/90"
-      onClick={() => window.location.href = '/api/login'}
+    <Button
+      onClick={() => window.location.href = "/api/login"}
+      variant="default"
     >
-      <ExternalLink className="h-4 w-4" />
       Log in with Replit
     </Button>
   );

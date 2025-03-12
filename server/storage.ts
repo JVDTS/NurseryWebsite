@@ -12,7 +12,7 @@ import createMemoryStore from "memorystore";
 // Storage interface for all CRUD operations
 export interface IStorage {
   // Session store for authentication
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Using any type to avoid express-session typing issues
   
   // User methods
   getUser(id: number): Promise<User | undefined>;
@@ -70,6 +70,9 @@ export class MemStorage implements IStorage {
   private galleryImageCurrentId: number;
   private newsletterCurrentId: number;
   private contactCurrentId: number;
+  
+  // Add session store for authentication
+  public sessionStore: any;
 
   constructor() {
     this.users = new Map();
@@ -85,6 +88,12 @@ export class MemStorage implements IStorage {
     this.galleryImageCurrentId = 1;
     this.newsletterCurrentId = 1;
     this.contactCurrentId = 1;
+    
+    // Initialize the session store
+    const MemoryStore = createMemoryStore(session);
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    });
     
     // Initialize with three nursery locations
     this.initializeNurseries();

@@ -12,12 +12,10 @@ if (!process.env.REPLIT_DOMAINS) {
 
 export async function setupAuth(app: Express) {
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET!,
+    secret: process.env.SESSION_SECRET || "nursery-website-secret",
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
+    store: storage.sessionStore,
   };
   app.set("trust proxy", 1);
   app.use(session(sessionSettings));
@@ -36,28 +34,34 @@ export async function setupAuth(app: Express) {
     verified: passport.AuthenticateCallback) => {
     const claims = tokens.claims();
     if (!claims) {
-      return
+      return;
     }
 
     const userInfoResponse = await client.fetchUserInfo(config, tokens.access_token, claims.sub);
 
-    // Check if user exists in our database
-    let user = await storage.getUserByEmail(userInfoResponse.email as string);
-    
-    // If user doesn't exist, create a new one with regular role
+    // You can use the userInfoResponse to provision a user account in your system
+    // For example:
+    /*
+    let user = await storage.getUserByEmail(userInfoResponse.email);
     if (!user) {
+      // Create a new user if they don't exist
       user = await storage.createUser({
-        username: userInfoResponse.username as string,
-        password: "", // No password for OAuth users
-        email: userInfoResponse.email as string,
-        firstName: userInfoResponse.first_name as string || "",
-        lastName: userInfoResponse.last_name as string || "",
-        role: "regular",
-        nurseryId: null
+        username: userInfoResponse.username || userInfoResponse.email,
+        email: userInfoResponse.email,
+        firstName: userInfoResponse.first_name || null,
+        lastName: userInfoResponse.last_name || null,
+        role: 'regular', // Default role
+        nurseryId: null,
+        password: '' // No password needed for OAuth users
       });
     }
 
+    // Return the user object to be serialized in the session
     verified(null, user);
+    */
+
+    // For now, just return the userInfoResponse directly
+    verified(null, userInfoResponse);
   };
 
   const strategy = new Strategy(
@@ -87,6 +91,11 @@ export async function setupAuth(app: Express) {
     req.logout(() => {
       res.redirect("/");
     });
+  });
+  
+  // User info endpoint
+  app.get("/api/auth/user", (req, res) => {
+    res.json(req.user || null);
   });
 }
 
