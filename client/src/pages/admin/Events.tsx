@@ -190,7 +190,7 @@ export default function AdminEvents() {
         description: 'The event has been created successfully.',
       });
       setIsAddEventOpen(false);
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId}/events`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId || 0}/events`] });
       if (isSuperAdmin) {
         queryClient.invalidateQueries({ queryKey: ['/api/admin/events'] });
       }
@@ -222,7 +222,7 @@ export default function AdminEvents() {
       });
       setIsEditEventOpen(false);
       setSelectedEvent(null);
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId}/events`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId || 0}/events`] });
       if (isSuperAdmin) {
         queryClient.invalidateQueries({ queryKey: ['/api/admin/events'] });
       }
@@ -246,7 +246,7 @@ export default function AdminEvents() {
         title: 'Event Deleted',
         description: 'The event has been deleted successfully.',
       });
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId}/events`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId || 0}/events`] });
       if (isSuperAdmin) {
         queryClient.invalidateQueries({ queryKey: ['/api/admin/events'] });
       }

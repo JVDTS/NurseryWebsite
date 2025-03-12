@@ -109,7 +109,7 @@ export default function AdminGallery() {
       });
       setIsAddImageOpen(false);
       form.reset();
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId}/gallery`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId || 0}/gallery`] });
       if (isSuperAdmin) {
         queryClient.invalidateQueries({ queryKey: ['/api/admin/gallery'] });
       }
@@ -133,7 +133,7 @@ export default function AdminGallery() {
         title: 'Image Deleted',
         description: 'The image has been removed from the gallery.',
       });
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId}/gallery`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId || 0}/gallery`] });
       if (isSuperAdmin) {
         queryClient.invalidateQueries({ queryKey: ['/api/admin/gallery'] });
       }
