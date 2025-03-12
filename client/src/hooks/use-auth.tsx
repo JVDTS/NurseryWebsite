@@ -1,13 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-
-// Define types for API responses
-type AuthResponse = {
-  success: boolean;
-  user: AdminUser;
-  message?: string;
-};
 
 // Define types for user and auth context
 export type AdminUser = {
@@ -31,20 +23,15 @@ interface AuthContextProps {
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-// Provider component that wraps app and provides auth context
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AdminUser | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  // Check if user is logged in
   const checkAuth = async (): Promise<boolean> => {
-    // Prevent duplicate API calls while already checking
-    if (isLoading) return !!user;
-    
     try {
       setIsLoading(true);
-      
-      // We'll handle 401 errors ourselves
       const response = await fetch('/api/admin/me', {
         credentials: 'include'
       });
@@ -54,11 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
       
-      if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
-      }
-      
-      const data = await response.json() as AuthResponse;
+      const data = await response.json();
       
       if (data.success && data.user) {
         setUser(data.user);
@@ -76,6 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Login function
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
@@ -87,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         credentials: 'include'
       });
       
-      const data = await response.json() as AuthResponse;
+      const data = await response.json();
       
       if (data.success && data.user) {
         setUser(data.user);
@@ -118,10 +102,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Logout function
   const logout = async (): Promise<void> => {
     try {
       setIsLoading(true);
-      
       await fetch('/api/admin/logout', {
         method: 'POST',
         credentials: 'include'
@@ -144,19 +128,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Check if user is logged in when the component mounts
+  // Check authentication on mount
   useEffect(() => {
-    // We need to call this only once when the component mounts
-    let isMounted = true;
-    if (isMounted) {
-      checkAuth().catch(console.error);
-    }
-    return () => { isMounted = false; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    checkAuth().catch(console.error);
   }, []);
 
-  // Provide the auth context values
-  const value: AuthContextProps = {
+  const value = {
     user,
     isLoading,
     isAuthenticated: !!user,
@@ -168,10 +145,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// Hook for consumers to get the auth context
+// Hook to use auth context
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
