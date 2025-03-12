@@ -25,6 +25,9 @@ import PoliciesPage from "@/pages/parent-info/Policies";
 // Admin pages
 import AdminLogin from "@/pages/admin/Login";
 import AdminDashboard from "@/pages/admin/Dashboard";
+import AdminEvents from "@/pages/admin/Events";
+import AdminGallery from "@/pages/admin/Gallery";
+import AdminNewsletters from "@/pages/admin/Newsletters";
 
 function Router() {
   return (
@@ -50,6 +53,14 @@ function Router() {
       {/* Admin routes */}
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
+      <Route path="/admin/events" component={AdminEvents} />
+      <Route path="/admin/gallery" component={AdminGallery} />
+      <Route path="/admin/newsletters" component={AdminNewsletters} />
+      
+      {/* Admin nursery-specific routes */}
+      <Route path="/admin/nurseries/:nurseryId/events" component={AdminEvents} />
+      <Route path="/admin/nurseries/:nurseryId/gallery" component={AdminGallery} />
+      <Route path="/admin/nurseries/:nurseryId/newsletters" component={AdminNewsletters} />
       
       <Route component={NotFound} />
     </Switch>
