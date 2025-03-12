@@ -161,7 +161,7 @@ export default function AdminNewsletters() {
         description: 'The newsletter has been created successfully.',
       });
       setIsAddNewsletterOpen(false);
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId}/newsletters`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId || 0}/newsletters`] });
       if (isSuperAdmin) {
         queryClient.invalidateQueries({ queryKey: ['/api/admin/newsletters'] });
       }
@@ -193,7 +193,7 @@ export default function AdminNewsletters() {
       });
       setIsEditNewsletterOpen(false);
       setSelectedNewsletter(null);
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId}/newsletters`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId || 0}/newsletters`] });
       if (isSuperAdmin) {
         queryClient.invalidateQueries({ queryKey: ['/api/admin/newsletters'] });
       }
@@ -217,7 +217,7 @@ export default function AdminNewsletters() {
         title: 'Newsletter Deleted',
         description: 'The newsletter has been deleted successfully.',
       });
-      queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId}/newsletters`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId || 0}/newsletters`] });
       if (isSuperAdmin) {
         queryClient.invalidateQueries({ queryKey: ['/api/admin/newsletters'] });
       }
