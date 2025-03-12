@@ -31,13 +31,24 @@ export default function ProtectedRoute({
       }
     };
 
+    // Only run once when component mounts
     verifyAuth();
-  }, [checkAuth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
+    // Use a timeout to prevent too many redirects at once
+    let redirectTimeout: NodeJS.Timeout;
+    
     if (!isLoading && !isChecking && !isAuthenticated) {
-      setLocation('/admin/login');
+      redirectTimeout = setTimeout(() => {
+        setLocation('/admin/login');
+      }, 100);
     }
+    
+    return () => {
+      if (redirectTimeout) clearTimeout(redirectTimeout);
+    };
   }, [isAuthenticated, isLoading, isChecking, setLocation]);
 
   // Check role access if a role is required

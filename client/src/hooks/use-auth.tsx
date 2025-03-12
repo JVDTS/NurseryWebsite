@@ -38,10 +38,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
   const checkAuth = async (): Promise<boolean> => {
+    // Prevent duplicate API calls while already checking
+    if (isLoading) return !!user;
+    
     try {
       setIsLoading(true);
-      const response = await apiRequest<AuthResponse>('GET', '/api/admin/me');
-      if (response.success && response.user) {
+      
+      // Use returnNull for 401 responses instead of throwing
+      const response = await apiRequest<AuthResponse>(
+        'GET', 
+        '/api/admin/me', 
+        undefined, 
+        { on401: 'returnNull' }
+      );
+      
+      if (response && response.success && response.user) {
         setUser(response.user);
         return true;
       } else {
@@ -118,7 +129,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Check if user is logged in when the component mounts
   useEffect(() => {
-    checkAuth().catch(console.error);
+    // We need to call this only once when the component mounts
+    let isMounted = true;
+    if (isMounted) {
+      checkAuth().catch(console.error);
+    }
+    return () => { isMounted = false; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Provide the auth context values
