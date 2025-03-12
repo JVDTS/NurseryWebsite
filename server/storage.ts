@@ -6,9 +6,14 @@ import {
   galleryImages, type GalleryImage, type InsertGalleryImage,
   newsletters, type Newsletter, type InsertNewsletter
 } from "@shared/schema";
+import session from "express-session";
+import createMemoryStore from "memorystore";
 
 // Storage interface for all CRUD operations
 export interface IStorage {
+  // Session store for authentication
+  sessionStore: session.SessionStore;
+  
   // User methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
