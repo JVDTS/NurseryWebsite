@@ -138,10 +138,12 @@ export default function AdminNewsletters() {
   }, [selectedNewsletter, isEditNewsletterOpen, editForm]);
 
   // Fetch newsletters based on user role
-  const { data: newsletters = [], isLoading } = useQuery<Newsletter[]>({
+  const { data, isLoading } = useQuery<{ newsletters: Newsletter[] }>({
     queryKey: isSuperAdmin ? ['/api/admin/newsletters'] : [`/api/admin/nurseries/${nurseryId}/newsletters`],
     enabled: !!user && (isSuperAdmin ? true : nurseryId > 0),
   });
+  
+  const newsletters = data?.newsletters || [];
 
   // Mutation for adding a new newsletter
   const addNewsletterMutation = useMutation({
