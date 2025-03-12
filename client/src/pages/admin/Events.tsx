@@ -159,9 +159,9 @@ export default function AdminEvents() {
   // Fetch events based on user role and selected nursery
   const { data: events = [], isLoading } = useQuery<Event[]>({
     queryKey: isSuperAdmin 
-      ? (isAllNurseries ? ['/api/admin/events'] : [`/api/admin/nurseries/${selectedNurseryId}/events`])
-      : [`/api/admin/nurseries/${nurseryId}/events`],
-    enabled: !!user,
+      ? (isAllNurseries ? ['/api/admin/events'] : [`/api/admin/nurseries/${selectedNurseryId || 0}/events`])
+      : [`/api/admin/nurseries/${nurseryId || 0}/events`],
+    enabled: !!user && (isSuperAdmin ? true : !!nurseryId),
   });
 
   // Mutation for adding a new event

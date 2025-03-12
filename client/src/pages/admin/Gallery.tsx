@@ -91,7 +91,7 @@ export default function AdminGallery() {
   // Fetch gallery images based on user role
   const { data: galleryImages = [], isLoading } = useQuery<GalleryImage[]>({
     queryKey: isSuperAdmin ? ['/api/admin/gallery'] : [`/api/admin/nurseries/${nurseryId}/gallery`],
-    enabled: !!user,
+    enabled: !!user && (isSuperAdmin ? true : nurseryId > 0),
   });
 
   // Mutation for adding a new gallery image
