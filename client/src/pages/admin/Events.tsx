@@ -157,12 +157,14 @@ export default function AdminEvents() {
   }, [selectedEvent, isEditEventOpen, editForm]);
 
   // Fetch events based on user role and selected nursery
-  const { data: events = [], isLoading } = useQuery<Event[]>({
+  const { data, isLoading } = useQuery<{ events: Event[] }>({
     queryKey: isSuperAdmin 
       ? (isAllNurseries ? ['/api/admin/events'] : [`/api/admin/nurseries/${selectedNurseryId || 0}/events`])
       : [`/api/admin/nurseries/${nurseryId || 0}/events`],
     enabled: !!user && (isSuperAdmin ? true : !!nurseryId),
   });
+  
+  const events = data?.events || [];
 
   // Mutation for adding a new event
   const addEventMutation = useMutation({
