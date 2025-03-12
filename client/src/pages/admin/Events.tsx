@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { apiRequest } from '@/lib/queryClient';
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { useNurserySelector, ALL_NURSERIES } from '@/hooks/use-nursery-selector';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import DashboardLayout from '@/components/admin/DashboardLayout';
 import { useForm } from 'react-hook-form';
@@ -93,12 +94,16 @@ type EventFormValues = z.infer<typeof eventFormSchema>;
 export default function AdminEvents() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { selectedNurseryId, isAllNurseries } = useNurserySelector();
   const [isAddEventOpen, setIsAddEventOpen] = useState(false);
   const [isEditEventOpen, setIsEditEventOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
-  // Get nurseryId for fetching events
-  const nurseryId = user?.nurseryId || 0;
+  // Get nurseryId for fetching events based on user role or selected nursery
+  const nurseryId = user?.role === 'super_admin' 
+    ? (selectedNurseryId === ALL_NURSERIES ? null : selectedNurseryId) 
+    : user?.nurseryId || 0;
+  
   const isSuperAdmin = user?.role === 'super_admin';
 
   // Create form for adding new events
@@ -151,9 +156,11 @@ export default function AdminEvents() {
     }
   }, [selectedEvent, isEditEventOpen, editForm]);
 
-  // Fetch events based on user role
+  // Fetch events based on user role and selected nursery
   const { data: events = [], isLoading } = useQuery<Event[]>({
-    queryKey: isSuperAdmin ? ['api/admin/events'] : [`/api/admin/nurseries/${nurseryId}/events`],
+    queryKey: isSuperAdmin 
+      ? (isAllNurseries ? ['api/admin/events'] : [`/api/admin/nurseries/${selectedNurseryId}/events`])
+      : [`/api/admin/nurseries/${nurseryId}/events`],
     enabled: !!user,
   });
 
@@ -163,10 +170,18 @@ export default function AdminEvents() {
       // Format the date to YYYY-MM-DD
       const formattedDate = format(data.date, 'yyyy-MM-dd');
       
-      return apiRequest('POST', `/api/admin/nurseries/${nurseryId}/events`, {
+      // For super admin, use the selected nursery ID
+      const targetNurseryId = isSuperAdmin ? selectedNurseryId : nurseryId;
+      
+      // Ensure we're not trying to add to "All Nurseries"
+      if (targetNurseryId === ALL_NURSERIES) {
+        throw new Error("Please select a specific nursery to add an event");
+      }
+      
+      return apiRequest('POST', `/api/admin/nurseries/${targetNurseryId}/events`, {
         ...data,
         date: formattedDate,
-        nurseryId: nurseryId,
+        nurseryId: targetNurseryId,
       });
     },
     onSuccess: () => {
@@ -286,16 +301,24 @@ export default function AdminEvents() {
             <div>
               <CardTitle>Upcoming Events</CardTitle>
               <CardDescription>
-                Manage events for {isSuperAdmin ? 'all nurseries' : 'your nursery'}
+                {isSuperAdmin 
+                  ? `Manage events for ${isAllNurseries 
+                      ? 'all nurseries' 
+                      : `${selectedNurseryId ? getNurseryName(selectedNurseryId) : 'Unknown'} nursery`}`
+                  : 'Manage events for your nursery'}
               </CardDescription>
             </div>
+            
+            {/* Add Event Button and Dialog */}
             <Dialog open={isAddEventOpen} onOpenChange={setIsAddEventOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Event
-                </Button>
-              </DialogTrigger>
+              {(!isSuperAdmin || (isSuperAdmin && !isAllNurseries)) && (
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Event
+                  </Button>
+                </DialogTrigger>
+              )}
               <DialogContent className="sm:max-w-[550px]">
                 <DialogHeader>
                   <DialogTitle>Create New Event</DialogTitle>
