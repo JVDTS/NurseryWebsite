@@ -1,61 +1,81 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth, AdminUser } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
+
+// Helper type to ensure type safety
+type UserRole = AdminUser['role'];
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  requiredRole?: 'super_admin' | 'nursery_admin' | 'staff' | 'regular';
+  requiredRole?: UserRole;
   nurseryId?: number;
 }
 
 export default function ProtectedRoute({ 
   children, 
-  requiredRole, 
+  requiredRole,
   nurseryId 
 }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { user, isAuthenticated, isLoading, checkAuth } = useAuth();
   const [, setLocation] = useLocation();
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      // Redirect to login if not authenticated
+    const verifyAuth = async () => {
+      try {
+        setIsChecking(true);
+        await checkAuth();
+      } finally {
+        setIsChecking(false);
+      }
+    };
+
+    verifyAuth();
+  }, [checkAuth]);
+
+  useEffect(() => {
+    if (!isLoading && !isChecking && !isAuthenticated) {
       setLocation('/admin/login');
     }
-    
-    if (!isLoading && isAuthenticated && user && requiredRole) {
-      // Check if user has required role
-      if (requiredRole === 'super_admin' && user.role !== 'super_admin') {
-        // Only super admins can access super admin routes
-        setLocation('/admin/dashboard');
-      } 
-      
-      if (requiredRole === 'nursery_admin' && 
-          user.role !== 'super_admin' && 
-          user.role !== 'nursery_admin') {
-        // Nursery admins and super admins can access nursery admin routes
-        setLocation('/admin/dashboard');
+  }, [isAuthenticated, isLoading, isChecking, setLocation]);
+
+  // Check role access if a role is required
+  useEffect(() => {
+    if (!isLoading && !isChecking && isAuthenticated && user && requiredRole) {
+      // For super_admin, allow access to everything
+      if (user.role === 'super_admin') return;
+
+      // For nursery_admin, check if they have the required role and are accessing their nursery
+      if (requiredRole === 'nursery_admin') {
+        if (user.role !== 'nursery_admin') {
+          setLocation('/admin/dashboard');
+        } else if (nurseryId && user.nurseryId !== nurseryId) {
+          // Nursery admin trying to access another nursery's data
+          setLocation('/admin/dashboard');
+        }
       }
-      
-      // Check if nursery admin is accessing their own nursery
-      if (nurseryId && user.role === 'nursery_admin' && user.nurseryId !== nurseryId) {
-        // Nursery admins can only access their own nursery
+
+      // For other roles, just check if they have the required role level
+      const roleHierarchy = ['regular', 'staff', 'nursery_admin', 'super_admin'];
+      const userRoleIndex = roleHierarchy.indexOf(user.role);
+      const requiredRoleIndex = roleHierarchy.indexOf(requiredRole);
+
+      if (userRoleIndex < requiredRoleIndex) {
         setLocation('/admin/dashboard');
       }
     }
-  }, [isLoading, isAuthenticated, user, requiredRole, nurseryId, setLocation]);
+  }, [isAuthenticated, isLoading, isChecking, user, requiredRole, nurseryId, setLocation]);
 
-  if (isLoading) {
+  if (isLoading || isChecking) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <Loader2 className="w-10 h-10 text-primary animate-spin" />
-        <p className="mt-4 text-lg">Loading...</p>
       </div>
     );
   }
 
   if (!isAuthenticated) {
-    // This will not be rendered as we redirect in the useEffect
     return null;
   }
 

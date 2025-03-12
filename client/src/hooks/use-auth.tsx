@@ -2,6 +2,13 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
+// Define types for API responses
+type AuthResponse = {
+  success: boolean;
+  user: AdminUser;
+  message?: string;
+};
+
 // Define types for user and auth context
 export type AdminUser = {
   id: number;
@@ -33,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const checkAuth = async (): Promise<boolean> => {
     try {
       setIsLoading(true);
-      const response = await apiRequest<{ success: boolean; user: AdminUser }>('GET', '/api/admin/me');
+      const response = await apiRequest<AuthResponse>('GET', '/api/admin/me');
       if (response.success && response.user) {
         setUser(response.user);
         return true;
@@ -53,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
       setIsLoading(true);
-      const response = await apiRequest<{ success: boolean; user: AdminUser; message: string }>(
+      const response = await apiRequest<AuthResponse>(
         'POST', 
         '/api/admin/login', 
         { username, password }
@@ -91,7 +98,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async (): Promise<void> => {
     try {
       setIsLoading(true);
-      await apiRequest('POST', '/api/admin/logout');
+      await apiRequest<{success: boolean}>('POST', '/api/admin/logout');
       setUser(null);
       toast({
         title: 'Logged Out',
