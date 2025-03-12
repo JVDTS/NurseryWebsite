@@ -90,7 +90,7 @@ export default function AdminGallery() {
 
   // Fetch gallery images based on user role
   const { data: galleryImages = [], isLoading } = useQuery<GalleryImage[]>({
-    queryKey: isSuperAdmin ? ['api/admin/gallery'] : [`/api/admin/nurseries/${nurseryId}/gallery`],
+    queryKey: isSuperAdmin ? ['/api/admin/gallery'] : [`/api/admin/nurseries/${nurseryId}/gallery`],
     enabled: !!user,
   });
 
@@ -111,7 +111,7 @@ export default function AdminGallery() {
       form.reset();
       queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId}/gallery`] });
       if (isSuperAdmin) {
-        queryClient.invalidateQueries({ queryKey: ['api/admin/gallery'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/gallery'] });
       }
     },
     onError: (error) => {
@@ -135,7 +135,7 @@ export default function AdminGallery() {
       });
       queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId}/gallery`] });
       if (isSuperAdmin) {
-        queryClient.invalidateQueries({ queryKey: ['api/admin/gallery'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/gallery'] });
       }
     },
     onError: (error) => {

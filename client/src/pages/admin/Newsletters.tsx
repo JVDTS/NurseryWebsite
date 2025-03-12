@@ -9,17 +9,13 @@ import DashboardLayout from '@/components/admin/DashboardLayout';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { CalendarIcon, FileText, Plus, Loader2, Pencil, Trash2, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
-import { 
-  Calendar as CalendarIcon, Pencil, Trash2, Plus, 
-  Loader2, Download, FileText 
-} from 'lucide-react';
 
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -36,7 +32,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -44,21 +39,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -70,8 +50,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
-// Types for the newsletters
+// Types for newsletters
 interface Newsletter {
   id: number;
   title: string;
@@ -84,9 +70,11 @@ interface Newsletter {
 // Define the validation schema for newsletter form
 const newsletterFormSchema = z.object({
   title: z.string().min(3, { message: 'Title must be at least 3 characters' }),
-  description: z.string().min(10, { message: 'Description must be at least 10 characters' }),
-  fileUrl: z.string().url({ message: 'Please enter a valid URL for the PDF file' }),
-  publishDate: z.date({ required_error: 'Please select a publish date' }),
+  description: z.string().min(5, { message: 'Description must be at least 5 characters' }),
+  fileUrl: z.string().url({ message: 'Please enter a valid URL for the file' }),
+  publishDate: z.date({
+    required_error: "Please select a date",
+  }),
 });
 
 type NewsletterFormValues = z.infer<typeof newsletterFormSchema>;
@@ -151,7 +139,7 @@ export default function AdminNewsletters() {
 
   // Fetch newsletters based on user role
   const { data: newsletters = [], isLoading } = useQuery<Newsletter[]>({
-    queryKey: isSuperAdmin ? ['api/admin/newsletters'] : [`/api/admin/nurseries/${nurseryId}/newsletters`],
+    queryKey: isSuperAdmin ? ['/api/admin/newsletters'] : [`/api/admin/nurseries/${nurseryId}/newsletters`],
     enabled: !!user,
   });
 
@@ -175,7 +163,7 @@ export default function AdminNewsletters() {
       setIsAddNewsletterOpen(false);
       queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId}/newsletters`] });
       if (isSuperAdmin) {
-        queryClient.invalidateQueries({ queryKey: ['api/admin/newsletters'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/newsletters'] });
       }
     },
     onError: (error) => {
@@ -207,7 +195,7 @@ export default function AdminNewsletters() {
       setSelectedNewsletter(null);
       queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId}/newsletters`] });
       if (isSuperAdmin) {
-        queryClient.invalidateQueries({ queryKey: ['api/admin/newsletters'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/newsletters'] });
       }
     },
     onError: (error) => {
@@ -231,7 +219,7 @@ export default function AdminNewsletters() {
       });
       queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId}/newsletters`] });
       if (isSuperAdmin) {
-        queryClient.invalidateQueries({ queryKey: ['api/admin/newsletters'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/newsletters'] });
       }
     },
     onError: (error) => {
@@ -251,7 +239,10 @@ export default function AdminNewsletters() {
   // Handle form submission for editing a newsletter
   const onEditSubmit = (data: NewsletterFormValues) => {
     if (selectedNewsletter) {
-      updateNewsletterMutation.mutate({ ...data, id: selectedNewsletter.id });
+      updateNewsletterMutation.mutate({
+        ...data,
+        id: selectedNewsletter.id,
+      });
     }
   };
 
@@ -264,15 +255,6 @@ export default function AdminNewsletters() {
   // Function to handle delete button click
   const handleDeleteNewsletter = (id: number) => {
     deleteNewsletterMutation.mutate(id);
-  };
-
-  // Format date for display
-  const formatDate = (dateString: string) => {
-    const [year, month, day] = dateString.split('-').map(Number);
-    return new Date(year, month - 1, day).toLocaleDateString('en-UK', {
-      month: 'long',
-      year: 'numeric',
-    });
   };
 
   return (
@@ -295,9 +277,9 @@ export default function AdminNewsletters() {
               </DialogTrigger>
               <DialogContent className="sm:max-w-[550px]">
                 <DialogHeader>
-                  <DialogTitle>Create New Newsletter</DialogTitle>
+                  <DialogTitle>Add Newsletter</DialogTitle>
                   <DialogDescription>
-                    Add a new newsletter for parents.
+                    Add a new newsletter to share with parents.
                   </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -318,6 +300,41 @@ export default function AdminNewsletters() {
                     
                     <FormField
                       control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Description</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Brief description of the newsletter content"
+                              className="min-h-[80px]"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="fileUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>File URL</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="https://example.com/newsletter.pdf" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
                       name="publishDate"
                       render={({ field }) => (
                         <FormItem className="flex flex-col">
@@ -326,9 +343,9 @@ export default function AdminNewsletters() {
                             <PopoverTrigger asChild>
                               <FormControl>
                                 <Button
-                                  variant="outline"
+                                  variant={"outline"}
                                   className={`w-full pl-3 text-left font-normal ${
-                                    !field.value && "text-muted-foreground"
+                                    !field.value ? "text-muted-foreground" : ""
                                   }`}
                                 >
                                   {field.value ? (
@@ -341,7 +358,7 @@ export default function AdminNewsletters() {
                               </FormControl>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar
+                              <CalendarComponent
                                 mode="single"
                                 selected={field.value}
                                 onSelect={field.onChange}
@@ -354,53 +371,15 @@ export default function AdminNewsletters() {
                       )}
                     />
                     
-                    <FormField
-                      control={form.control}
-                      name="fileUrl"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>PDF URL</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="https://example.com/newsletter.pdf" 
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormDescription>
-                            Link to the PDF file of the newsletter
-                          </FormDescription>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Description</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Brief description of the newsletter contents"
-                              className="min-h-[100px]"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
                     <DialogFooter>
                       <Button type="submit" disabled={addNewsletterMutation.isPending}>
                         {addNewsletterMutation.isPending ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Creating...
+                            Adding...
                           </>
                         ) : (
-                          'Create Newsletter'
+                          'Add Newsletter'
                         )}
                       </Button>
                     </DialogFooter>
@@ -419,46 +398,31 @@ export default function AdminNewsletters() {
                 No newsletters found. Click "Add Newsletter" to create one.
               </div>
             ) : (
-              <Table>
-                <TableCaption>List of newsletters</TableCaption>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Description</TableHead>
-                    {isSuperAdmin && <TableHead>Nursery</TableHead>}
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {newsletters.map((newsletter: Newsletter) => (
-                    <TableRow key={newsletter.id}>
-                      <TableCell className="font-medium">{newsletter.title}</TableCell>
-                      <TableCell>{formatDate(newsletter.publishDate)}</TableCell>
-                      <TableCell className="max-w-xs truncate">{newsletter.description}</TableCell>
-                      {isSuperAdmin && <TableCell>{getNurseryName(newsletter.nurseryId)}</TableCell>}
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
+              <div className="space-y-4">
+                {newsletters.map((newsletter: Newsletter) => (
+                  <Card key={newsletter.id}>
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-lg">{newsletter.title}</CardTitle>
+                          {isSuperAdmin && (
+                            <CardDescription>
+                              {getNurseryName(newsletter.nurseryId)} Nursery
+                            </CardDescription>
+                          )}
+                        </div>
+                        <div className="flex space-x-2">
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => window.open(newsletter.fileUrl, '_blank')}
-                            title="Download Newsletter"
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
+                            variant="outline"
                             size="icon"
                             onClick={() => handleEditNewsletter(newsletter)}
-                            title="Edit Newsletter"
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" title="Delete Newsletter">
-                                <Trash2 className="h-4 w-4 text-destructive" />
+                              <Button variant="destructive" size="icon">
+                                <Trash2 className="h-4 w-4" />
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
@@ -480,11 +444,28 @@ export default function AdminNewsletters() {
                             </AlertDialogContent>
                           </AlertDialog>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-col md:flex-row md:items-center justify-between">
+                        <p className="text-muted-foreground mb-2 md:mb-0">{newsletter.description}</p>
+                        <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <Calendar className="mr-2 h-4 w-4" />
+                            {format(new Date(newsletter.publishDate), 'PPP')}
+                          </div>
+                          <Button size="sm" variant="outline" asChild>
+                            <a href={newsletter.fileUrl} target="_blank" rel="noopener noreferrer">
+                              <FileText className="mr-2 h-4 w-4" />
+                              View PDF
+                            </a>
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             )}
           </CardContent>
         </Card>
@@ -495,7 +476,7 @@ export default function AdminNewsletters() {
             <DialogHeader>
               <DialogTitle>Edit Newsletter</DialogTitle>
               <DialogDescription>
-                Update the details for this newsletter.
+                Update the newsletter information.
               </DialogDescription>
             </DialogHeader>
             <Form {...editForm}>
@@ -507,7 +488,38 @@ export default function AdminNewsletters() {
                     <FormItem>
                       <FormLabel>Title</FormLabel>
                       <FormControl>
-                        <Input placeholder="Newsletter title" {...field} />
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={editForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          className="min-h-[80px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={editForm.control}
+                  name="fileUrl"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>File URL</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -524,9 +536,9 @@ export default function AdminNewsletters() {
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
-                              variant="outline"
+                              variant={"outline"}
                               className={`w-full pl-3 text-left font-normal ${
-                                !field.value && "text-muted-foreground"
+                                !field.value ? "text-muted-foreground" : ""
                               }`}
                             >
                               {field.value ? (
@@ -539,7 +551,7 @@ export default function AdminNewsletters() {
                           </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
+                          <CalendarComponent
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
@@ -547,44 +559,6 @@ export default function AdminNewsletters() {
                           />
                         </PopoverContent>
                       </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={editForm.control}
-                  name="fileUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>PDF URL</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="https://example.com/newsletter.pdf" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Link to the PDF file of the newsletter
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={editForm.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Brief description of the newsletter contents"
-                          className="min-h-[100px]"
-                          {...field}
-                        />
-                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
