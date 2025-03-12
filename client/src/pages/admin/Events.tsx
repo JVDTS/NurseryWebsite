@@ -159,7 +159,7 @@ export default function AdminEvents() {
   // Fetch events based on user role and selected nursery
   const { data: events = [], isLoading } = useQuery<Event[]>({
     queryKey: isSuperAdmin 
-      ? (isAllNurseries ? ['api/admin/events'] : [`/api/admin/nurseries/${selectedNurseryId}/events`])
+      ? (isAllNurseries ? ['/api/admin/events'] : [`/api/admin/nurseries/${selectedNurseryId}/events`])
       : [`/api/admin/nurseries/${nurseryId}/events`],
     enabled: !!user,
   });
@@ -192,7 +192,7 @@ export default function AdminEvents() {
       setIsAddEventOpen(false);
       queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId}/events`] });
       if (isSuperAdmin) {
-        queryClient.invalidateQueries({ queryKey: ['api/admin/events'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/events'] });
       }
     },
     onError: (error) => {
@@ -224,7 +224,7 @@ export default function AdminEvents() {
       setSelectedEvent(null);
       queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId}/events`] });
       if (isSuperAdmin) {
-        queryClient.invalidateQueries({ queryKey: ['api/admin/events'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/events'] });
       }
     },
     onError: (error) => {
@@ -248,7 +248,7 @@ export default function AdminEvents() {
       });
       queryClient.invalidateQueries({ queryKey: [`/api/admin/nurseries/${nurseryId}/events`] });
       if (isSuperAdmin) {
-        queryClient.invalidateQueries({ queryKey: ['api/admin/events'] });
+        queryClient.invalidateQueries({ queryKey: ['/api/admin/events'] });
       }
     },
     onError: (error) => {

@@ -240,6 +240,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // ===== EVENT MANAGEMENT ROUTES =====
   
+  // Get all events (super admin only)
+  app.get("/api/admin/events", superAdminOnly, async (req: Request, res: Response) => {
+    try {
+      const events = await storage.getAllEvents();
+      
+      res.status(200).json({
+        success: true,
+        events
+      });
+      
+    } catch (error) {
+      console.error("Error fetching all events:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch all events"
+      });
+    }
+  });
+  
   // Get events for a nursery
   app.get("/api/admin/nurseries/:nurseryId/events", nurseryAdminOnly, nurseryAccessCheck("nurseryId"), async (req: Request, res: Response) => {
     try {
@@ -410,6 +429,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // ===== GALLERY MANAGEMENT ROUTES =====
   
+  // Get all gallery images (super admin only)
+  app.get("/api/admin/gallery", superAdminOnly, async (req: Request, res: Response) => {
+    try {
+      // This route would need to be implemented in storage
+      // For now, we can use a workaround by fetching all galleries and combining them
+      const nurseries = await storage.getAllNurseries();
+      
+      // Get gallery images for each nursery and combine them
+      const allGalleryPromises = nurseries.map(nursery => 
+        storage.getGalleryImagesByNursery(nursery.id)
+      );
+      
+      const allGalleryArrays = await Promise.all(allGalleryPromises);
+      const allGalleryImages = allGalleryArrays.flat();
+      
+      res.status(200).json({
+        success: true,
+        images: allGalleryImages
+      });
+      
+    } catch (error) {
+      console.error("Error fetching all gallery images:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch all gallery images"
+      });
+    }
+  });
+  
   // Get gallery images for a nursery
   app.get("/api/admin/nurseries/:nurseryId/gallery", nurseryAdminOnly, nurseryAccessCheck("nurseryId"), async (req: Request, res: Response) => {
     try {
@@ -513,6 +561,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // ===== NEWSLETTER MANAGEMENT ROUTES =====
+  
+  // Get all newsletters (super admin only)
+  app.get("/api/admin/newsletters", superAdminOnly, async (req: Request, res: Response) => {
+    try {
+      const newsletters = await storage.getAllNewsletters();
+      
+      res.status(200).json({
+        success: true,
+        newsletters
+      });
+      
+    } catch (error) {
+      console.error("Error fetching all newsletters:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch all newsletters"
+      });
+    }
+  });
   
   // Get newsletters for a nursery
   app.get("/api/admin/nurseries/:nurseryId/newsletters", nurseryAdminOnly, nurseryAccessCheck("nurseryId"), async (req: Request, res: Response) => {
