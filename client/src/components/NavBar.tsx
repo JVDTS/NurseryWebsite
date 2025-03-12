@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "wouter";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { LoginWithReplit } from "./LoginWithReplit";
 
 export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -192,9 +191,7 @@ export default function NavBar() {
               Contact Us
             </a>
             
-            <div className="ml-2">
-              <LoginWithReplit />
-            </div>
+
           </div>
           
           <button 
@@ -319,9 +316,7 @@ export default function NavBar() {
                   Contact Us
                 </a>
                 
-                <div className="py-2 px-4">
-                  <LoginWithReplit />
-                </div>
+
               </div>
             </motion.div>
           )}
