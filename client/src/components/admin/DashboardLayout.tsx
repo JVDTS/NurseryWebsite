@@ -268,7 +268,10 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
         <main className="flex-1">
           <div className="py-6">
             <div className="px-4 mx-auto max-w-7xl sm:px-6 md:px-8">
-              <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
+                {user?.role === 'super_admin' && <NurserySelector />}
+              </div>
             </div>
             <div className="px-4 mx-auto mt-4 max-w-7xl sm:px-6 md:px-8">
               {children}

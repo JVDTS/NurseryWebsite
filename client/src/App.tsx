@@ -67,14 +67,18 @@ function Router() {
   );
 }
 
+import { NurserySelectorProvider } from '@/hooks/use-nursery-selector';
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <div className="min-h-screen">
-          <Router />
-          <Toaster />
-        </div>
+        <NurserySelectorProvider>
+          <div className="min-h-screen">
+            <Router />
+            <Toaster />
+          </div>
+        </NurserySelectorProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
