@@ -89,7 +89,7 @@ export default function NavBar() {
             <span className="ml-3 font-heading font-bold text-lg text-primary">Coat of Many Colours</span>
           </Link>
           
-          <div className="hidden md:flex space-x-6 items-center">
+          <div className="hidden md:flex space-x-10 items-center">
             {navLinks.map(link => (
               <Link 
                 key={link.href}
@@ -186,7 +186,7 @@ export default function NavBar() {
             
             <a 
               href="#contact" 
-              className="ml-2 px-5 py-2 bg-primary hover:bg-opacity-90 text-white font-heading font-semibold rounded-full transition-all shadow-md hover:shadow-lg"
+              className="ml-4 px-5 py-2 bg-primary hover:bg-opacity-90 text-white font-heading font-semibold rounded-full transition-all shadow-md hover:shadow-lg"
             >
               Contact Us
             </a>
