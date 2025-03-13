@@ -6,33 +6,28 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// API request logger middleware
 app.use((req, res, next) => {
+  // Only log API requests
+  if (!req.path.startsWith("/api")) {
+    return next();
+  }
+  
   const start = Date.now();
-  const path = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
-    capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
-  };
-
+  
+  // Use the finish event without modifying core methods
   res.on("finish", () => {
     const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
-      let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-      if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-      }
-
-      if (logLine.length > 80) {
-        logLine = logLine.slice(0, 79) + "…";
-      }
-
-      log(logLine);
+    let logLine = `${req.method} ${req.path} ${res.statusCode} in ${duration}ms`;
+    
+    // Truncate log line if too long
+    if (logLine.length > 80) {
+      logLine = logLine.slice(0, 79) + "…";
     }
+    
+    log(logLine);
   });
-
+  
   next();
 });
 
@@ -43,8 +38,14 @@ app.use((req, res, next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
-    res.status(status).json({ message });
-    throw err;
+    // Log the error for server-side debugging
+    console.error(`[ERROR] ${status}: ${message}`, err);
+    
+    // Return a clean response to the client without throwing
+    res.status(status).json({ 
+      success: false,
+      message: message
+    });
   });
 
   // importantly only setup vite in development and after
