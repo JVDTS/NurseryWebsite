@@ -72,7 +72,7 @@ export class MemStorage implements IStorage {
   private contactCurrentId: number;
   
   // Add session store for authentication
-  public sessionStore: session.SessionStore;
+  public sessionStore: any; // Using any type to avoid express-session typing issues
 
   constructor() {
     this.users = new Map();
