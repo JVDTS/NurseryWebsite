@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "wouter";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import ReplitLoginButton from "./ReplitLoginButton";
 
 export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -191,6 +192,9 @@ export default function NavBar() {
               Get In Touch
             </a>
             
+            <div className="ml-4">
+              <ReplitLoginButton />
+            </div>
 
           </div>
           
@@ -316,6 +320,9 @@ export default function NavBar() {
                   Get In Touch
                 </a>
                 
+                <div className="py-2 px-4">
+                  <ReplitLoginButton />
+                </div>
 
               </div>
             </motion.div>
