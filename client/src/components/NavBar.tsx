@@ -79,9 +79,9 @@ export default function NavBar() {
   ];
 
   return (
-    <header className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'py-2 bg-white/90 backdrop-blur-sm shadow-md' : 'py-4 bg-white/70 backdrop-blur-sm'}`}>
-      <div className="container mx-auto px-4">
-        <nav className="flex justify-between items-center">
+    <header className={`fixed w-full z-50 transition-all duration-300 px-4 ${isScrolled ? 'py-2' : 'py-4'}`}>
+      <div className="container mx-auto">
+        <nav className="flex justify-between items-center rounded-full px-6 py-3 bg-yellow-100/90 backdrop-blur-sm shadow-md">
           <Link href="/" className="flex items-center">
             <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
               <span className="text-white font-heading font-bold text-xl">CMC</span>
@@ -94,7 +94,7 @@ export default function NavBar() {
               <Link 
                 key={link.href}
                 href={link.href} 
-                className="font-heading font-semibold text-foreground hover:text-primary transition-colors"
+                className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors"
               >
                 {link.label}
               </Link>
@@ -104,7 +104,7 @@ export default function NavBar() {
             <div className="relative" ref={nurseriesRef}>
               <button 
                 onClick={toggleNurseriesDropdown}
-                className="font-heading font-semibold text-foreground hover:text-primary transition-colors flex items-center"
+                className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors flex items-center"
               >
                 Our Nurseries
                 <ChevronDown className={`ml-1 h-4 w-4 transition-transform ${showNurseriesDropdown ? 'rotate-180' : ''}`} />
@@ -146,7 +146,7 @@ export default function NavBar() {
             <div className="relative" ref={parentInfoRef}>
               <button 
                 onClick={toggleParentInfoDropdown}
-                className="font-heading font-semibold text-foreground hover:text-primary transition-colors flex items-center"
+                className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors flex items-center"
               >
                 Parent Info
                 <ChevronDown className={`ml-1 h-4 w-4 transition-transform ${showParentInfoDropdown ? 'rotate-180' : ''}`} />
@@ -179,16 +179,16 @@ export default function NavBar() {
             {/* Newsletters link */}
             <a 
               href="#newsletters" 
-              className="font-heading font-semibold text-foreground hover:text-primary transition-colors"
+              className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors"
             >
               Newsletters
             </a>
             
             <a 
               href="#contact" 
-              className="ml-4 px-5 py-2 bg-primary hover:bg-opacity-90 text-white font-heading font-semibold rounded-full transition-all shadow-md hover:shadow-lg"
+              className="ml-4 px-5 py-2 border-b border-orange-500 text-gray-800 font-heading font-semibold transition-all hover:border-gray-800"
             >
-              Contact Us
+              Get In Touch
             </a>
             
 
@@ -210,9 +210,9 @@ export default function NavBar() {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="md:hidden overflow-hidden"
+              className="md:hidden overflow-hidden mt-4"
             >
-              <div className="flex flex-col space-y-4 py-4">
+              <div className="flex flex-col space-y-4 py-4 px-6 bg-yellow-100/90 backdrop-blur-sm rounded-2xl shadow-md">
                 {navLinks.map(link => (
                   <Link
                     key={link.href}
@@ -310,10 +310,10 @@ export default function NavBar() {
                 
                 <a
                   href="#contact"
-                  className="font-heading font-semibold py-2 px-4 bg-primary text-white rounded-md text-center"
+                  className="font-heading font-semibold py-2 px-4 border-b border-orange-500 text-gray-800 text-center"
                   onClick={closeMenu}
                 >
-                  Contact Us
+                  Get In Touch
                 </a>
                 
 
