@@ -81,7 +81,7 @@ export default function NavBar() {
   return (
     <header className={`fixed w-full z-50 transition-all duration-300 px-4 ${isScrolled ? 'py-2' : 'py-4'}`}>
       <div className="container mx-auto">
-        <nav className="flex justify-between items-center rounded-full px-6 py-3 bg-yellow-100/90 backdrop-blur-sm shadow-md">
+        <nav className="flex justify-between items-center rounded-full px-6 py-3 bg-white/90 backdrop-blur-sm shadow-md">
           <Link href="/" className="flex items-center">
             <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
               <span className="text-white font-heading font-bold text-xl">CMC</span>
@@ -212,7 +212,7 @@ export default function NavBar() {
               transition={{ duration: 0.3 }}
               className="md:hidden overflow-hidden mt-4"
             >
-              <div className="flex flex-col space-y-4 py-4 px-6 bg-yellow-100/90 backdrop-blur-sm rounded-2xl shadow-md">
+              <div className="flex flex-col space-y-4 py-4 px-6 bg-white/90 backdrop-blur-sm rounded-2xl shadow-md">
                 {navLinks.map(link => (
                   <Link
                     key={link.href}
