@@ -322,7 +322,13 @@ export default function NavBar() {
                 </a>
                 
                 <div className="py-2 px-4">
-                  <ReplitLoginButton />
+                  <Link 
+                    href="/admin/login" 
+                    className="block w-full py-2 bg-primary text-white rounded-md text-center hover:bg-primary/90 transition-colors font-heading font-semibold text-sm"
+                    onClick={closeMenu}
+                  >
+                    Admin Login
+                  </Link>
                 </div>
 
               </div>

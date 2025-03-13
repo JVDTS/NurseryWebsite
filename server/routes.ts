@@ -6,7 +6,6 @@ import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import session from "express-session";
 import MemoryStore from "memorystore";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 
 // Define custom session properties
 declare module 'express-session' {
@@ -105,13 +104,22 @@ const nurseryAccessCheck = (nurseryIdParam: string) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Set up Replit Auth (this will also set up session)
-  await setupAuth(app);
+  // Set up session
+  const SessionStore = MemoryStore(session);
+  const sessionSettings: session.SessionOptions = {
+    secret: process.env.SESSION_SECRET || 'nursery-app-secret',
+    resave: false,
+    saveUninitialized: false,
+    store: new SessionStore({
+      checkPeriod: 86400000 // 24 hours
+    })
+  };
   
-  // Auth routes for Replit OpenID Connect
-  app.get('/api/auth/user', (req: any, res) => {
-    res.json(req.session?.passport?.user || null);
-  });
+  app.set("trust proxy", 1);
+  app.use(session(sessionSettings));
+  
+  // Set up session store for storage
+  storage.sessionStore = sessionSettings.store;
   
   // Auth login schema
   const loginSchema = z.object({
