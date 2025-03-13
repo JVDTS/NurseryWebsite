@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth, ReplitUser } from '../hooks/useAuth';
 import { Button } from './ui/button';
 import { SiReplit } from 'react-icons/si';
 
@@ -15,12 +15,13 @@ export default function ReplitLoginButton() {
   }
 
   if (isAuthenticated) {
+    const replitUser = user as ReplitUser;
     return (
       <a href="/api/logout" className="no-underline">
         <Button variant="outline" size="sm">
           <span className="mr-2">Logout</span>
-          {user?.username && (
-            <span className="font-semibold">{user.username}</span>
+          {replitUser?.username && (
+            <span className="font-semibold">{replitUser.username}</span>
           )}
         </Button>
       </a>
