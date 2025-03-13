@@ -1,42 +1,35 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import { useState, useEffect } from "react";
 import Cloud from "@/assets/illustrations/Cloud";
-import { fadeIn, fadeLeft, fadeUp } from "@/lib/animations";
+import { fadeLeft, fadeUp } from "@/lib/animations";
 
 export default function HeroSection() {
   const [ref, inView] = useInView({
     triggerOnce: false,
     threshold: 0.1,
   });
-  
-  const [currentImage, setCurrentImage] = useState(0);
-  const images = [
-    {
-      src: "https://images.unsplash.com/photo-1526634332515-d56c5fd16991?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      alt: "Happy children playing at nursery"
-    },
-    {
-      src: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      alt: "Children engaged in creative activities"
-    },
-    {
-      src: "https://images.unsplash.com/photo-1555791019-72d3af01da82?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-      alt: "Children learning and exploring together"
-    }
-  ];
-  
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentImage(current => (current + 1) % images.length);
-    }, 5000);
-    
-    return () => clearInterval(timer);
-  }, [images.length]);
 
   return (
     <section id="home" className="pt-24 pb-16 min-h-screen flex flex-col justify-center relative overflow-hidden">
-      <div className="container mx-auto px-4 relative z-10">
+      {/* Gradient Background (used until video is available) */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-purple-800/80 to-primary/70 z-10"></div>
+        {/* When video file is available, uncomment this: */}
+        {/* 
+        <video 
+          autoPlay 
+          muted 
+          loop 
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/videos/nursery-background.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        */}
+      </div>
+      
+      <div className="container mx-auto px-4 relative z-20">
         <div className="flex flex-col md:flex-row items-center">
           <motion.div 
             className="md:w-7/12 mb-10 md:mb-0"
@@ -45,10 +38,10 @@ export default function HeroSection() {
             animate={inView ? "visible" : "hidden"}
             variants={fadeUp}
           >
-            <h1 className="font-heading font-bold text-5xl md:text-7xl mb-6 leading-tight text-foreground">
-              Welcome to <span className="text-primary block mt-2">Coat of Many Colours Nursery</span>
+            <h1 className="font-heading font-bold text-5xl md:text-7xl mb-6 leading-tight text-white">
+              Welcome to <span className="text-primary block mt-2 text-white">Coat of Many Colours Nursery</span>
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 mb-8">
+            <p className="text-lg md:text-xl text-white mb-8">
               A vibrant place for children to learn, explore, and grow in a nurturing environment.
             </p>
             <div className="flex flex-wrap gap-4">
@@ -62,7 +55,7 @@ export default function HeroSection() {
               </motion.a>
               <motion.a 
                 href="#contact" 
-                className="px-8 py-3 bg-white border-2 border-primary text-primary font-heading font-semibold rounded-full shadow-md hover:shadow-lg transition-all hover:-translate-y-1"
+                className="px-8 py-3 bg-white border-2 border-white text-primary font-heading font-semibold rounded-full shadow-md hover:shadow-lg transition-all hover:-translate-y-1"
                 whileHover={{ y: -5, boxShadow: "0 10px 25px rgba(0, 0, 0, 0.15)" }}
                 whileTap={{ y: 0 }}
               >
@@ -79,23 +72,18 @@ export default function HeroSection() {
             variants={fadeLeft}
           >
             <div className="relative">
-              <div className="w-full h-80 md:h-[450px] rounded-2xl overflow-hidden shadow-xl">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentImage}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 1 }}
-                    className="absolute inset-0"
-                  >
-                    <img 
-                      src={images[currentImage].src}
-                      alt={images[currentImage].alt}
-                      className="w-full h-full object-cover"
-                    />
-                  </motion.div>
-                </AnimatePresence>
+              <div className="w-full h-80 md:h-[450px] rounded-2xl overflow-hidden shadow-xl bg-white bg-opacity-20 backdrop-blur-sm">
+                <motion.div
+                  className="w-full h-full flex items-center justify-center p-6"
+                >
+                  <div className="text-center text-white">
+                    <h2 className="text-3xl font-heading font-bold mb-4">Where Children Flourish</h2>
+                    <p className="text-lg">
+                      Our dedicated staff create a safe, stimulating environment 
+                      where every child's unique talents and abilities can thrive.
+                    </p>
+                  </div>
+                </motion.div>
               </div>
               
               {/* Decorative elements */}
@@ -115,21 +103,17 @@ export default function HeroSection() {
             <Cloud 
               className="absolute top-10 left-0 transform -translate-x-1/2 animate-float"
               text="Learning through play!"
-              textColor="text-primary"
+              textColor="text-white"
             />
             <Cloud 
               className="absolute bottom-20 right-0 transform translate-x-1/4 animate-float"
               text="Discover, create, grow!"
-              textColor="text-secondary"
+              textColor="text-white"
               delay={2}
             />
           </motion.div>
         </div>
       </div>
-      
-      {/* Background decorative elements */}
-      <div className="absolute top-40 left-10 w-40 h-40 bg-primary opacity-5 rounded-full" />
-      <div className="absolute bottom-20 right-10 w-60 h-60 bg-secondary opacity-5 rounded-full" />
     </section>
   );
 }
