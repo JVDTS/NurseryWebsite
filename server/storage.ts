@@ -72,7 +72,7 @@ export class MemStorage implements IStorage {
   private contactCurrentId: number;
   
   // Add session store for authentication
-  public sessionStore: any;
+  public sessionStore: session.SessionStore;
 
   constructor() {
     this.users = new Map();
