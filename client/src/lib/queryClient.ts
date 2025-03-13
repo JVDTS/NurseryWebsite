@@ -1,9 +1,26 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+/**
+ * Handles API response errors with user-friendly messages
+ * without exposing sensitive data
+ */
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    let errorMessage: string;
+    
+    try {
+      // Try to parse as JSON first
+      const errorData = await res.json();
+      errorMessage = errorData.message || 'An unexpected error occurred';
+    } catch (e) {
+      // If not JSON, use status text or a generic message
+      errorMessage = res.statusText || 'An unexpected error occurred';
+    }
+    
+    // Create an error with appropriate status code and sanitized message
+    const error = new Error(errorMessage);
+    (error as any).status = res.status;
+    throw error;
   }
 }
 
