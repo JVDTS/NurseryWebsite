@@ -11,11 +11,9 @@ export default function HeroSection() {
 
   return (
     <section id="home" className="pt-24 pb-16 min-h-screen flex flex-col justify-center relative overflow-hidden">
-      {/* Gradient Background (used until video is available) */}
+      {/* Video Background */}
       <div className="absolute inset-0 w-full h-full overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-purple-800/80 to-primary/70 z-10"></div>
-        {/* When video file is available, uncomment this: */}
-        {/* 
+        <div className="absolute inset-0 bg-black bg-opacity-40 z-10"></div>
         <video 
           autoPlay 
           muted 
@@ -26,7 +24,6 @@ export default function HeroSection() {
           <source src="/videos/nursery-background.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        */}
       </div>
       
       <div className="container mx-auto px-4 relative z-20">
