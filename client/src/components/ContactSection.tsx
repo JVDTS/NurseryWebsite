@@ -10,8 +10,16 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
+  FormMessage,
+  FormDescription
 } from "@/components/ui/form";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue 
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -90,6 +98,7 @@ export default function ContactSection() {
       name: "",
       email: "",
       phone: "",
+      nurseryLocation: undefined,
       message: ""
     }
   });
@@ -192,6 +201,35 @@ export default function ContactSection() {
                             className="px-4 py-3 focus:ring-primary"
                           />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="nurseryLocation"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-heading font-medium">Nursery Location</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full px-4 py-3 focus:ring-primary">
+                              <SelectValue placeholder="Select a nursery location" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="hayes">Hayes</SelectItem>
+                            <SelectItem value="uxbridge">Uxbridge</SelectItem>
+                            <SelectItem value="hounslow">Hounslow</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          Please select the nursery location you're interested in
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
