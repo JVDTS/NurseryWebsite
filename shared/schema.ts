@@ -115,6 +115,9 @@ export const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
   phone: z.string().optional(),
+  nurseryLocation: z.enum(['hayes', 'uxbridge', 'hounslow'], { 
+    required_error: "Please select a nursery location" 
+  }),
   message: z.string().min(10, { message: "Message must be at least 10 characters" })
 });
 
@@ -123,6 +126,7 @@ export const contactSubmissions = pgTable("contact_submissions", {
   name: text("name").notNull(),
   email: text("email").notNull(),
   phone: text("phone"),
+  nurseryLocation: text("nursery_location").notNull(),
   message: text("message").notNull(),
   createdAt: text("created_at").notNull()
 });
