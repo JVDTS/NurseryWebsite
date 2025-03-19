@@ -81,18 +81,28 @@ export default function NavBar() {
   ];
 
   return (
-    <header className={`fixed w-full z-50 transition-all duration-300 px-2 sm:px-4 ${isScrolled ? 'py-1 sm:py-2' : 'py-2 sm:py-4'}`}>
+    <header className={`fixed w-full z-50 transition-all duration-300 px-1 sm:px-4 ${isScrolled ? 'py-1' : 'py-1 sm:py-2'}`}>
       <div className="max-w-[90rem] mx-auto">
-        <nav className="flex justify-between items-center rounded-full px-3 sm:px-6 py-2 sm:py-3 bg-white/90 backdrop-blur-sm shadow-md">
-          <Link href="/" className="flex items-center">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-primary rounded-full flex items-center justify-center shrink-0">
-              <span className="text-white font-heading font-bold text-sm sm:text-base md:text-xl">CMC</span>
-            </div>
-            <span className="ml-2 md:ml-3 font-heading font-bold text-xs sm:text-sm md:text-lg text-primary truncate max-w-[130px] sm:max-w-full">
-              <span className={isMobile ? "inline" : "hidden"}>CMC Nursery</span>
-              <span className={!isMobile ? "inline" : "hidden"}>Coat of Many Colours</span>
-            </span>
-          </Link>
+        <nav className="flex justify-between items-center rounded-full px-2 sm:px-6 py-1 sm:py-2 bg-white/90 backdrop-blur-sm shadow-md">
+          <div className="flex items-center flex-grow-0">
+            <button 
+              className="md:hidden flex items-center justify-center p-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors mr-1"
+              onClick={toggleMenu}
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            >
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+            
+            <Link href="/" className="flex items-center">
+              <div className="w-7 h-7 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-primary rounded-full flex items-center justify-center shrink-0">
+                <span className="text-white font-heading font-bold text-xs sm:text-base md:text-xl">CMC</span>
+              </div>
+              <span className="ml-1 md:ml-3 font-heading font-bold text-xs sm:text-sm md:text-lg text-primary truncate max-w-[100px] sm:max-w-full">
+                <span className={isMobile ? "inline" : "hidden"}>CMC Nursery</span>
+                <span className={!isMobile ? "inline" : "hidden"}>Coat of Many Colours</span>
+              </span>
+            </Link>
+          </div>
           
           <div className="hidden md:flex space-x-6 lg:space-x-10 items-center">
             {navLinks.map(link => (
@@ -198,13 +208,9 @@ export default function NavBar() {
 
           </div>
           
-          <button 
-            className="md:hidden flex items-center justify-center p-2 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
-            onClick={toggleMenu}
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-          >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          <div className="md:block hidden">
+            {/* Placeholder for desktop layout balance */}
+          </div>
         </nav>
         
         <AnimatePresence>
