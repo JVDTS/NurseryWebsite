@@ -44,25 +44,25 @@ function Testimonial({ quote, author, role, image, delay }: TestimonialProps) {
 
   return (
     <motion.div 
-      className="bg-white p-8 rounded-xl shadow-md"
+      className="bg-white p-5 sm:p-8 rounded-xl shadow-md"
       ref={ref}
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
       variants={fadeUp}
       custom={delay}
     >
-      <div className="flex items-center mb-4">
+      <div className="flex items-center mb-3 sm:mb-4">
         <div className="text-accent">
           {[...Array(5)].map((_, i) => (
-            <Star key={i} className="inline-block h-5 w-5 fill-current" />
+            <Star key={i} className="inline-block h-4 w-4 sm:h-5 sm:w-5 fill-current" />
           ))}
         </div>
       </div>
-      <p className="text-gray-600 mb-6 italic">
+      <p className="text-gray-600 mb-4 sm:mb-6 italic text-sm sm:text-base">
         "{quote}"
       </p>
       <div className="flex items-center">
-        <div className="w-12 h-12 bg-gray-200 rounded-full overflow-hidden mr-4">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-full overflow-hidden mr-3 sm:mr-4 shrink-0">
           <img 
             src={image}
             alt={author} 
@@ -70,8 +70,8 @@ function Testimonial({ quote, author, role, image, delay }: TestimonialProps) {
           />
         </div>
         <div>
-          <h4 className="font-heading font-semibold">{author}</h4>
-          <p className="text-sm text-gray-500">{role}</p>
+          <h4 className="font-heading font-semibold text-sm sm:text-base">{author}</h4>
+          <p className="text-xs sm:text-sm text-gray-500">{role}</p>
         </div>
       </div>
     </motion.div>
@@ -159,26 +159,28 @@ export default function TestimonialsSection() {
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         <motion.div 
-          className="max-w-4xl mx-auto text-center mb-16"
+          className="max-w-4xl mx-auto text-center mb-10 sm:mb-16"
           ref={ref}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
           variants={fadeUp}
         >
-          <div className="mb-4">
-            <span className="inline-block px-4 py-1 bg-accent bg-opacity-20 text-accent font-heading font-semibold text-sm uppercase rounded-full">What Parents Say</span>
+          <div className="mb-3 sm:mb-4">
+            <span className="inline-block px-3 py-1 sm:px-4 sm:py-1 bg-accent bg-opacity-20 text-accent font-heading font-semibold text-xs sm:text-sm uppercase rounded-full">What Parents Say</span>
           </div>
           
-          <h2 className="font-heading font-bold text-3xl md:text-4xl mb-6 leading-tight">
+          <h2 className="font-heading font-bold text-2xl sm:text-3xl md:text-4xl mb-4 sm:mb-6 leading-tight px-4">
             Trusted by hundreds of families
           </h2>
         </motion.div>
         
-        <div className="max-w-4xl mx-auto relative px-4 pb-12"
+        <div className="max-w-4xl mx-auto relative px-2 sm:px-4 pb-12"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={() => setIsPaused(true)}
+          onTouchEnd={() => setIsPaused(false)}
         >
-          <div className="h-[350px] md:h-[280px] overflow-hidden relative">
+          <div className="h-[320px] sm:h-[300px] md:h-[280px] overflow-hidden relative">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentIndex}
@@ -199,17 +201,18 @@ export default function TestimonialsSection() {
             </AnimatePresence>
           </div>
           
-          <div className="flex justify-center items-center gap-3 mt-8">
+          <div className="flex justify-center items-center gap-2 sm:gap-3 mt-6 sm:mt-8">
             <motion.button
               onClick={handlePrev}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md hover:shadow-lg text-primary transition-all"
-              whileHover={{ scale: 1.1 }}
+              className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-md hover:shadow-lg text-primary transition-all"
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              aria-label="Previous testimonial"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={18} />
             </motion.button>
             
-            <div className="flex space-x-2">
+            <div className="flex space-x-3">
               {testimonials.map((_, index) => (
                 <button 
                   key={index}
@@ -217,20 +220,22 @@ export default function TestimonialsSection() {
                     setDirection(index > currentIndex ? 1 : -1);
                     setCurrentIndex(index);
                   }}
-                  className={`w-3 h-3 rounded-full transition-all ${
+                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-all ${
                     index === currentIndex ? "bg-primary scale-125" : "bg-gray-300"
                   }`}
+                  aria-label={`Go to testimonial ${index + 1}`}
                 />
               ))}
             </div>
             
             <motion.button
               onClick={handleNext}
-              className="flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md hover:shadow-lg text-primary transition-all"
-              whileHover={{ scale: 1.1 }}
+              className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white shadow-md hover:shadow-lg text-primary transition-all"
+              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              aria-label="Next testimonial"
             >
-              <ChevronRight size={20} />
+              <ChevronRight size={18} />
             </motion.button>
           </div>
         </div>
