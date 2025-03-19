@@ -26,9 +26,9 @@ export default function HeroSection() {
       </div>
 
       <div className="container mx-auto px-4 relative z-20">
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col">
           <motion.div 
-            className="w-full max-w-3xl text-center"
+            className="w-full md:w-7/12 lg:w-6/12"
             ref={ref}
             initial="hidden"
             animate={inView ? "visible" : "hidden"}
@@ -40,7 +40,7 @@ export default function HeroSection() {
             <p className="text-lg md:text-xl text-white mb-8">
               A vibrant place for children to learn, explore, and grow in a nurturing environment.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap gap-4">
               <motion.a 
                 href="#about" 
                 className="px-8 py-3 bg-primary text-white font-heading font-semibold rounded-full shadow-md hover:shadow-lg transition-all hover:-translate-y-1"
