@@ -193,12 +193,6 @@ export default function NavBar() {
             >
               Get In Touch
             </a>
-            
-            <div className="ml-4">
-              <Link href="/admin/login" className="px-3 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors font-heading font-semibold text-sm">
-                Admin Login
-              </Link>
-            </div>
 
           </div>
           
@@ -323,16 +317,6 @@ export default function NavBar() {
                 >
                   Get In Touch
                 </a>
-                
-                <div className="py-3 px-4">
-                  <Link 
-                    href="/admin/login" 
-                    className="block w-full py-3 bg-primary text-white rounded-md text-center hover:bg-primary/90 transition-colors font-heading font-semibold text-base"
-                    onClick={closeMenu}
-                  >
-                    Admin Login
-                  </Link>
-                </div>
 
               </div>
             </motion.div>
