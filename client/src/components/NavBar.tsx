@@ -213,16 +213,25 @@ export default function NavBar() {
           </div>
         </nav>
         
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="md:hidden overflow-hidden mt-2 fixed left-2 right-2 sm:left-4 sm:right-4 top-[50px] bottom-auto z-50"
-            >
-              <div className="flex flex-col space-y-1 py-2 px-2 sm:px-4 bg-white/95 backdrop-blur-md rounded-xl shadow-lg max-h-[calc(100vh-70px)] overflow-y-auto">
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden fixed inset-0 bg-black/50 z-50">
+            <div className="fixed top-0 left-0 h-full w-[85%] max-w-[300px] bg-white overflow-y-auto">
+              <div className="sticky top-0 z-10 flex items-center justify-between p-4 bg-primary/5 border-b">
+                <Link href="/" className="flex items-center" onClick={closeMenu}>
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                    <span className="text-white font-heading font-bold text-sm">CMC</span>
+                  </div>
+                  <span className="ml-2 font-heading font-bold text-sm text-primary">CMC Nursery</span>
+                </Link>
+                <button 
+                  onClick={closeMenu}
+                  className="p-2 rounded-full hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5 text-gray-500" />
+                </button>
+              </div>
+              <div className="flex flex-col py-2">
                 {navLinks.map(link => (
                   <Link
                     key={link.href}
@@ -244,35 +253,27 @@ export default function NavBar() {
                     <ChevronDown className={`h-5 w-5 transition-transform ${showNurseriesDropdown ? 'rotate-180' : ''}`} />
                   </button>
                   
-                  <AnimatePresence>
-                    {showNurseriesDropdown && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="pl-4 mt-1 mb-1 bg-gray-50/80 rounded-md"
-                      >
-                        {nurseryLocations.map(location => (
-                          <Link
-                            key={location.href}
-                            href={location.href}
-                            className="block py-3 px-4 font-heading font-medium text-gray-600 hover:text-primary"
-                            onClick={closeMenu}
-                          >
-                            {location.label}
-                          </Link>
-                        ))}
+                  {showNurseriesDropdown && (
+                    <div className="pl-4 mt-1 mb-1 bg-gray-50/80 rounded-md">
+                      {nurseryLocations.map(location => (
                         <Link
-                          href="/#nurseries"
-                          className="block py-3 px-4 font-heading font-medium text-gray-600 hover:text-primary border-t border-gray-100"
+                          key={location.href}
+                          href={location.href}
+                          className="block py-2.5 px-4 font-heading font-medium text-gray-600 hover:text-primary"
                           onClick={closeMenu}
                         >
-                          View All Nurseries
+                          {location.label}
                         </Link>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                      ))}
+                      <Link
+                        href="/#nurseries"
+                        className="block py-2.5 px-4 font-heading font-medium text-gray-600 hover:text-primary border-t border-gray-100"
+                        onClick={closeMenu}
+                      >
+                        View All Nurseries
+                      </Link>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Mobile parent info dropdown */}
@@ -285,28 +286,20 @@ export default function NavBar() {
                     <ChevronDown className={`h-5 w-5 transition-transform ${showParentInfoDropdown ? 'rotate-180' : ''}`} />
                   </button>
                   
-                  <AnimatePresence>
-                    {showParentInfoDropdown && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="pl-4 mt-1 mb-1 bg-gray-50/80 rounded-md"
-                      >
-                        {parentInfoItems.map((item, index) => (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            className={`block py-3 px-4 font-heading font-medium text-gray-600 hover:text-primary ${index > 0 ? 'border-t border-gray-50' : ''}`}
-                            onClick={closeMenu}
-                          >
-                            {item.label}
-                          </Link>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  {showParentInfoDropdown && (
+                    <div className="pl-4 mt-1 mb-1 bg-gray-50/80 rounded-md">
+                      {parentInfoItems.map((item, index) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={`block py-2.5 px-4 font-heading font-medium text-gray-600 hover:text-primary ${index > 0 ? 'border-t border-gray-50' : ''}`}
+                          onClick={closeMenu}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 
                 {/* Mobile newsletters link */}
@@ -320,16 +313,16 @@ export default function NavBar() {
                 
                 <a
                   href="#contact"
-                  className="font-heading font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 text-base flex items-center justify-center border-b border-orange-500"
+                  className="font-heading font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 text-base flex items-center justify-center border-b border-orange-500 mx-4 mt-2"
                   onClick={closeMenu}
                 >
                   Get In Touch
                 </a>
-
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+            <div className="absolute inset-0" onClick={closeMenu}></div>
+          </div>
+        )}
       </div>
     </header>
   );
