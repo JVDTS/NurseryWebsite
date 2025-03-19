@@ -80,7 +80,7 @@ function StatCard({ color, colorLight, value, label, delay }: StatCardProps) {
       variants={fadeUp}
       custom={delay}
     >
-      <h4 className={`font-heading font-bold text-4xl ${color} mb-2`}>{value}</h4>
+      <h4 className="font-heading font-bold text-4xl text-gray-900 mb-2">{value}</h4>
       <p className="font-heading font-medium">{label}</p>
     </motion.div>
   );
