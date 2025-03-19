@@ -81,18 +81,18 @@ export default function NavBar() {
   return (
     <header className={`fixed w-full z-50 transition-all duration-300 px-2 sm:px-4 ${isScrolled ? 'py-1 sm:py-2' : 'py-2 sm:py-4'}`}>
       <div className="container mx-auto">
-        <nav className="flex justify-between items-center rounded-full px-4 sm:px-6 py-2 sm:py-3 bg-white/90 backdrop-blur-sm shadow-md">
+        <nav className="flex justify-between items-center rounded-full px-3 sm:px-6 py-2 sm:py-3 bg-white/90 backdrop-blur-sm shadow-md">
           <Link href="/" className="flex items-center">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-white font-heading font-bold text-base md:text-xl">CMC</span>
+            <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-primary rounded-full flex items-center justify-center shrink-0">
+              <span className="text-white font-heading font-bold text-sm sm:text-base md:text-xl">CMC</span>
             </div>
-            <span className="ml-2 md:ml-3 font-heading font-bold text-sm md:text-lg text-primary">
+            <span className="ml-2 md:ml-3 font-heading font-bold text-xs sm:text-sm md:text-lg text-primary truncate">
               <span className="inline md:hidden">CMC Nursery</span>
               <span className="hidden md:inline">Coat of Many Colours</span>
             </span>
           </Link>
           
-          <div className="hidden md:flex space-x-10 items-center">
+          <div className="hidden md:flex space-x-6 lg:space-x-10 items-center">
             {navLinks.map(link => (
               <Link 
                 key={link.href}
@@ -218,9 +218,9 @@ export default function NavBar() {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="md:hidden overflow-hidden mt-2 fixed left-0 right-0 px-4 z-50"
+              className="md:hidden overflow-hidden mt-2 fixed left-2 right-2 sm:left-4 sm:right-4 z-50"
             >
-              <div className="flex flex-col space-y-2 py-4 px-4 bg-white/95 backdrop-blur-md rounded-2xl shadow-lg max-h-[80vh] overflow-y-auto">
+              <div className="flex flex-col space-y-1 py-3 px-2 sm:px-4 bg-white/95 backdrop-blur-md rounded-xl shadow-lg max-h-[80vh] overflow-y-auto">
                 {navLinks.map(link => (
                   <Link
                     key={link.href}
@@ -249,13 +249,13 @@ export default function NavBar() {
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="pl-6"
+                        className="pl-4 mt-1 mb-1 bg-gray-50/80 rounded-md"
                       >
                         {nurseryLocations.map(location => (
                           <Link
                             key={location.href}
                             href={location.href}
-                            className="block py-2 px-4 font-heading font-medium text-gray-600 hover:text-primary"
+                            className="block py-3 px-4 font-heading font-medium text-gray-600 hover:text-primary"
                             onClick={closeMenu}
                           >
                             {location.label}
@@ -263,7 +263,7 @@ export default function NavBar() {
                         ))}
                         <Link
                           href="/#nurseries"
-                          className="block py-2 px-4 font-heading font-medium text-gray-600 hover:text-primary"
+                          className="block py-3 px-4 font-heading font-medium text-gray-600 hover:text-primary border-t border-gray-100"
                           onClick={closeMenu}
                         >
                           View All Nurseries
@@ -290,13 +290,13 @@ export default function NavBar() {
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="pl-6"
+                        className="pl-4 mt-1 mb-1 bg-gray-50/80 rounded-md"
                       >
-                        {parentInfoItems.map(item => (
+                        {parentInfoItems.map((item, index) => (
                           <Link
                             key={item.href}
                             href={item.href}
-                            className="block py-2 px-4 font-heading font-medium text-gray-600 hover:text-primary"
+                            className={`block py-3 px-4 font-heading font-medium text-gray-600 hover:text-primary ${index > 0 ? 'border-t border-gray-50' : ''}`}
                             onClick={closeMenu}
                           >
                             {item.label}
