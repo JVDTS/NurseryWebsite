@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { fadeUp } from "@/lib/animations";
+import { AnimatedButton } from "@/components/ui/animated-button";
 
 export default function HeroSection() {
   const [ref, inView] = useInView({
@@ -41,22 +42,12 @@ export default function HeroSection() {
               A vibrant place for children to learn, explore, and grow in a nurturing environment.
             </p>
             <div className="flex flex-wrap gap-4">
-              <motion.a 
-                href="#about" 
-                className="px-8 py-3 bg-primary text-white font-heading font-semibold rounded-full shadow-md hover:shadow-lg transition-all hover:-translate-y-1"
-                whileHover={{ y: -5, boxShadow: "0 10px 25px rgba(0, 0, 0, 0.15)" }}
-                whileTap={{ y: 0 }}
-              >
+              <AnimatedButton href="#about" variant="primary" size="lg">
                 Discover More
-              </motion.a>
-              <motion.a 
-                href="#contact" 
-                className="px-8 py-3 bg-white border-2 border-primary text-primary font-heading font-semibold rounded-full shadow-md hover:shadow-lg transition-all hover:-translate-y-1"
-                whileHover={{ y: -5, boxShadow: "0 10px 25px rgba(0, 0, 0, 0.15)" }}
-                whileTap={{ y: 0 }}
-              >
+              </AnimatedButton>
+              <AnimatedButton href="#contact" variant="outline" size="lg">
                 Book a Visit
-              </motion.a>
+              </AnimatedButton>
             </div>
           </motion.div>
         </div>
