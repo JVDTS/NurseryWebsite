@@ -1,7 +1,8 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import { Star } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { fadeUp } from "@/lib/animations";
+import { useState, useRef, useEffect } from "react";
 
 interface TestimonialProps {
   quote: string;
@@ -82,7 +83,78 @@ export default function TestimonialsSection() {
     triggerOnce: false,
     threshold: 0.1,
   });
+  
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const slideInterval = useRef<number | null>(null);
+  
+  const startSlideTimer = () => {
+    if (slideInterval.current !== null) {
+      clearInterval(slideInterval.current);
+    }
+    
+    slideInterval.current = window.setInterval(() => {
+      if (!isPaused) {
+        setDirection(1);
+        setCurrentIndex(prevIndex => (prevIndex + 1) % testimonials.length);
+      }
+    }, 5000);
+  };
+  
+  useEffect(() => {
+    startSlideTimer();
+    return () => {
+      if (slideInterval.current !== null) {
+        clearInterval(slideInterval.current);
+      }
+    };
+  }, [isPaused]);
+  
+  const handlePrev = () => {
+    if (slideInterval.current !== null) {
+      clearInterval(slideInterval.current);
+    }
+    setDirection(-1);
+    setCurrentIndex(prevIndex => (prevIndex - 1 + testimonials.length) % testimonials.length);
+    startSlideTimer();
+  };
+  
+  const handleNext = () => {
+    if (slideInterval.current !== null) {
+      clearInterval(slideInterval.current);
+    }
+    setDirection(1);
+    setCurrentIndex(prevIndex => (prevIndex + 1) % testimonials.length);
+    startSlideTimer();
+  };
 
+  const slideVariants = {
+    hiddenRight: {
+      x: 300,
+      opacity: 0
+    },
+    hiddenLeft: {
+      x: -300,
+      opacity: 0
+    },
+    visible: {
+      x: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        ease: "easeInOut"
+      }
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.9,
+      transition: {
+        duration: 0.3
+      }
+    }
+  };
+  
   return (
     <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -102,17 +174,65 @@ export default function TestimonialsSection() {
           </h2>
         </motion.div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <Testimonial
-              key={index}
-              quote={testimonial.quote}
-              author={testimonial.author}
-              role={testimonial.role}
-              image={testimonial.image}
-              delay={testimonial.delay}
-            />
-          ))}
+        <div className="max-w-4xl mx-auto relative px-4 pb-12"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
+          <div className="h-[350px] md:h-[280px] overflow-hidden relative">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentIndex}
+                initial={direction > 0 ? "hiddenRight" : "hiddenLeft"}
+                animate="visible"
+                exit="exit"
+                variants={slideVariants}
+                className="absolute inset-0"
+              >
+                <Testimonial
+                  quote={testimonials[currentIndex].quote}
+                  author={testimonials[currentIndex].author}
+                  role={testimonials[currentIndex].role}
+                  image={testimonials[currentIndex].image}
+                  delay={0}
+                />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+          
+          <div className="flex justify-center items-center gap-3 mt-8">
+            <motion.button
+              onClick={handlePrev}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md hover:shadow-lg text-primary transition-all"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ChevronLeft size={20} />
+            </motion.button>
+            
+            <div className="flex space-x-2">
+              {testimonials.map((_, index) => (
+                <button 
+                  key={index}
+                  onClick={() => {
+                    setDirection(index > currentIndex ? 1 : -1);
+                    setCurrentIndex(index);
+                  }}
+                  className={`w-3 h-3 rounded-full transition-all ${
+                    index === currentIndex ? "bg-primary scale-125" : "bg-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
+            
+            <motion.button
+              onClick={handleNext}
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md hover:shadow-lg text-primary transition-all"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ChevronRight size={20} />
+            </motion.button>
+          </div>
         </div>
       </div>
     </section>
