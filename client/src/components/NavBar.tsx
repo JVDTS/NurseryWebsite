@@ -83,7 +83,7 @@ export default function NavBar() {
   return (
     <header className={`fixed w-full z-50 transition-all duration-300 px-1 sm:px-4 ${isScrolled ? 'py-1' : 'py-1 sm:py-2'}`}>
       <div className="max-w-[90rem] mx-auto">
-        <nav className="flex justify-between items-center rounded-full px-2 sm:px-6 py-1 sm:py-2 bg-white/90 backdrop-blur-sm shadow-md">
+        <nav className="flex justify-between items-center rounded-full px-3 sm:px-6 py-2 sm:py-2 bg-white/90 backdrop-blur-sm shadow-md">
           <div className="flex items-center flex-grow-0">
             <button 
               className="md:hidden flex items-center justify-center p-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors mr-1"
@@ -220,14 +220,14 @@ export default function NavBar() {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="md:hidden overflow-hidden mt-2 fixed left-2 right-2 sm:left-4 sm:right-4 z-50"
+              className="md:hidden overflow-hidden mt-2 fixed left-2 right-2 sm:left-4 sm:right-4 top-[50px] bottom-auto z-50"
             >
-              <div className="flex flex-col space-y-1 py-3 px-2 sm:px-4 bg-white/95 backdrop-blur-md rounded-xl shadow-lg max-h-[80vh] overflow-y-auto">
+              <div className="flex flex-col space-y-1 py-2 px-2 sm:px-4 bg-white/95 backdrop-blur-md rounded-xl shadow-lg max-h-[calc(100vh-70px)] overflow-y-auto">
                 {navLinks.map(link => (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="font-heading font-semibold py-3 px-4 rounded-md hover:bg-gray-100 text-base flex items-center"
+                    className="font-heading font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 text-base flex items-center"
                     onClick={closeMenu}
                   >
                     {link.label}
@@ -238,7 +238,7 @@ export default function NavBar() {
                 <div className="relative">
                   <button 
                     onClick={toggleNurseriesDropdown}
-                    className="font-heading w-full text-left font-semibold py-3 px-4 rounded-md hover:bg-gray-100 flex items-center justify-between text-base"
+                    className="font-heading w-full text-left font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 flex items-center justify-between text-base"
                   >
                     Our Nurseries
                     <ChevronDown className={`h-5 w-5 transition-transform ${showNurseriesDropdown ? 'rotate-180' : ''}`} />
@@ -279,7 +279,7 @@ export default function NavBar() {
                 <div className="relative">
                   <button 
                     onClick={toggleParentInfoDropdown}
-                    className="font-heading w-full text-left font-semibold py-3 px-4 rounded-md hover:bg-gray-100 flex items-center justify-between text-base"
+                    className="font-heading w-full text-left font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 flex items-center justify-between text-base"
                   >
                     Parent Info
                     <ChevronDown className={`h-5 w-5 transition-transform ${showParentInfoDropdown ? 'rotate-180' : ''}`} />
@@ -312,7 +312,7 @@ export default function NavBar() {
                 {/* Mobile newsletters link */}
                 <a
                   href="#newsletters"
-                  className="font-heading font-semibold py-3 px-4 rounded-md hover:bg-gray-100 text-base flex items-center"
+                  className="font-heading font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 text-base flex items-center"
                   onClick={closeMenu}
                 >
                   Newsletters
@@ -320,7 +320,7 @@ export default function NavBar() {
                 
                 <a
                   href="#contact"
-                  className="font-heading font-semibold py-3 px-4 rounded-md hover:bg-gray-100 text-base flex items-center justify-center border-b border-orange-500"
+                  className="font-heading font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 text-base flex items-center justify-center border-b border-orange-500"
                   onClick={closeMenu}
                 >
                   Get In Touch
