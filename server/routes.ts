@@ -1,5 +1,6 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
+import * as fs from 'fs';
 import { storage } from "./storage";
 import { contactFormSchema, z } from "@shared/schema";
 import { ZodError } from "zod";

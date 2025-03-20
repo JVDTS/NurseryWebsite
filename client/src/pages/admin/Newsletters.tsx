@@ -9,7 +9,8 @@ import DashboardLayout from '@/components/admin/DashboardLayout';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { CalendarIcon, FileText, Plus, Loader2, Pencil, Trash2, Calendar } from 'lucide-react';
+import { CalendarIcon, FileText, Plus, Loader2, Pencil, Trash2, Calendar, Upload } from 'lucide-react';
+import { FileUpload } from '@/components/ui/file-upload';
 import { format } from 'date-fns';
 
 import {
@@ -85,6 +86,8 @@ export default function AdminNewsletters() {
   const [isAddNewsletterOpen, setIsAddNewsletterOpen] = useState(false);
   const [isEditNewsletterOpen, setIsEditNewsletterOpen] = useState(false);
   const [selectedNewsletter, setSelectedNewsletter] = useState<Newsletter | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Get nurseryId for fetching newsletters
   const nurseryId = user?.nurseryId || 0;
