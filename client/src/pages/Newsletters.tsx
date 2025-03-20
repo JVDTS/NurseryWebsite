@@ -38,9 +38,12 @@ export default function NewslettersPage() {
   const { toast } = useToast();
 
   // Get nurseries data
-  const { data: nurseries = [] } = useQuery<Nursery[]>({
+  const { data: nurseryData } = useQuery<{ success: boolean, nurseries: Nursery[] }>({
     queryKey: ["/api/nurseries"],
   });
+  
+  // Extract nurseries array from response or use empty array as fallback
+  const nurseries = nurseryData?.nurseries || [];
 
   // Get all newsletters data
   const { data: newsletters = [], isLoading } = useQuery<Newsletter[]>({
