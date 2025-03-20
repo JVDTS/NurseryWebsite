@@ -926,6 +926,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get all newsletters for public view
+  app.get("/api/newsletters", async (req: Request, res: Response) => {
+    try {
+      const newsletters = await storage.getAllNewsletters();
+      
+      res.status(200).json(newsletters);
+      
+    } catch (error) {
+      console.error("Error fetching all newsletters:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch newsletters"
+      });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
