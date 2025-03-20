@@ -117,6 +117,7 @@ export default function AdminNewsletters() {
   useEffect(() => {
     if (!isAddNewsletterOpen) {
       form.reset();
+      setUploadedFile(null);
     }
   }, [isAddNewsletterOpen, form]);
 
@@ -124,8 +125,47 @@ export default function AdminNewsletters() {
   useEffect(() => {
     if (!isEditNewsletterOpen) {
       editForm.reset();
+      setUploadedFile(null);
     }
   }, [isEditNewsletterOpen, editForm]);
+  
+  // File upload mutation
+  const uploadFileMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Using vanilla fetch for FormData upload
+      const response = await fetch('/api/admin/upload/newsletter', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to upload file');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: 'File Uploaded',
+        description: 'The file has been uploaded successfully.',
+      });
+      
+      // Set the file URL in the form
+      form.setValue('fileUrl', data.fileUrl);
+    },
+    onError: (error) => {
+      toast({
+        title: 'Upload Error',
+        description: `Failed to upload file: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
 
   // Set form values when editing a newsletter
   useEffect(() => {
@@ -236,6 +276,16 @@ export default function AdminNewsletters() {
     },
   });
 
+  // Handle file upload
+  const handleFileUpload = (file: File | null) => {
+    setUploadedFile(file);
+    
+    if (file) {
+      setIsUploading(true);
+      uploadFileMutation.mutate(file);
+    }
+  };
+
   // Handle form submission for adding a new newsletter
   const onSubmit = (data: NewsletterFormValues) => {
     addNewsletterMutation.mutate(data);
@@ -326,13 +376,41 @@ export default function AdminNewsletters() {
                       name="fileUrl"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>File URL</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="https://example.com/newsletter.pdf" 
-                              {...field} 
+                          <FormLabel>Newsletter PDF</FormLabel>
+                          <div className="space-y-3">
+                            <FormControl>
+                              <Input 
+                                placeholder="https://example.com/newsletter.pdf" 
+                                {...field} 
+                              />
+                            </FormControl>
+                            <div className="relative">
+                              <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t border-muted" />
+                              </div>
+                              <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-background px-2 text-muted-foreground">
+                                  Or upload a file
+                                </span>
+                              </div>
+                            </div>
+                            {/* Using standard accept type for now */}
+                            <FileUpload
+                              label="Upload PDF"
+                              value={uploadedFile}
+                              onChange={handleFileUpload}
+                              accept={{
+                                'application/pdf': []
+                              }}
+                              showPreview={true}
                             />
-                          </FormControl>
+                            {uploadFileMutation.isPending && (
+                              <div className="flex items-center justify-center py-2">
+                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                <span className="text-sm text-muted-foreground">Uploading...</span>
+                              </div>
+                            )}
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -522,10 +600,38 @@ export default function AdminNewsletters() {
                   name="fileUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>File URL</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
+                      <FormLabel>Newsletter PDF</FormLabel>
+                      <div className="space-y-3">
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <div className="relative">
+                          <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t border-muted" />
+                          </div>
+                          <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-background px-2 text-muted-foreground">
+                              Or upload a new file
+                            </span>
+                          </div>
+                        </div>
+                        {/* Using standard accept type for now */}
+                        <FileUpload
+                          label="Upload PDF"
+                          value={uploadedFile}
+                          onChange={handleFileUpload}
+                          accept={{
+                            'application/pdf': []
+                          }}
+                          showPreview={true}
+                        />
+                        {uploadFileMutation.isPending && (
+                          <div className="flex items-center justify-center py-2">
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            <span className="text-sm text-muted-foreground">Uploading...</span>
+                          </div>
+                        )}
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
