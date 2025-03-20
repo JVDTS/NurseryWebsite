@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
 import { Request } from 'express';
-import * as busboy from 'busboy';
+import Busboy from 'busboy';
 
 // Directory to store uploaded files
 const UPLOAD_DIR = path.join(process.cwd(), 'uploads');
@@ -21,6 +21,12 @@ interface UploadedFile {
   size: number;
 }
 
+// FileInfo interface
+interface FileInfo {
+  filename: string;
+  mimeType: string;
+}
+
 // Generate a unique filename
 function generateFilename(originalname: string): string {
   const timestamp = Date.now();
@@ -33,17 +39,17 @@ function generateFilename(originalname: string): string {
 export async function processFileUpload(req: Request): Promise<UploadedFile | null> {
   return new Promise((resolve, reject) => {
     try {
-      const bb = busboy({ headers: req.headers });
+      const bb = Busboy({ headers: req.headers });
       let fileData: UploadedFile | null = null;
 
-      bb.on('file', (fieldname, file, info) => {
+      bb.on('file', (fieldname: string, file: NodeJS.ReadableStream, info: FileInfo) => {
         const { filename, mimeType } = info;
         const saveTo = path.join(UPLOAD_DIR, generateFilename(filename));
         const writeStream = fs.createWriteStream(saveTo);
         
         let fileSize = 0;
         
-        file.on('data', (data) => {
+        file.on('data', (data: Buffer) => {
           fileSize += data.length;
         });
         
@@ -68,7 +74,7 @@ export async function processFileUpload(req: Request): Promise<UploadedFile | nu
         }
       });
       
-      bb.on('error', (err) => {
+      bb.on('error', (err: Error) => {
         reject(err);
       });
       
