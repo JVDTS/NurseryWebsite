@@ -656,20 +656,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const nurseryId = parseInt(req.params.nurseryId);
       
-      // Newsletter schema
+      // Newsletter schema matching the client fields
       const newsletterSchema = z.object({
         title: z.string().min(3),
-        content: z.string().min(10),
-        pdfUrl: z.string().url().optional()
+        description: z.string().min(5),
+        fileUrl: z.string().url(),
+        publishDate: z.string().or(z.date())
       });
       
       const newsletterData = newsletterSchema.parse(req.body);
       
+      // Map client fields to database fields
       const newNewsletter = await storage.createNewsletter({
-        ...newsletterData,
+        title: newsletterData.title,
+        content: newsletterData.description,
+        pdfUrl: newsletterData.fileUrl,
         nurseryId,
         publishedBy: req.session.userId!,
-        publishDate: new Date(),
+        publishDate: new Date(newsletterData.publishDate),
         createdAt: new Date(),
         updatedAt: new Date()
       });
@@ -720,19 +724,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Newsletter update schema
+      // Newsletter update schema matching client fields
       const newsletterUpdateSchema = z.object({
         title: z.string().min(3).optional(),
-        content: z.string().min(10).optional(),
-        pdfUrl: z.string().url().optional()
+        description: z.string().min(5).optional(),
+        fileUrl: z.string().url().optional(),
+        publishDate: z.string().or(z.date()).optional()
       });
       
       const newsletterData = newsletterUpdateSchema.parse(req.body);
       
-      const updatedNewsletter = await storage.updateNewsletter(newsletterId, {
-        ...newsletterData,
+      // Map client fields to database fields
+      const updateData: any = {
         updatedAt: new Date()
-      });
+      };
+      
+      if (newsletterData.title) updateData.title = newsletterData.title;
+      if (newsletterData.description) updateData.content = newsletterData.description;
+      if (newsletterData.fileUrl) updateData.pdfUrl = newsletterData.fileUrl;
+      if (newsletterData.publishDate) updateData.publishDate = new Date(newsletterData.publishDate);
+      
+      const updatedNewsletter = await storage.updateNewsletter(newsletterId, updateData);
       
       res.status(200).json({
         success: true,
@@ -954,7 +966,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      const newsletters = await storage.getNewslettersByNursery(nursery.id);
+      const nurseryNewsletters = await storage.getNewslettersByNursery(nursery.id);
+      
+      // Transform data to match client expectations
+      const newsletters = nurseryNewsletters.map(newsletter => ({
+        id: newsletter.id,
+        title: newsletter.title,
+        description: newsletter.content,
+        fileUrl: newsletter.pdfUrl,
+        publishDate: newsletter.publishDate,
+        nurseryId: newsletter.nurseryId
+      }));
       
       res.status(200).json({
         success: true,
@@ -973,7 +995,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all newsletters for public view
   app.get("/api/newsletters", async (req: Request, res: Response) => {
     try {
-      const newsletters = await storage.getAllNewsletters();
+      const allNewsletters = await storage.getAllNewsletters();
+      
+      // Transform the data to match client expectations
+      const newsletters = allNewsletters.map(newsletter => ({
+        id: newsletter.id,
+        title: newsletter.title,
+        description: newsletter.content,
+        fileUrl: newsletter.pdfUrl,
+        publishDate: newsletter.publishDate,
+        nurseryId: newsletter.nurseryId
+      }));
       
       res.status(200).json(newsletters);
       
