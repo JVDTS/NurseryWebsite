@@ -192,12 +192,12 @@ export default function NavBar() {
             </div>
             
             {/* Newsletters link */}
-            <a 
-              href="#newsletters" 
+            <Link 
+              href="/newsletters" 
               className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors"
             >
               Newsletters
-            </a>
+            </Link>
             
             <a 
               href="#contact" 
@@ -310,13 +310,13 @@ export default function NavBar() {
                 </div>
                 
                 {/* Mobile newsletters link */}
-                <a
-                  href="#newsletters"
+                <Link
+                  href="/newsletters"
                   className="font-heading font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 text-base flex items-center"
                   onClick={closeMenu}
                 >
                   Newsletters
-                </a>
+                </Link>
                 
                 <a
                   href="#contact"
