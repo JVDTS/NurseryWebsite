@@ -615,7 +615,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all newsletters (super admin only)
   app.get("/api/admin/newsletters", superAdminOnly, async (req: Request, res: Response) => {
     try {
-      const newsletters = await storage.getAllNewsletters();
+      const allNewsletters = await storage.getAllNewsletters();
+      
+      // Transform data to match client expectations
+      const newsletters = allNewsletters.map(newsletter => ({
+        id: newsletter.id,
+        title: newsletter.title,
+        description: newsletter.content,
+        fileUrl: newsletter.pdfUrl,
+        publishDate: newsletter.publishDate,
+        nurseryId: newsletter.nurseryId
+      }));
       
       res.status(200).json({
         success: true,
@@ -635,7 +645,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/nurseries/:nurseryId/newsletters", nurseryAdminOnly, nurseryAccessCheck("nurseryId"), async (req: Request, res: Response) => {
     try {
       const nurseryId = parseInt(req.params.nurseryId);
-      const newsletters = await storage.getNewslettersByNursery(nurseryId);
+      const nurseryNewsletters = await storage.getNewslettersByNursery(nurseryId);
+      
+      // Transform data to match client expectations
+      const newsletters = nurseryNewsletters.map(newsletter => ({
+        id: newsletter.id,
+        title: newsletter.title,
+        description: newsletter.content,
+        fileUrl: newsletter.pdfUrl,
+        publishDate: newsletter.publishDate,
+        nurseryId: newsletter.nurseryId
+      }));
       
       res.status(200).json({
         success: true,
