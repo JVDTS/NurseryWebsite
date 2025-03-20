@@ -6,6 +6,7 @@ import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import session from "express-session";
 import MemoryStore from "memorystore";
+import { processFileUpload, getFileUrl, deleteFile } from "./fileStorage";
 
 // Define custom session properties
 declare module 'express-session' {
@@ -567,6 +568,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // ===== NEWSLETTER MANAGEMENT ROUTES =====
+  
+  // Upload a newsletter file
+  app.post("/api/admin/upload/newsletter", nurseryAdminOnly, async (req: Request, res: Response) => {
+    try {
+      const fileData = await processFileUpload(req);
+      
+      if (!fileData) {
+        return res.status(400).json({
+          success: false,
+          message: "No file uploaded"
+        });
+      }
+      
+      // Check if file is a PDF
+      if (fileData.mimetype !== 'application/pdf') {
+        // Clean up the uploaded file
+        fs.unlinkSync(fileData.path);
+        
+        return res.status(400).json({
+          success: false,
+          message: "Only PDF files are allowed for newsletters"
+        });
+      }
+      
+      const fileUrl = getFileUrl(fileData.filename);
+      
+      res.status(200).json({
+        success: true,
+        fileUrl,
+        filename: fileData.filename,
+        originalname: fileData.originalname,
+        size: fileData.size
+      });
+      
+    } catch (error) {
+      console.error("Error uploading newsletter file:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to upload newsletter file"
+      });
+    }
+  });
   
   // Get all newsletters (super admin only)
   app.get("/api/admin/newsletters", superAdminOnly, async (req: Request, res: Response) => {
