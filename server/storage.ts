@@ -100,6 +100,9 @@ export class MemStorage implements IStorage {
     
     // Create admin users
     this.initializeAdminUsers();
+    
+    // Initialize sample newsletters
+    this.initializeSampleNewsletters();
   }
   
   private initializeNurseries() {
@@ -420,6 +423,73 @@ export class MemStorage implements IStorage {
 
   async getContactSubmissions(): Promise<ContactSubmission[]> {
     return Array.from(this.contacts.values());
+  }
+
+  // Initialize sample newsletters
+  private initializeSampleNewsletters() {
+    // Sample newsletters for Hayes nursery
+    const hayesJanuaryNewsletter: InsertNewsletter = {
+      title: "Hayes January 2025 Newsletter",
+      content: "Welcome to the new year at Hayes Nursery! This month we're focusing on winter activities, exploring snow and ice through sensory play, and learning about arctic animals. We'll also be celebrating Chinese New Year with special crafts and food tasting.",
+      pdfUrl: "/uploads/1742475619079-5f9576e94fc92b51.pdf",
+      nurseryId: 1,
+      publishedBy: 2, // Hayes admin
+      publishDate: new Date("2025-01-10"),
+      createdAt: new Date("2025-01-10"),
+      updatedAt: new Date("2025-01-10")
+    };
+
+    const hayesFebruaryNewsletter: InsertNewsletter = {
+      title: "Hayes February 2025 Newsletter",
+      content: "February at Hayes Nursery brings a focus on friendship and kindness as we celebrate Valentine's Day. Children will engage in cooperative play activities, create handmade cards, and participate in our 'Random Acts of Kindness' initiative throughout the month.",
+      pdfUrl: "/uploads/1742480655034-ed1648bedca4e49d.pdf",
+      nurseryId: 1,
+      publishedBy: 2, // Hayes admin
+      publishDate: new Date("2025-02-05"),
+      createdAt: new Date("2025-02-05"),
+      updatedAt: new Date("2025-02-05")
+    };
+
+    // Sample newsletters for Uxbridge nursery
+    const uxbridgeJanuaryNewsletter: InsertNewsletter = {
+      title: "Uxbridge January 2025 Newsletter",
+      content: "January at Uxbridge Nursery brings exciting new learning themes including 'Space Exploration' and 'Winter Wildlife'. Our preschoolers will be starting their phonics journey, while toddlers will focus on sensory development through our enhanced winter sensory station.",
+      pdfUrl: "/uploads/1742475619079-5f9576e94fc92b51.pdf",
+      nurseryId: 2,
+      publishedBy: 3, // Uxbridge admin
+      publishDate: new Date("2025-01-08"),
+      createdAt: new Date("2025-01-08"),
+      updatedAt: new Date("2025-01-08")
+    };
+
+    // Sample newsletters for Hounslow nursery
+    const hounslowJanuaryNewsletter: InsertNewsletter = {
+      title: "Hounslow January 2025 Newsletter",
+      content: "Happy New Year from Hounslow Nursery! This month we're introducing our 'Growing Green' environmental awareness program. Children will be planting winter vegetables in our greenhouse, learning about recycling, and starting our bird-watching club with new feeding stations in our garden.",
+      pdfUrl: "/uploads/1742480655034-ed1648bedca4e49d.pdf",
+      nurseryId: 3,
+      publishedBy: 4, // Hounslow admin
+      publishDate: new Date("2025-01-12"),
+      createdAt: new Date("2025-01-12"),
+      updatedAt: new Date("2025-01-12")
+    };
+
+    const hounslowFebruaryNewsletter: InsertNewsletter = {
+      title: "Hounslow February 2025 Newsletter",
+      content: "February at Hounslow Nursery focuses on cultural diversity as we explore traditions from around the world. We'll be hosting parent volunteers to share stories, foods, and customs from their cultures, enhancing our understanding of our diverse community.",
+      pdfUrl: "/uploads/1742475619079-5f9576e94fc92b51.pdf",
+      nurseryId: 3,
+      publishedBy: 4, // Hounslow admin
+      publishDate: new Date("2025-02-03"),
+      createdAt: new Date("2025-02-03"),
+      updatedAt: new Date("2025-02-03")
+    };
+
+    this.createNewsletter(hayesJanuaryNewsletter);
+    this.createNewsletter(hayesFebruaryNewsletter);
+    this.createNewsletter(uxbridgeJanuaryNewsletter);
+    this.createNewsletter(hounslowJanuaryNewsletter);
+    this.createNewsletter(hounslowFebruaryNewsletter);
   }
 }
 
