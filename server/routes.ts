@@ -698,10 +698,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         updatedAt: new Date()
       });
       
+      // Transform database fields back to client field names
+      const transformedNewsletter = {
+        id: newNewsletter.id,
+        title: newNewsletter.title,
+        description: newNewsletter.content,
+        fileUrl: newNewsletter.pdfUrl,
+        publishDate: newNewsletter.publishDate,
+        nurseryId: newNewsletter.nurseryId
+      };
+      
       res.status(201).json({
         success: true,
         message: "Newsletter created successfully",
-        newsletter: newNewsletter
+        newsletter: transformedNewsletter
       });
       
     } catch (error) {
@@ -755,21 +765,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newsletterData = newsletterUpdateSchema.parse(req.body);
       
       // Map client fields to database fields
-      const updateData: any = {
-        updatedAt: new Date()
-      };
+      const updateData: any = {};
       
       if (newsletterData.title) updateData.title = newsletterData.title;
       if (newsletterData.description) updateData.content = newsletterData.description;
       if (newsletterData.fileUrl) updateData.pdfUrl = newsletterData.fileUrl;
       if (newsletterData.publishDate) updateData.publishDate = new Date(newsletterData.publishDate);
+      updateData.updatedAt = new Date();
       
       const updatedNewsletter = await storage.updateNewsletter(newsletterId, updateData);
+      
+      if (!updatedNewsletter) {
+        return res.status(404).json({
+          success: false,
+          message: "Failed to update newsletter"
+        });
+      }
+      
+      // Transform database fields back to client field names
+      const transformedNewsletter = {
+        id: updatedNewsletter.id,
+        title: updatedNewsletter.title,
+        description: updatedNewsletter.content,
+        fileUrl: updatedNewsletter.pdfUrl,
+        publishDate: updatedNewsletter.publishDate,
+        nurseryId: updatedNewsletter.nurseryId
+      };
       
       res.status(200).json({
         success: true,
         message: "Newsletter updated successfully",
-        newsletter: updatedNewsletter
+        newsletter: transformedNewsletter
       });
       
     } catch (error) {
