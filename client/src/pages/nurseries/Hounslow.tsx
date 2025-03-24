@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import NurseryLayout from "@/components/NurseryLayout";
 import NurseryDescription from "@/components/nursery/NurseryDescription";
 import NurseryFacilities from "@/components/nursery/NurseryFacilities";
@@ -16,24 +16,36 @@ import {
   HeartHandshake,
   Download
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 export default function HounslowNursery() {
-  const events = [
-    {
-      title: "Nature Exploration Day",
-      date: "April 28, 2025",
-      time: "9:30 AM - 11:30 AM",
-      location: "Hounslow Nursery Forest School Area",
-      description: "Join us for a morning of outdoor exploration! Children and parents will discover local plants and wildlife through guided activities led by our forest school specialists."
-    },
-    {
-      title: "Community Garden Planting",
-      date: "May 15, 2025",
-      time: "10:00 AM - 12:00 PM",
-      location: "Hounslow Nursery Community Garden",
-      description: "Help us plant our seasonal garden! Families are invited to plant vegetables and flowers while learning about sustainable gardening. All materials provided."
+  const [events, setEvents] = useState<any[]>([]);
+  
+  // Fetch events from the API
+  const { data: eventsData, isLoading: eventsLoading } = useQuery({
+    queryKey: ['/api/nurseries/hounslow/events'],
+    async queryFn() {
+      const response = await fetch('/api/nurseries/hounslow/events');
+      if (!response.ok) {
+        throw new Error('Failed to fetch events');
+      }
+      return response.json();
     }
-  ];
+  });
+  
+  useEffect(() => {
+    if (eventsData && eventsData.events) {
+      // Transform the events data to match the expected format
+      const formattedEvents = eventsData.events.map((event: any) => ({
+        title: event.title,
+        date: new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+        time: event.time,
+        location: event.location,
+        description: event.description
+      }));
+      setEvents(formattedEvents);
+    }
+  }, [eventsData]);
 
   const facilities = [
     {
