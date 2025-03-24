@@ -72,7 +72,7 @@ interface Newsletter {
 const newsletterFormSchema = z.object({
   title: z.string().min(3, { message: 'Title must be at least 3 characters' }),
   description: z.string().min(5, { message: 'Description must be at least 5 characters' }),
-  fileUrl: z.string().url({ message: 'Please enter a valid URL for the file' }),
+  fileUrl: z.string().url({ message: 'Please upload a file or enter a valid URL' }).optional(),
   publishDate: z.date({
     required_error: "Please select a date",
   }),
@@ -378,22 +378,6 @@ export default function AdminNewsletters() {
                         <FormItem>
                           <FormLabel>Newsletter PDF</FormLabel>
                           <div className="space-y-3">
-                            <FormControl>
-                              <Input 
-                                placeholder="https://example.com/newsletter.pdf" 
-                                {...field} 
-                              />
-                            </FormControl>
-                            <div className="relative">
-                              <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-muted" />
-                              </div>
-                              <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-background px-2 text-muted-foreground">
-                                  Or upload a file
-                                </span>
-                              </div>
-                            </div>
                             {/* Using standard accept type for now */}
                             <FileUpload
                               label="Upload PDF"
@@ -410,6 +394,22 @@ export default function AdminNewsletters() {
                                 <span className="text-sm text-muted-foreground">Uploading...</span>
                               </div>
                             )}
+                            <div className="relative">
+                              <div className="absolute inset-0 flex items-center">
+                                <span className="w-full border-t border-muted" />
+                              </div>
+                              <div className="relative flex justify-center text-xs uppercase">
+                                <span className="bg-background px-2 text-muted-foreground">
+                                  Or enter URL manually (optional)
+                                </span>
+                              </div>
+                            </div>
+                            <FormControl>
+                              <Input 
+                                placeholder="https://example.com/newsletter.pdf (optional)" 
+                                {...field} 
+                              />
+                            </FormControl>
                           </div>
                           <FormMessage />
                         </FormItem>
@@ -602,22 +602,9 @@ export default function AdminNewsletters() {
                     <FormItem>
                       <FormLabel>Newsletter PDF</FormLabel>
                       <div className="space-y-3">
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <div className="relative">
-                          <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t border-muted" />
-                          </div>
-                          <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-background px-2 text-muted-foreground">
-                              Or upload a new file
-                            </span>
-                          </div>
-                        </div>
                         {/* Using standard accept type for now */}
                         <FileUpload
-                          label="Upload PDF"
+                          label="Upload a new PDF"
                           value={uploadedFile}
                           onChange={handleFileUpload}
                           accept={{
@@ -631,6 +618,19 @@ export default function AdminNewsletters() {
                             <span className="text-sm text-muted-foreground">Uploading...</span>
                           </div>
                         )}
+                        <div className="relative">
+                          <div className="absolute inset-0 flex items-center">
+                            <span className="w-full border-t border-muted" />
+                          </div>
+                          <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-background px-2 text-muted-foreground">
+                              Current file URL
+                            </span>
+                          </div>
+                        </div>
+                        <FormControl>
+                          <Input placeholder="Current URL" {...field} />
+                        </FormControl>
                       </div>
                       <FormMessage />
                     </FormItem>
