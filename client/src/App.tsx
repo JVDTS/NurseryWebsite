@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/hooks/use-auth";
 import PageTransition from "@/components/PageTransition";
 import NotFound from "@/pages/not-found";
+import { useScrollToTop } from "@/hooks/useScrollToTop";
 import Home from "@/pages/Home";
 
 // Main pages

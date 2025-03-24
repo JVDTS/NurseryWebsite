@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import { Link } from "wouter";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
+import ScrollToTopLink from "./ScrollToTopLink";
 
 export default function NavBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -93,7 +93,7 @@ export default function NavBar() {
               {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
             
-            <Link href="/" className="flex items-center">
+            <ScrollToTopLink href="/" className="flex items-center">
               <div className="w-7 h-7 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-primary rounded-full flex items-center justify-center shrink-0">
                 <span className="text-white font-heading font-bold text-xs sm:text-base md:text-xl">CMC</span>
               </div>
@@ -101,18 +101,18 @@ export default function NavBar() {
                 <span className={isMobile ? "inline" : "hidden"}>CMC Nursery</span>
                 <span className={!isMobile ? "inline" : "hidden"}>Coat of Many Colours</span>
               </span>
-            </Link>
+            </ScrollToTopLink>
           </div>
           
           <div className="hidden md:flex space-x-6 lg:space-x-10 items-center">
             {navLinks.map(link => (
-              <Link 
+              <ScrollToTopLink 
                 key={link.href}
                 href={link.href} 
                 className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors"
               >
                 {link.label}
-              </Link>
+              </ScrollToTopLink>
             ))}
             
             {/* Nurseries dropdown menu */}
@@ -135,23 +135,23 @@ export default function NavBar() {
                     className="absolute right-0 mt-2 w-48 py-2 bg-white rounded-lg shadow-xl z-50"
                   >
                     {nurseryLocations.map(location => (
-                      <Link
+                      <ScrollToTopLink
                         key={location.href}
                         href={location.href}
                         className="block px-4 py-2 text-sm font-heading font-medium text-foreground hover:bg-primary hover:text-white transition-colors"
                         onClick={() => setShowNurseriesDropdown(false)}
                       >
                         {location.label}
-                      </Link>
+                      </ScrollToTopLink>
                     ))}
                     <div className="border-t border-gray-100 my-1"></div>
-                    <Link
+                    <ScrollToTopLink
                       href="/#nurseries"
                       className="block px-4 py-2 text-sm font-heading font-medium text-foreground hover:bg-primary hover:text-white transition-colors"
                       onClick={() => setShowNurseriesDropdown(false)}
                     >
                       View All Nurseries
-                    </Link>
+                    </ScrollToTopLink>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -177,14 +177,14 @@ export default function NavBar() {
                     className="absolute right-0 mt-2 w-48 py-2 bg-white rounded-lg shadow-xl z-50"
                   >
                     {parentInfoItems.map(item => (
-                      <Link
+                      <ScrollToTopLink
                         key={item.href}
                         href={item.href}
                         className="block px-4 py-2 text-sm font-heading font-medium text-foreground hover:bg-primary hover:text-white transition-colors"
                         onClick={() => setShowParentInfoDropdown(false)}
                       >
                         {item.label}
-                      </Link>
+                      </ScrollToTopLink>
                     ))}
                   </motion.div>
                 )}
@@ -192,12 +192,12 @@ export default function NavBar() {
             </div>
             
             {/* Newsletters link */}
-            <Link 
+            <ScrollToTopLink 
               href="/newsletters" 
               className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors"
             >
               Newsletters
-            </Link>
+            </ScrollToTopLink>
             
             <a 
               href="#contact" 
@@ -224,14 +224,14 @@ export default function NavBar() {
             >
               <div className="flex flex-col space-y-1 py-2 px-2 sm:px-4 bg-white/95 backdrop-blur-md rounded-xl shadow-lg max-h-[calc(100vh-70px)] overflow-y-auto">
                 {navLinks.map(link => (
-                  <Link
+                  <ScrollToTopLink
                     key={link.href}
                     href={link.href}
                     className="font-heading font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 text-base flex items-center"
                     onClick={closeMenu}
                   >
                     {link.label}
-                  </Link>
+                  </ScrollToTopLink>
                 ))}
                 
                 {/* Mobile nurseries dropdown */}
@@ -254,22 +254,22 @@ export default function NavBar() {
                         className="pl-4 mt-1 mb-1 bg-gray-50/80 rounded-md"
                       >
                         {nurseryLocations.map(location => (
-                          <Link
+                          <ScrollToTopLink
                             key={location.href}
                             href={location.href}
                             className="block py-3 px-4 font-heading font-medium text-gray-600 hover:text-primary"
                             onClick={closeMenu}
                           >
                             {location.label}
-                          </Link>
+                          </ScrollToTopLink>
                         ))}
-                        <Link
+                        <ScrollToTopLink
                           href="/#nurseries"
                           className="block py-3 px-4 font-heading font-medium text-gray-600 hover:text-primary border-t border-gray-100"
                           onClick={closeMenu}
                         >
                           View All Nurseries
-                        </Link>
+                        </ScrollToTopLink>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -295,14 +295,14 @@ export default function NavBar() {
                         className="pl-4 mt-1 mb-1 bg-gray-50/80 rounded-md"
                       >
                         {parentInfoItems.map((item, index) => (
-                          <Link
+                          <ScrollToTopLink
                             key={item.href}
                             href={item.href}
                             className={`block py-3 px-4 font-heading font-medium text-gray-600 hover:text-primary ${index > 0 ? 'border-t border-gray-50' : ''}`}
                             onClick={closeMenu}
                           >
                             {item.label}
-                          </Link>
+                          </ScrollToTopLink>
                         ))}
                       </motion.div>
                     )}
@@ -310,13 +310,13 @@ export default function NavBar() {
                 </div>
                 
                 {/* Mobile newsletters link */}
-                <Link
+                <ScrollToTopLink
                   href="/newsletters"
                   className="font-heading font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 text-base flex items-center"
                   onClick={closeMenu}
                 >
                   Newsletters
-                </Link>
+                </ScrollToTopLink>
                 
                 <a
                   href="#contact"
