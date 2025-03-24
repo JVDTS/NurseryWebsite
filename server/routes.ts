@@ -854,6 +854,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Email settings check route
+  app.get("/api/admin/email/verify", authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const { verifyEmailConfig } = await import('./emailService');
+      const isConfigValid = await verifyEmailConfig();
+      
+      res.status(200).json({
+        success: true,
+        isConfigValid,
+        emailUser: process.env.EMAIL_USER || "Not configured",
+        emailHost: process.env.EMAIL_HOST || "Not configured"
+      });
+    } catch (error) {
+      console.error("Error verifying email config:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to verify email configuration"
+      });
+    }
+  });
+
   // ===== PUBLIC FACING API ROUTES =====
   
   // Contact form submission
@@ -871,11 +892,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Store the contact submission
       const savedContact = await storage.createContactSubmission(contactData);
       
+      // Send email to IT@kingsborough.org.uk
+      const { sendContactEmail } = await import('./emailService');
+      const emailSent = await sendContactEmail(validatedData);
+      
       // Return success
       res.status(201).json({ 
         success: true, 
         message: "Contact form submitted successfully",
-        data: savedContact
+        data: savedContact,
+        emailSent
       });
     } catch (error) {
       if (error instanceof ZodError) {

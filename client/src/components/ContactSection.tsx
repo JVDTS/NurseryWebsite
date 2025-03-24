@@ -105,12 +105,19 @@ export default function ContactSection() {
 
   const onSubmit = async (data: typeof contactFormSchema._type) => {
     try {
-      await apiRequest("POST", "/api/contact", data);
+      const response = await apiRequest("POST", "/api/contact", data);
       
-      toast({
-        title: "Message sent!",
-        description: "We'll get back to you as soon as possible."
-      });
+      if (response.emailSent) {
+        toast({
+          title: "Message sent!",
+          description: "Your message has been sent to IT@kingsborough.org.uk. We'll get back to you as soon as possible."
+        });
+      } else {
+        toast({
+          title: "Message saved",
+          description: "Your message has been saved, but there was an issue sending the email notification. Our team will still review your submission."
+        });
+      }
       
       form.reset();
     } catch (error) {
@@ -308,7 +315,7 @@ export default function ContactSection() {
                       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                     </svg>
                   </div>
-                  <span className="text-gray-600">admin@cmcnursery.co.uk</span>
+                  <span className="text-gray-600">IT@kingsborough.org.uk</span>
                 </div>
               </div>
               
