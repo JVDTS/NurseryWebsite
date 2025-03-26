@@ -112,6 +112,11 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
       <aside className="hidden md:flex md:flex-col md:w-64 md:shadow-md bg-white">
         <div className="p-4 border-b">
           <Link href="/" className="flex items-center space-x-2">
+            <img 
+              src="/images/cmc-logo.png" 
+              alt="CMC Logo" 
+              className="w-10 h-10 object-contain mr-2"
+            />
             <span className="text-xl font-bold text-primary">CMC Nursery</span>
           </Link>
         </div>
@@ -190,6 +195,11 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
             </SheetTrigger>
             <div className="flex items-center justify-center flex-1">
               <Link href="/" className="flex items-center">
+                <img 
+                  src="/images/cmc-logo.png" 
+                  alt="CMC Logo" 
+                  className="w-8 h-8 object-contain mr-2"
+                />
                 <span className="text-lg font-semibold text-primary">CMC Nursery</span>
               </Link>
             </div>
@@ -221,7 +231,14 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
 
           <SheetContent side="left" className="p-0 w-64">
             <div className="flex items-center justify-between p-4 border-b">
-              <span className="text-lg font-semibold text-primary">CMC Nursery</span>
+              <div className="flex items-center">
+                <img 
+                  src="/images/cmc-logo.png" 
+                  alt="CMC Logo" 
+                  className="w-8 h-8 object-contain mr-2"
+                />
+                <span className="text-lg font-semibold text-primary">CMC Nursery</span>
+              </div>
               <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
                 <X className="w-5 h-5" />
               </Button>
