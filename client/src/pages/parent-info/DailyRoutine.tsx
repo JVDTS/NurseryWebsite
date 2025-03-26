@@ -1,15 +1,15 @@
 import { motion } from "framer-motion";
-import { Clock } from "lucide-react";
+import { Clock, Download } from "lucide-react";
 import ParentInfoLayout from "@/components/ParentInfoLayout";
 import { fadeUp, staggerContainer, childFadeIn } from "@/lib/animations";
 
 export default function DailyRoutinePage() {
-
-
+  // Age group data with actual schedules from the PDFs
   const ageGroups = [
     {
       name: "Little Blessings (3-18 months)",
       color: "hayes",
+      pdfUrl: "/files/daily-routines/Little-blessings.pdf",
       routineAdjustments: [
         "Individual sleeping schedules followed as per parents' guidance",
         "One-to-one feeding and nappy changing as needed",
@@ -18,23 +18,33 @@ export default function DailyRoutinePage() {
         "Shorter, more frequent activity transitions"
       ],
       schedule: [
-        { time: "7:30 - 9:00", activity: "Arrival & Gentle Play", description: "Calm welcome routines and sensory exploration" },
-        { time: "9:00 - 9:30", activity: "Breakfast", description: "Individual feeding with close attention to dietary needs" },
-        { time: "9:30 - 10:15", activity: "Sensory Activities", description: "Textures, sounds, and visual stimulation experiences" },
-        { time: "10:15 - 10:45", activity: "Morning Nap", description: "Sleep time according to individual schedules" },
-        { time: "10:45 - 11:30", activity: "Outdoor Sensory Time", description: "Nature exploration in our dedicated baby garden" },
-        { time: "11:30 - 12:15", activity: "Lunch", description: "Assisted feeding and social interaction" },
-        { time: "12:15 - 14:15", activity: "Afternoon Nap", description: "Extended rest period in our quiet sleep room" },
-        { time: "14:15 - 15:00", activity: "Story & Song Time", description: "Language development through books and music" },
-        { time: "15:00 - 15:30", activity: "Afternoon Snack", description: "Healthy age-appropriate foods" },
-        { time: "15:30 - 16:30", activity: "Physical Development", description: "Activities to encourage movement and coordination" },
-        { time: "16:30 - 17:15", activity: "Tea Time", description: "Light evening meal with social interaction" },
-        { time: "17:15 - 18:00", activity: "Calm Collection Activities", description: "Gentle activities while waiting for parents" }
-      ]
+        { time: "07:30 - 09:00", activity: "Children arrive – Breakfast and free play" },
+        { time: "09:00 - 09:15", activity: "Free play" },
+        { time: "09:15 - 09:30", activity: "Morning song/ Nursery rhymes" },
+        { time: "09:30 - 09:50", activity: "Planned/ focused activities" },
+        { time: "09:50 - 10:10", activity: "Morning snack" },
+        { time: "10:10 - 10:40", activity: "Sensory play" },
+        { time: "10:40 - 10:45", activity: "Tidy up time" },
+        { time: "10:45 - 11:00", activity: "Garden time" },
+        { time: "11:00 - 11:20", activity: "Circle time" },
+        { time: "11:20 - 12:00", activity: "Lunch time" },
+        { time: "12:00 - 1:30", activity: "Nap time" },
+        { time: "1:30 - 2:00", activity: "Afternoon snack" },
+        { time: "2:00 - 2:30", activity: "Messy play" },
+        { time: "2:30 - 2:45", activity: "Circle time" },
+        { time: "2:45 - 3:10", activity: "Garden time" },
+        { time: "3:10 - 4:00", activity: "Teatime" },
+        { time: "4:00 - 4:30", activity: "Activity time" },
+        { time: "4:30 - 4:50", activity: "Story time" },
+        { time: "4:50 - 5:30", activity: "Free play" },
+        { time: "5:30 - 6:00", activity: "Children go home" }
+      ],
+      note: "Nappy changing time - Every 3 hours apart from when they've done a poo"
     },
     {
       name: "Growing Feet (18-36 months)",
       color: "uxbridge",
+      pdfUrl: "/files/daily-routines/Growing-feet.pdf",
       routineAdjustments: [
         "Toilet training support in partnership with parents",
         "More emphasis on developing independence and self-help skills",
@@ -43,24 +53,34 @@ export default function DailyRoutinePage() {
         "Introduction to simple turn-taking and sharing concepts"
       ],
       schedule: [
-        { time: "7:30 - 8:30", activity: "Early Drop-off & Breakfast", description: "Self-feeding with supervision and morning welcome" },
-        { time: "8:30 - 9:15", activity: "Free Play & Welcome", description: "Child-led exploration with developmental toys" },
-        { time: "9:15 - 9:45", activity: "Morning Circle", description: "Simple songs, greetings and introduction to the day" },
-        { time: "9:45 - 10:30", activity: "Creative Activities", description: "Art, messy play and sensory experiences" },
-        { time: "10:30 - 10:45", activity: "Morning Snack", description: "Healthy snacks with focus on self-feeding skills" },
-        { time: "10:45 - 11:45", activity: "Outdoor Exploration", description: "Physical play and nature discovery" },
-        { time: "11:45 - 12:00", activity: "Story Time", description: "Interactive storytelling with props and puppets" },
-        { time: "12:00 - 12:45", activity: "Lunch", description: "Developing table manners and social eating" },
-        { time: "12:45 - 14:30", activity: "Naptime", description: "Rest period with quiet alternatives for non-sleepers" },
-        { time: "14:30 - 15:30", activity: "Language Activities", description: "Songs, rhymes and language development games" },
-        { time: "15:30 - 16:30", activity: "Outdoor/Indoor Choice", description: "Child-led activities in different areas" },
-        { time: "16:30 - 17:15", activity: "Tea Time", description: "Social mealtime with developing independence" },
-        { time: "17:15 - 18:00", activity: "Quiet Play & Collection", description: "Calm activities while waiting for collection" }
+        { time: "7:30 - 09:00", activity: "Children arrive – Breakfast and free play" },
+        { time: "09:00 - 09:10", activity: "Tidy up time" },
+        { time: "09:10 - 09:20", activity: "Morning song and circle time" },
+        { time: "09:20 - 09:50", activity: "Group activity" },
+        { time: "09:50 - 10:15", activity: "Washing hands/ Morning snack" },
+        { time: "10:15 - 10:35", activity: "Garden time" },
+        { time: "10:45 - 11:00", activity: "Tidy up time" },
+        { time: "11:00 - 11:15", activity: "Story time" },
+        { time: "11:15 - 11:20", activity: "Washing hands" },
+        { time: "11:20 - 11:50", activity: "Lunch time" },
+        { time: "11:50 - 12:15", activity: "Washing hands and faces / Children leaving" },
+        { time: "12:15 - 01:00", activity: "Free play/ children sleeping" },
+        { time: "01:00 - 01:30", activity: "Afternoon song and circle time" },
+        { time: "01:30 - 01:45", activity: "Washing hands / Afternoon snack" },
+        { time: "01:45 - 02:15", activity: "Focused activity" },
+        { time: "02:15 - 02:45", activity: "Garden time" },
+        { time: "02:45 - 02:55", activity: "Tidy up time" },
+        { time: "02:55 - 03:00", activity: "Washing hands" },
+        { time: "03:00 - 03:30", activity: "Teatime" },
+        { time: "03:30 - 04:00", activity: "Washing hands and faces / Children leaving" },
+        { time: "04:00 - 04:15", activity: "Story time" },
+        { time: "04:15 - 05:00", activity: "Garden time" }
       ]
     },
     {
       name: "Young Eagles (3-5 years)",
       color: "hounslow",
+      pdfUrl: "/files/daily-routines/Young-Eagles.pdf",
       routineAdjustments: [
         "More complex activities preparing for school readiness",
         "Longer periods of focused learning with specific objectives",
@@ -69,21 +89,27 @@ export default function DailyRoutinePage() {
         "Early literacy and numeracy skill development"
       ],
       schedule: [
-        { time: "7:30 - 8:30", activity: "Early Drop-off & Breakfast", description: "Self-service breakfast and independent activities" },
-        { time: "8:30 - 9:00", activity: "Welcome & Planning", description: "Children help plan their day's activities" },
-        { time: "9:00 - 9:30", activity: "Morning Circle Time", description: "Calendar, weather, news sharing and day overview" },
-        { time: "9:30 - 10:30", activity: "Focused Learning", description: "Literacy, numeracy and topic work in small groups" },
-        { time: "10:30 - 10:45", activity: "Morning Snack", description: "Independent preparation and social conversation" },
-        { time: "10:45 - 11:45", activity: "Outdoor Learning", description: "Physical challenges, projects and nature exploration" },
-        { time: "11:45 - 12:15", activity: "STEM Activities", description: "Science, technology, engineering and math exploration" },
-        { time: "12:15 - 13:00", activity: "Lunch", description: "Table helpers, self-service and conversation" },
-        { time: "13:00 - 13:30", activity: "Quiet Reading", description: "Independent book exploration and storytelling" },
-        { time: "13:30 - 14:30", activity: "Project Work", description: "Extended topic work with research and creativity" },
-        { time: "14:30 - 15:30", activity: "Specialist Activities", description: "Music, drama, languages or sports" },
-        { time: "15:30 - 16:00", activity: "Afternoon Snack & Meeting", description: "Reflection on day's learning" },
-        { time: "16:00 - 16:45", activity: "Free Choice & Outdoors", description: "Child-directed play and activities" },
-        { time: "16:45 - 17:15", activity: "Tea Time", description: "Independent serving and cleanup responsibilities" },
-        { time: "17:15 - 18:00", activity: "Story, Games & Collection", description: "Calm activities preparing for home" }
+        { time: "7:30 - 09:00", activity: "Children arrive – Breakfast and free play" },
+        { time: "09:00 - 09:10", activity: "Tidy up time" },
+        { time: "09:10 - 09:45", activity: "Morning song and circle time" },
+        { time: "09:50 - 10:15", activity: "Garden time" },
+        { time: "10:15 - 10:35", activity: "Washing hands / Morning snack" },
+        { time: "10:35 - 11:15", activity: "Focused activity/ free flow" },
+        { time: "11:15 - 11:20", activity: "Tidy up time" },
+        { time: "11:20 - 11:30", activity: "Story time" },
+        { time: "11:30 - 11:35", activity: "Washing hands" },
+        { time: "11:35 - 12:00", activity: "Lunch time + children go home" },
+        { time: "12:00 - 12:55", activity: "Free play" },
+        { time: "12:55 - 1:00", activity: "Tidy up + welcome children" },
+        { time: "1:00 - 1:20", activity: "Circle time" },
+        { time: "1:20 - 1:25", activity: "Washing hands" },
+        { time: "1:25 - 1:50", activity: "Afternoon snack" },
+        { time: "1:50 - 2:50", activity: "Free flow, Focused activity + garden time" },
+        { time: "2:50 - 3:00", activity: "Tidy up time" },
+        { time: "3:00 - 3:15", activity: "Storytime" },
+        { time: "3:15 - 3:20", activity: "Washing hands" },
+        { time: "3:20 - 4:00", activity: "Teatime buffet" },
+        { time: "4:00 - 5:00", activity: "Home time/ free play" }
       ]
     }
   ];
@@ -160,8 +186,17 @@ export default function DailyRoutinePage() {
                 custom={index}
                 className="bg-white shadow-md rounded-lg overflow-hidden border border-primary/10"
               >
-                <div className={`bg-${group.color} text-white py-3 px-6`}>
+                <div className={`bg-${group.color} text-white py-3 px-6 flex justify-between items-center`}>
                   <h3 className="text-xl font-heading font-bold">{group.name}</h3>
+                  <a 
+                    href={group.pdfUrl} 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm"
+                  >
+                    <Download className="w-4 h-4 mr-1" />
+                    Download PDF
+                  </a>
                 </div>
                 <div className="p-6">
                   <h4 className="text-lg font-heading font-semibold mb-4 text-gray-700">Daily Schedule</h4>
@@ -183,12 +218,17 @@ export default function DailyRoutinePage() {
                           </div>
                           <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-200 flex-1 ml-6 md:ml-0">
                             <h5 className={`font-heading font-bold text-${group.color}`}>{item.activity}</h5>
-                            <p className="text-gray-600 text-sm">{item.description}</p>
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
+                  
+                  {group.note && (
+                    <div className="mb-6 bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+                      <p className="text-gray-700 italic">{group.note}</p>
+                    </div>
+                  )}
                   
                   <h4 className="text-lg font-heading font-semibold mb-3 text-gray-700">Special Considerations</h4>
                   <ul className="space-y-2">
@@ -212,9 +252,23 @@ export default function DailyRoutinePage() {
               We understand that each child is unique and may have individual preferences or needs that require adjustments to our routine. 
               We welcome ongoing communication with parents to ensure that your child's experience at our nursery is positive and supportive of their development.
             </p>
-            <p className="italic text-muted-foreground">
+            <p className="italic text-muted-foreground mb-4">
               Please note that this schedule is a general framework and may be adjusted for special activities, outings, or based on the children's interests and needs on a particular day.
             </p>
+            <div className="flex flex-wrap gap-4">
+              {ageGroups.map((group) => (
+                <a 
+                  key={group.name}
+                  href={group.pdfUrl} 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center gap-2 bg-${group.color}/10 hover:bg-${group.color}/20 text-${group.color} px-4 py-2 rounded-md transition-colors`}
+                >
+                  <Download className="w-4 h-4" />
+                  <span>{group.name.split('(')[0].trim()} Schedule</span>
+                </a>
+              ))}
+            </div>
           </div>
         </motion.div>
       </motion.div>
