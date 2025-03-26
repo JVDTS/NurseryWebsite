@@ -7,7 +7,7 @@ export default function Footer() {
   return (
     <footer className="bg-gray-900 text-white py-16">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
           <div>
             <div className="flex items-center mb-6">
               <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
@@ -37,9 +37,21 @@ export default function Footer() {
               <li><Link href="/about" className="text-gray-400 hover:text-white transition-colors">About Us</Link></li>
               <li><Link href="/mission" className="text-gray-400 hover:text-white transition-colors">Our Mission</Link></li>
               <li><Link href="/#nurseries" className="text-gray-400 hover:text-white transition-colors">Our Nurseries</Link></li>
-              <li><Link href="/#contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link></li>
-              <li><Link href="/parent-info/policies" className="text-gray-400 hover:text-white transition-colors">Policies</Link></li>
+              <li><Link href="/newsletters" className="text-gray-400 hover:text-white transition-colors">Newsletters</Link></li>
+              <li><Link href="/#contact" className="text-gray-400 hover:text-white transition-colors">Contact Us</Link></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 className="font-heading font-bold text-lg mb-6">Parent Info</h4>
+            <ul className="space-y-3">
               <li><Link href="/parent-info/daily-routine" className="text-gray-400 hover:text-white transition-colors">Daily Routine</Link></li>
+              <li><Link href="/parent-info/sample-menu" className="text-gray-400 hover:text-white transition-colors">Sample Menu</Link></li>
+              <li><Link href="/parent-info/term-dates" className="text-gray-400 hover:text-white transition-colors">Term Dates</Link></li>
+              <li><Link href="/parent-info/fees" className="text-gray-400 hover:text-white transition-colors">Fees</Link></li>
+              <li><Link href="/parent-info/policies" className="text-gray-400 hover:text-white transition-colors">Policies</Link></li>
+              <li><Link href="/newsletters" className="text-gray-400 hover:text-white transition-colors">Newsletters</Link></li>
+              <li><Link href="/#contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link></li>
             </ul>
           </div>
           
@@ -50,7 +62,8 @@ export default function Footer() {
               <li><Link href="/nurseries/uxbridge" className="text-gray-400 hover:text-white transition-colors">Uxbridge - 4 New Windsor Street, UB8 2TU</Link></li>
               <li><Link href="/nurseries/hounslow" className="text-gray-400 hover:text-white transition-colors">Hounslow - 488, 490 Great West Rd, TW5 0TA</Link></li>
               <li><Link href="/#contact" className="text-gray-400 hover:text-white transition-colors">Book a Tour</Link></li>
-              <li><Link href="/parent-info/fees" className="text-gray-400 hover:text-white transition-colors">Enrollment Process</Link></li>
+              <li><Link href="/parent-info/fees" className="text-gray-400 hover:text-white transition-colors">Fees & Enrollment</Link></li>
+              <li><Link href="/parent-info/term-dates" className="text-gray-400 hover:text-white transition-colors">Term Dates</Link></li>
             </ul>
           </div>
           
