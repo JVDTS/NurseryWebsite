@@ -83,7 +83,7 @@ export default function NurseriesSection() {
   const [slideWidth, setSlideWidth] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
   const [ref, inView] = useInView({
-    triggerOnce: false,
+    triggerOnce: true,
     threshold: 0.1,
   });
 
@@ -160,11 +160,8 @@ export default function NurseriesSection() {
         >
           <div className="flex flex-wrap -mx-4">
             {nurseries.map((nursery, index) => (
-              <motion.div
+              <div
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
                 className="w-full md:w-1/2 lg:w-1/3 px-4 mb-8"
               >
                 <NurseryCard 
@@ -175,7 +172,7 @@ export default function NurseriesSection() {
                   hours={nursery.hours}
                   id={nursery.id}
                 />
-              </motion.div>
+              </div>
             ))}
           </div>
         </motion.div>
