@@ -2,9 +2,14 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as pdfjs from 'pdfjs-dist';
 import { createCanvas } from 'canvas';
+import { fileURLToPath } from 'url';
 
 // Initialize pdf.js
 const pdfjsLib = pdfjs;
+
+// Get current file and directory paths in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Path where thumbnails will be stored
 const THUMBNAIL_DIR = path.join(__dirname, '../uploads/thumbnails');
@@ -21,7 +26,7 @@ if (!fs.existsSync(THUMBNAIL_DIR)) {
  */
 export async function generatePdfThumbnail(pdfPath: string): Promise<string> {
   // Extract filename without extension
-  const fullPath = path.resolve(path.join(__dirname, '..', pdfPath));
+  const fullPath = path.resolve(path.join(process.cwd(), pdfPath));
   const fileName = path.basename(pdfPath, '.pdf');
   
   // Define thumbnail path
