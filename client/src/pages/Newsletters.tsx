@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Calendar, Download, Search, Info } from "lucide-react";
+import { Calendar, Download, Search, Info, FileText } from "lucide-react";
 import { format } from "date-fns";
 import PageTransition from "@/components/PageTransition";
 import NavBar from "@/components/NavBar";
@@ -167,11 +167,24 @@ export default function NewslettersPage() {
                           className="border border-gray-300 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
                         >
                           {/* Newsletter Preview Image */}
-                          <div className="aspect-[4/5] bg-gray-100 flex items-center justify-center border-b">
-                            <span className="text-lg font-medium text-gray-500">Front Page</span>
+                          <div className="aspect-[4/5] bg-gray-100 flex items-center justify-center border-b relative">
+                            <div className="flex flex-col items-center justify-center">
+                              <FileText className="h-12 w-12 text-gray-400 mb-2" />
+                              <span className="text-lg font-medium text-gray-500">Front Page</span>
+                            </div>
                           </div>
                           
-                          {/* Newsletter Info */}
+                          {/* Newsletter Title */}
+                          <div className="p-3 border-b">
+                            <h3 className="text-center font-medium text-gray-800 truncate">
+                              {newsletter.title}
+                            </h3>
+                            <p className="text-center text-sm text-gray-500 truncate">
+                              {format(new Date(newsletter.publishDate), 'MMMM yyyy')}
+                            </p>
+                          </div>
+                          
+                          {/* Newsletter Action */}
                           <div className="p-4 flex justify-center">
                             <Button
                               onClick={() => handlePreview(newsletter.fileUrl, newsletter.title)}
