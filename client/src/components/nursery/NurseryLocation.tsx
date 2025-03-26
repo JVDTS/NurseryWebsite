@@ -7,7 +7,7 @@ interface NurseryLocationProps {
   address: string;
   hoursText: string;
   phoneNumber: string;
-  mapImage?: string; // Made optional for backward compatibility
+  mapImage: string;
 }
 
 function getGoogleMapsUrl(address: string): string {
@@ -16,17 +16,9 @@ function getGoogleMapsUrl(address: string): string {
   return `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
 }
 
-function getGoogleMapsEmbedUrl(address: string): string {
-  // Encode the address for use in an embed URL
-  const encodedAddress = encodeURIComponent(address);
-  return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBQw1Y8kPqQeLUt-gzwGQ-MhLcHj3rDdOg&q=${encodedAddress}&zoom=15`;
-}
-
 export default function NurseryLocation({ address, hoursText, phoneNumber, mapImage }: NurseryLocationProps) {
   const [isMapHovered, setIsMapHovered] = useState(false);
   const googleMapsUrl = getGoogleMapsUrl(address);
-  const googleMapsEmbedUrl = getGoogleMapsEmbedUrl(address);
-  
   return (
     <section className="py-16 px-4 md:px-10 lg:px-20 max-w-7xl mx-auto">
       <motion.div 
@@ -45,7 +37,7 @@ export default function NurseryLocation({ address, hoursText, phoneNumber, mapIm
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
         <motion.div
-          className="rounded-xl overflow-hidden shadow-lg relative h-80"
+          className="rounded-xl overflow-hidden shadow-lg relative"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
@@ -53,25 +45,22 @@ export default function NurseryLocation({ address, hoursText, phoneNumber, mapIm
           onMouseEnter={() => setIsMapHovered(true)}
           onMouseLeave={() => setIsMapHovered(false)}
         >
-          <iframe
-            src={googleMapsEmbedUrl}
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            allowFullScreen={false}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title="Google Maps"
-            className="w-full h-full"
-          ></iframe>
-          
           <a 
             href={googleMapsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="absolute inset-0 z-10"
+            className="block relative"
             aria-label="Open location in Google Maps"
           >
+            <img
+              src={mapImage}
+              alt="Map of nursery location"
+              className="w-full h-80 object-cover transition-all duration-300"
+              style={{ 
+                filter: isMapHovered ? "brightness(0.8)" : "brightness(1)"
+              }}
+            />
+            
             <div 
               className="absolute inset-0 flex items-center justify-center transition-opacity duration-300"
               style={{ 
@@ -86,7 +75,7 @@ export default function NurseryLocation({ address, hoursText, phoneNumber, mapIm
             </div>
           </a>
           
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-white z-10">
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-white">
             <div className="flex items-center space-x-2">
               <MapPin className="w-4 h-4" />
               <p className="text-sm font-medium">{address}</p>
