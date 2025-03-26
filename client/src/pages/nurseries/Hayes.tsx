@@ -106,7 +106,7 @@ export default function HayesNursery() {
         address="192 Church Road, Hayes, UB3 2LT"
         hoursText="Monday - Friday: 7:30 AM - 6:00 PM"
         phoneNumber="01895 272885"
-        mapImage="https://images.unsplash.com/photo-1569336415962-a4bd9f69cd83?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+        mapImage="/images/maps/hayes-map.png"
       />
       
       <NurseryGallery images={galleryImages} />

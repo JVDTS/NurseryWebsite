@@ -106,7 +106,7 @@ export default function HounslowNursery() {
         address="488, 490 Great West Rd, Hounslow TW5 0TA"
         hoursText="Monday - Friday: 7:30 AM - 6:00 PM"
         phoneNumber="01895 272885"
-        mapImage="https://images.unsplash.com/photo-1505322747495-6afdd3b70760?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+        mapImage="/images/maps/hounslow-map.png"
       />
       
       <NurseryGallery images={galleryImages} />
