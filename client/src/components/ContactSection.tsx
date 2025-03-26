@@ -315,7 +315,7 @@ export default function ContactSection() {
                       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                     </svg>
                   </div>
-                  <span className="text-gray-600">IT@kingsborough.org.uk</span>
+                  <span className="text-gray-600">admin@cmcnursery.co.uk</span>
                 </div>
               </div>
               
