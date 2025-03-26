@@ -60,6 +60,35 @@ export default function AboutPage() {
     }
   ];
 
+  // Core values based on FISEP acronym
+  const fisepValues = [
+    {
+      letter: "F",
+      title: "Fun",
+      description: "We believe childhood should be joyful. We create playful environments where learning feels like an adventure."
+    },
+    {
+      letter: "I",
+      title: "Inclusive",
+      description: "We welcome and celebrate children from all backgrounds, cultures, and abilities, ensuring everyone feels valued."
+    },
+    {
+      letter: "S",
+      title: "Spiritual",
+      description: "We nurture children's sense of wonder, helping them develop their understanding of themselves and the world around them."
+    },
+    {
+      letter: "E",
+      title: "Excellence",
+      description: "We strive for the highest standards in everything we do, from our facilities to our educational programs."
+    },
+    {
+      letter: "P",
+      title: "Passion",
+      description: "Our dedicated team brings enthusiasm and commitment to supporting each child's unique journey of growth."
+    }
+  ];
+
   const values = [
     {
       icon: <Heart className="h-8 w-8" />,
@@ -122,6 +151,9 @@ export default function AboutPage() {
                 <a href="#team" className="px-6 py-3 bg-primary text-white rounded-full font-heading font-semibold shadow-md hover:shadow-lg transition-all">
                   Meet Our Team
                 </a>
+                <a href="#our-values" className="px-6 py-3 bg-primary/90 text-white rounded-full font-heading font-semibold shadow-md hover:shadow-lg transition-all">
+                  Our Values
+                </a>
                 <a href="#history" className="px-6 py-3 border border-primary text-primary rounded-full font-heading font-semibold hover:bg-primary/5 transition-colors">
                   Our Journey
                 </a>
@@ -176,6 +208,54 @@ export default function AboutPage() {
                   evolving to meet the changing needs of children and families in our community.
                 </p>
               </motion.div>
+            </motion.div>
+          </div>
+        </section>
+        
+        {/* Our FISEP Values Section */}
+        <section className="py-20" id="our-values">
+          <div className="container mx-auto px-4">
+            <motion.div
+              className="max-w-6xl mx-auto"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+            >
+              <motion.div variants={fadeUp} className="text-center mb-12">
+                <h2 className="text-3xl font-heading font-bold text-primary mb-4">Our Values: FISEP</h2>
+                <div className="h-1 w-20 bg-primary mx-auto mb-8"></div>
+                <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-12">
+                  Our values are embodied in the acronym FISEP, which represents the pillars of our approach to nurturing children's development
+                </p>
+              </motion.div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-12">
+                {fisepValues.map((value, index) => (
+                  <motion.div
+                    key={value.letter}
+                    variants={childFadeIn}
+                    custom={index}
+                    className="bg-white rounded-xl shadow-md overflow-hidden border border-primary/10"
+                  >
+                    <div className="bg-primary text-white text-4xl font-bold flex items-center justify-center h-20">
+                      {value.letter}
+                    </div>
+                    <div className="p-6">
+                      <h3 className="text-xl font-heading font-bold mb-3 text-primary">{value.title}</h3>
+                      <p className="text-muted-foreground">{value.description}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+              
+              <motion.p 
+                variants={fadeUp}
+                className="text-center text-lg text-muted-foreground max-w-3xl mx-auto"
+              >
+                These values form the foundation of everything we do at Coat of Many Colours Nursery, 
+                guiding our approach to childcare, education, and family partnerships.
+              </motion.p>
             </motion.div>
           </div>
         </section>
