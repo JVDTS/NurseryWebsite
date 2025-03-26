@@ -9,13 +9,13 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
           <div>
-            <div className="flex items-center mb-6">
+            <div className="flex flex-col items-center mb-6 md:items-start">
               <img 
                 src="/images/cmc-logo.png" 
                 alt="CMC Logo" 
-                className="w-12 h-12 object-contain"
+                className="w-24 h-24 object-contain mb-3"
               />
-              <span className="ml-3 font-heading font-bold text-lg text-white">Coat of Many Colours</span>
+              <span className="font-heading font-bold text-xl text-white">Coat of Many Colours</span>
             </div>
             
             <p className="text-gray-400 mb-6">
