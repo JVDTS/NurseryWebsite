@@ -5,29 +5,29 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-900 text-white py-16">
+    <footer className="bg-gray-900 text-white py-20">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
-          <div>
-            <div className="flex flex-col items-center mb-6 md:items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-16">
+          <div className="col-span-1 md:col-span-2 lg:col-span-1 xl:col-span-2 mb-8">
+            <div className="flex flex-col items-center md:items-start">
               <img 
                 src="/images/cmc-logo.png" 
                 alt="CMC Logo" 
-                className="w-24 h-24 object-contain mb-3"
+                className="w-48 h-48 object-contain mb-4"
               />
-              <span className="font-heading font-bold text-xl text-white">Coat of Many Colours</span>
+              <span className="font-heading font-bold text-2xl text-white mb-4">Coat of Many Colours</span>
             </div>
             
-            <p className="text-gray-400 mb-6">
+            <p className="text-gray-400 mb-6 text-center md:text-left">
               A nursery dedicated to nurturing happy, healthy, and conscious children through mindfulness, nature connection, and personalized care.
             </p>
             
-            <div className="flex space-x-4">
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary transition-all">
-                <Facebook size={20} />
+            <div className="flex space-x-4 justify-center md:justify-start">
+              <a href="#" className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary transition-all">
+                <Facebook size={22} />
               </a>
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary transition-all">
-                <Instagram size={20} />
+              <a href="#" className="w-12 h-12 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary transition-all">
+                <Instagram size={22} />
               </a>
             </div>
           </div>
