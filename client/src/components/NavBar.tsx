@@ -86,7 +86,7 @@ export default function NavBar() {
         <nav className="flex justify-between items-center rounded-full px-3 sm:px-6 py-2 sm:py-2 bg-white/90 backdrop-blur-sm shadow-md">
           <div className="flex items-center flex-grow-0">
             <button 
-              className="md:hidden flex items-center justify-center p-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors mr-1"
+              className="lg:hidden flex items-center justify-center p-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors mr-1"
               onClick={toggleMenu}
               aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
@@ -104,12 +104,12 @@ export default function NavBar() {
             </ScrollToTopLink>
           </div>
           
-          <div className="hidden md:flex space-x-6 lg:space-x-10 items-center">
+          <div className="hidden lg:flex space-x-2 lg:space-x-10 items-center">
             {navLinks.map(link => (
               <ScrollToTopLink 
                 key={link.href}
                 href={link.href} 
-                className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors"
+                className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors text-sm lg:text-base"
               >
                 {link.label}
               </ScrollToTopLink>
@@ -119,7 +119,7 @@ export default function NavBar() {
             <div className="relative" ref={nurseriesRef}>
               <button 
                 onClick={toggleNurseriesDropdown}
-                className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors flex items-center"
+                className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors flex items-center text-sm lg:text-base"
               >
                 Our Nurseries
                 <ChevronDown className={`ml-1 h-4 w-4 transition-transform ${showNurseriesDropdown ? 'rotate-180' : ''}`} />
@@ -161,7 +161,7 @@ export default function NavBar() {
             <div className="relative" ref={parentInfoRef}>
               <button 
                 onClick={toggleParentInfoDropdown}
-                className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors flex items-center"
+                className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors flex items-center text-sm lg:text-base"
               >
                 Parent Info
                 <ChevronDown className={`ml-1 h-4 w-4 transition-transform ${showParentInfoDropdown ? 'rotate-180' : ''}`} />
@@ -194,21 +194,21 @@ export default function NavBar() {
             {/* Newsletters link */}
             <ScrollToTopLink 
               href="/newsletters" 
-              className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors"
+              className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors text-sm lg:text-base"
             >
               Newsletters
             </ScrollToTopLink>
             
             <a 
               href="#contact" 
-              className="ml-4 px-5 py-2 border-b border-orange-500 text-gray-800 font-heading font-semibold transition-all hover:border-gray-800"
+              className="ml-2 lg:ml-4 px-3 lg:px-5 py-2 border-b border-orange-500 text-gray-800 font-heading font-semibold transition-all hover:border-gray-800 text-sm lg:text-base"
             >
               Get In Touch
             </a>
 
           </div>
           
-          <div className="md:block hidden">
+          <div className="lg:block hidden">
             {/* Placeholder for desktop layout balance */}
           </div>
         </nav>
@@ -220,7 +220,7 @@ export default function NavBar() {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="md:hidden overflow-hidden mt-2 fixed left-2 right-2 sm:left-4 sm:right-4 top-[50px] bottom-auto z-50"
+              className="lg:hidden overflow-hidden mt-2 fixed left-2 right-2 sm:left-4 sm:right-4 top-[50px] bottom-auto z-50"
             >
               <div className="flex flex-col space-y-1 py-2 px-2 sm:px-4 bg-white/95 backdrop-blur-md rounded-xl shadow-lg max-h-[calc(100vh-70px)] overflow-y-auto">
                 {navLinks.map(link => (
