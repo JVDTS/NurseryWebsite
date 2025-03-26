@@ -65,6 +65,8 @@ export default function NewslettersPage() {
     
     return matchesSearch && matchesLocation;
   });
+  
+  console.log("Filtered newsletters:", filteredNewsletters);
 
   const handlePreview = (fileUrl: string, title: string) => {
     // Open the PDF in a new tab
