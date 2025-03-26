@@ -231,22 +231,34 @@ export default function AboutPage() {
               </motion.div>
               
               <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-12">
-                {fisepValues.map((value, index) => (
-                  <motion.div
-                    key={value.letter}
-                    variants={childFadeIn}
-                    custom={index}
-                    className="bg-white rounded-xl shadow-md overflow-hidden border border-primary/10"
-                  >
-                    <div className="bg-primary text-white text-4xl font-bold flex items-center justify-center h-20">
-                      {value.letter}
-                    </div>
-                    <div className="p-6">
-                      <h3 className="text-xl font-heading font-bold mb-3 text-primary">{value.title}</h3>
-                      <p className="text-muted-foreground">{value.description}</p>
-                    </div>
-                  </motion.div>
-                ))}
+                {fisepValues.map((value, index) => {
+                  // Assign each value a different color
+                  const colors = [
+                    { bg: "bg-rainbow-red", text: "text-rainbow-red" },
+                    { bg: "bg-rainbow-orange", text: "text-rainbow-orange" },
+                    { bg: "bg-rainbow-green", text: "text-rainbow-green" },
+                    { bg: "bg-rainbow-blue", text: "text-rainbow-blue" },
+                    { bg: "bg-rainbow-violet", text: "text-rainbow-violet" }
+                  ];
+                  const color = colors[index % colors.length];
+                  
+                  return (
+                    <motion.div
+                      key={value.letter}
+                      variants={childFadeIn}
+                      custom={index}
+                      className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-all"
+                    >
+                      <div className={`${color.bg} text-white text-4xl font-bold flex items-center justify-center h-20`}>
+                        {value.letter}
+                      </div>
+                      <div className="p-6">
+                        <h3 className={`text-xl font-heading font-bold mb-3 ${color.text}`}>{value.title}</h3>
+                        <p className="text-muted-foreground">{value.description}</p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
               
               <motion.p 
@@ -271,28 +283,40 @@ export default function AboutPage() {
               viewport={{ once: true, margin: "-100px" }}
             >
               <motion.div variants={fadeUp} className="text-center mb-16">
-                <h2 className="text-3xl font-heading font-bold text-primary mb-4">Our Core Values</h2>
-                <div className="h-1 w-20 bg-primary mx-auto mb-8"></div>
+                <h2 className="text-3xl font-heading font-bold text-rainbow-green mb-4">Our Core Values</h2>
+                <div className="h-1 w-20 bg-gradient-to-r from-rainbow-blue via-rainbow-green to-rainbow-yellow mx-auto mb-8"></div>
                 <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                   These principles guide everything we do at Coat of Many Colours Nursery
                 </p>
               </motion.div>
               
               <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {values.map((value, index) => (
-                  <motion.div
-                    key={value.title}
-                    variants={childFadeIn}
-                    custom={index}
-                    className="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center"
-                  >
-                    <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-6 text-primary">
-                      {value.icon}
-                    </div>
-                    <h3 className="text-xl font-heading font-bold mb-4">{value.title}</h3>
-                    <p className="text-muted-foreground">{value.description}</p>
-                  </motion.div>
-                ))}
+                {values.map((value, index) => {
+                  // Rainbow colors for core values
+                  const colors = [
+                    { bg: "bg-rainbow-green/10", text: "text-rainbow-green", icon: "text-rainbow-green" },
+                    { bg: "bg-rainbow-blue/10", text: "text-rainbow-blue", icon: "text-rainbow-blue" },
+                    { bg: "bg-rainbow-orange/10", text: "text-rainbow-orange", icon: "text-rainbow-orange" },
+                    { bg: "bg-rainbow-indigo/10", text: "text-rainbow-indigo", icon: "text-rainbow-indigo" },
+                    { bg: "bg-rainbow-teal/10", text: "text-rainbow-teal", icon: "text-rainbow-teal" }
+                  ];
+                  const color = colors[index % colors.length];
+                  
+                  return (
+                    <motion.div
+                      key={value.title}
+                      variants={childFadeIn}
+                      custom={index}
+                      className="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center hover:shadow-lg transition-all"
+                    >
+                      <div className={`h-16 w-16 rounded-full ${color.bg} flex items-center justify-center mb-6 ${color.icon}`}>
+                        {value.icon}
+                      </div>
+                      <h3 className={`text-xl font-heading font-bold mb-4 ${color.text}`}>{value.title}</h3>
+                      <p className="text-muted-foreground">{value.description}</p>
+                    </motion.div>
+                  );
+                })}
               </div>
             </motion.div>
           </div>
@@ -309,8 +333,8 @@ export default function AboutPage() {
               viewport={{ once: true, margin: "-100px" }}
             >
               <motion.div variants={fadeUp} className="text-center mb-16">
-                <h2 className="text-3xl font-heading font-bold text-primary mb-4">Our Journey</h2>
-                <div className="h-1 w-20 bg-primary mx-auto mb-8"></div>
+                <h2 className="text-3xl font-heading font-bold text-rainbow-orange mb-4">Our Journey</h2>
+                <div className="h-1 w-20 bg-gradient-to-r from-rainbow-red via-rainbow-orange to-rainbow-yellow mx-auto mb-8"></div>
                 <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                   The milestones that have shaped Coat of Many Colours Nursery
                 </p>
@@ -321,33 +345,45 @@ export default function AboutPage() {
                 <div className="absolute left-1/2 top-0 h-full w-0.5 bg-primary/20 transform -translate-x-1/2"></div>
                 
                 <div className="space-y-16">
-                  {timeline.map((event, index) => (
-                    <motion.div 
-                      key={event.year}
-                      variants={childFadeIn}
-                      custom={index}
-                      className="relative"
-                    >
-                      <div className={`flex flex-col ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} items-center`}>
-                        {/* Timeline center dot */}
-                        <div className="absolute left-1/2 top-10 w-5 h-5 bg-white border-4 border-primary rounded-full transform -translate-x-1/2 z-20"></div>
-                        
-                        {/* Content card */}
-                        <div className={`md:w-1/2 ${index % 2 === 0 ? 'md:pr-12' : 'md:pl-12'}`}>
-                          <div className="bg-white shadow-md rounded-lg p-6 md:p-8 border border-primary/10">
-                            <div className="bg-primary text-white text-lg font-bold rounded-full w-14 h-14 flex items-center justify-center mb-4">
-                              {event.year}
+                  {timeline.map((event, index) => {
+                    // Timeline colors
+                    const colors = [
+                      { bg: "bg-rainbow-red", border: "border-rainbow-red", text: "text-rainbow-red" },
+                      { bg: "bg-rainbow-blue", border: "border-rainbow-blue", text: "text-rainbow-blue" },
+                      { bg: "bg-rainbow-green", border: "border-rainbow-green", text: "text-rainbow-green" },
+                      { bg: "bg-rainbow-violet", border: "border-rainbow-violet", text: "text-rainbow-violet" },
+                      { bg: "bg-rainbow-orange", border: "border-rainbow-orange", text: "text-rainbow-orange" }
+                    ];
+                    const color = colors[index % colors.length];
+                    
+                    return (
+                      <motion.div 
+                        key={event.year}
+                        variants={childFadeIn}
+                        custom={index}
+                        className="relative"
+                      >
+                        <div className={`flex flex-col ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} items-center`}>
+                          {/* Timeline center dot */}
+                          <div className={`absolute left-1/2 top-10 w-5 h-5 bg-white border-4 ${color.border} rounded-full transform -translate-x-1/2 z-20`}></div>
+                          
+                          {/* Content card */}
+                          <div className={`md:w-1/2 ${index % 2 === 0 ? 'md:pr-12' : 'md:pl-12'}`}>
+                            <div className="bg-white shadow-md rounded-lg p-6 md:p-8 border border-gray-200 hover:shadow-lg transition-all">
+                              <div className={`${color.bg} text-white text-lg font-bold rounded-full w-14 h-14 flex items-center justify-center mb-4`}>
+                                {event.year}
+                              </div>
+                              <h3 className={`text-xl font-heading font-bold mb-2 ${color.text}`}>{event.title}</h3>
+                              <p className="text-muted-foreground">{event.description}</p>
                             </div>
-                            <h3 className="text-xl font-heading font-bold mb-2">{event.title}</h3>
-                            <p className="text-muted-foreground">{event.description}</p>
                           </div>
+                          
+                          {/* Empty space for the other side */}
+                          <div className="md:w-1/2"></div>
                         </div>
-                        
-                        {/* Empty space for the other side */}
-                        <div className="md:w-1/2"></div>
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    );
+                  })}
                 </div>
               </div>
             </motion.div>
@@ -365,33 +401,43 @@ export default function AboutPage() {
               viewport={{ once: true, margin: "-100px" }}
             >
               <motion.div variants={fadeUp} className="text-center mb-16">
-                <h2 className="text-3xl font-heading font-bold text-primary mb-4">Meet Our Leadership Team</h2>
-                <div className="h-1 w-20 bg-primary mx-auto mb-8"></div>
+                <h2 className="text-3xl font-heading font-bold text-rainbow-blue mb-4">Meet Our Leadership Team</h2>
+                <div className="h-1 w-20 bg-gradient-to-r from-rainbow-indigo via-rainbow-blue to-rainbow-teal mx-auto mb-8"></div>
                 <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                   The passionate individuals guiding our vision and operations
                 </p>
               </motion.div>
               
               <div className="grid gap-8 md:grid-cols-2">
-                {teamMembers.map((member, index) => (
-                  <motion.div 
-                    key={member.name}
-                    variants={childFadeIn}
-                    custom={index}
-                    className="flex flex-col md:flex-row gap-6 bg-white rounded-xl shadow-md p-6 border border-primary/10"
-                  >
-                    <div className="w-32 h-32 rounded-full bg-gray-200 flex-shrink-0 mx-auto md:mx-0">
-                      <div className="w-full h-full rounded-full bg-primary/20 flex items-center justify-center text-primary text-4xl font-bold">
-                        {member.name.charAt(0)}
+                {teamMembers.map((member, index) => {
+                  // Team member colors
+                  const colors = [
+                    { bg: "bg-rainbow-blue/10", text: "text-rainbow-blue", accent: "bg-rainbow-blue" },
+                    { bg: "bg-rainbow-green/10", text: "text-rainbow-green", accent: "bg-rainbow-green" },
+                    { bg: "bg-rainbow-teal/10", text: "text-rainbow-teal", accent: "bg-rainbow-teal" }
+                  ];
+                  const color = colors[index % colors.length];
+                  
+                  return (
+                    <motion.div 
+                      key={member.name}
+                      variants={childFadeIn}
+                      custom={index}
+                      className="flex flex-col md:flex-row gap-6 bg-white rounded-xl shadow-md p-6 border border-gray-200 hover:shadow-lg transition-all"
+                    >
+                      <div className="w-32 h-32 rounded-full bg-gray-200 flex-shrink-0 mx-auto md:mx-0">
+                        <div className={`w-full h-full rounded-full ${color.bg} flex items-center justify-center ${color.text} text-4xl font-bold`}>
+                          {member.name.charAt(0)}
+                        </div>
                       </div>
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-heading font-bold text-primary mb-1">{member.name}</h3>
-                      <p className="font-medium text-primary/70 mb-4">{member.role}</p>
-                      <p className="text-muted-foreground">{member.bio}</p>
-                    </div>
-                  </motion.div>
-                ))}
+                      <div>
+                        <h3 className={`text-xl font-heading font-bold ${color.text} mb-1`}>{member.name}</h3>
+                        <p className={`font-medium ${color.text}/70 mb-4`}>{member.role}</p>
+                        <p className="text-muted-foreground">{member.bio}</p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
               
               <motion.div variants={fadeUp} className="text-center mt-16">
@@ -418,36 +464,36 @@ export default function AboutPage() {
               viewport={{ once: true, margin: "-100px" }}
             >
               <motion.div variants={fadeUp} className="text-center mb-12">
-                <h2 className="text-3xl font-heading font-bold text-primary mb-4">Our Accreditations & Partnerships</h2>
-                <div className="h-1 w-20 bg-primary mx-auto mb-8"></div>
+                <h2 className="text-3xl font-heading font-bold text-rainbow-violet mb-4">Our Accreditations & Partnerships</h2>
+                <div className="h-1 w-20 bg-gradient-to-r from-rainbow-violet via-rainbow-pink to-rainbow-red mx-auto mb-8"></div>
               </motion.div>
               
-              <motion.div variants={fadeUp} className="bg-white rounded-xl shadow-md p-8 border border-primary/10">
+              <motion.div variants={fadeUp} className="bg-white rounded-xl shadow-md p-8 border border-gray-200 hover:shadow-lg transition-all">
                 <div className="grid gap-8 md:grid-cols-2">
                   <div>
                     <h3 className="text-xl font-heading font-bold mb-4">Accreditations</h3>
                     <ul className="space-y-3">
                       <li className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                        <div className="h-6 w-6 rounded-full bg-rainbow-blue/10 flex items-center justify-center mt-0.5">
+                          <div className="h-2 w-2 rounded-full bg-rainbow-blue"></div>
                         </div>
                         <span>Ofsted Outstanding Rating (2022)</span>
                       </li>
                       <li className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                        <div className="h-6 w-6 rounded-full bg-rainbow-green/10 flex items-center justify-center mt-0.5">
+                          <div className="h-2 w-2 rounded-full bg-rainbow-green"></div>
                         </div>
                         <span>Early Years Quality Mark (EYQM)</span>
                       </li>
                       <li className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                        <div className="h-6 w-6 rounded-full bg-rainbow-orange/10 flex items-center justify-center mt-0.5">
+                          <div className="h-2 w-2 rounded-full bg-rainbow-orange"></div>
                         </div>
                         <span>National Day Nurseries Association (NDNA) Member</span>
                       </li>
                       <li className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                        <div className="h-6 w-6 rounded-full bg-rainbow-violet/10 flex items-center justify-center mt-0.5">
+                          <div className="h-2 w-2 rounded-full bg-rainbow-violet"></div>
                         </div>
                         <span>Children's Food Trust Early Years Nutrition Partnership</span>
                       </li>
@@ -458,26 +504,26 @@ export default function AboutPage() {
                     <h3 className="text-xl font-heading font-bold mb-4">Partnerships</h3>
                     <ul className="space-y-3">
                       <li className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                        <div className="h-6 w-6 rounded-full bg-rainbow-red/10 flex items-center justify-center mt-0.5">
+                          <div className="h-2 w-2 rounded-full bg-rainbow-red"></div>
                         </div>
                         <span>Local primary schools transition program</span>
                       </li>
                       <li className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                        <div className="h-6 w-6 rounded-full bg-rainbow-pink/10 flex items-center justify-center mt-0.5">
+                          <div className="h-2 w-2 rounded-full bg-rainbow-pink"></div>
                         </div>
                         <span>Local health visitor service</span>
                       </li>
                       <li className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                        <div className="h-6 w-6 rounded-full bg-rainbow-yellow/10 flex items-center justify-center mt-0.5">
+                          <div className="h-2 w-2 rounded-full bg-rainbow-yellow"></div>
                         </div>
                         <span>Early Years Alliance</span>
                       </li>
                       <li className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-                          <div className="h-2 w-2 rounded-full bg-primary"></div>
+                        <div className="h-6 w-6 rounded-full bg-rainbow-teal/10 flex items-center justify-center mt-0.5">
+                          <div className="h-2 w-2 rounded-full bg-rainbow-teal"></div>
                         </div>
                         <span>Local community groups and charities</span>
                       </li>
