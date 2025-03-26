@@ -10,6 +10,9 @@ app.use(express.urlencoded({ extended: false }));
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
+// Serve public files (PDFs, etc.) statically
+app.use(express.static(path.join(process.cwd(), 'public')));
+
 // API request logger middleware
 app.use((req, res, next) => {
   // Only log API requests
