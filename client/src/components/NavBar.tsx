@@ -94,9 +94,11 @@ export default function NavBar() {
             </button>
             
             <ScrollToTopLink href="/" className="flex items-center">
-              <div className="w-7 h-7 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-primary rounded-full flex items-center justify-center shrink-0">
-                <span className="text-white font-heading font-bold text-xs sm:text-base md:text-xl">CMC</span>
-              </div>
+              <img 
+                src="/images/cmc-logo.png" 
+                alt="CMC Logo" 
+                className="w-7 h-7 sm:w-10 sm:h-10 md:w-12 md:h-12 shrink-0 object-contain"
+              />
               <span className="ml-1 md:ml-3 font-heading font-bold text-xs sm:text-sm md:text-lg text-primary truncate max-w-[100px] sm:max-w-full">
                 <span className={isMobile ? "inline" : "hidden"}>CMC Nursery</span>
                 <span className={!isMobile ? "inline" : "hidden"}>Coat of Many Colours</span>
