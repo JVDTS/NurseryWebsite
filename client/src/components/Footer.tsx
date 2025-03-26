@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Mail, Phone, Clock, Facebook, Instagram, Twitter, Linkedin } from "lucide-react";
+import { Mail, Phone, Clock, Facebook, Instagram } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -26,12 +26,6 @@ export default function Footer() {
               </a>
               <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary transition-all">
                 <Instagram size={20} />
-              </a>
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary transition-all">
-                <Twitter size={20} />
-              </a>
-              <a href="#" className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary transition-all">
-                <Linkedin size={20} />
               </a>
             </div>
           </div>
@@ -91,9 +85,9 @@ export default function Footer() {
           </p>
           
           <div className="flex space-x-6">
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">Terms of Service</a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">Cookie Policy</a>
+            <Link href="/parent-info/policies" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="/parent-info/policies" className="text-gray-400 hover:text-white transition-colors">Terms of Service</Link>
+            <Link href="/parent-info/policies" className="text-gray-400 hover:text-white transition-colors">Cookie Policy</Link>
           </div>
         </div>
       </div>

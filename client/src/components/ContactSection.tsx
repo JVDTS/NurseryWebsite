@@ -29,9 +29,7 @@ import {
   Clock, 
   Mail,
   Facebook, 
-  Instagram, 
-  Twitter, 
-  Linkedin 
+  Instagram
 } from "lucide-react";
 import { contactFormSchema } from "@shared/schema";
 import { fadeLeft, fadeRight } from "@/lib/animations";
@@ -327,12 +325,6 @@ export default function ContactSection() {
                   </a>
                   <a href="#" className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-all">
                     <Instagram size={20} />
-                  </a>
-                  <a href="#" className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-all">
-                    <Twitter size={20} />
-                  </a>
-                  <a href="#" className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-all">
-                    <Linkedin size={20} />
                   </a>
                 </div>
               </div>
