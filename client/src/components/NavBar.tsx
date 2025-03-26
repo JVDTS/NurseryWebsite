@@ -75,7 +75,7 @@ export default function NavBar() {
   const parentInfoItems = [
     { href: "/parent-info/policies", label: "Policies" },
     { href: "/parent-info/daily-routine", label: "Daily Routine" },
-    { href: "/parent-info/sample-menu", label: "Sample Menu" },
+    { href: "/parent-info/sample-menu", label: "Menus" },
     { href: "/parent-info/term-dates", label: "Term Dates" },
     { href: "/parent-info/fees", label: "Fees" },
   ];
