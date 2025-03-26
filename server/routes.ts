@@ -1089,6 +1089,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // API endpoint to get PDF thumbnails for newsletters
+  app.get("/api/newsletters/thumbnails", async (req: Request, res: Response) => {
+    try {
+      const { getPdfThumbnailUrl } = await import('./thumbnailer');
+      const allNewsletters = await storage.getAllNewsletters();
+      
+      // Transform the data and generate thumbnails
+      const thumbnailPromises = allNewsletters.map(async (newsletter) => {
+        // Skip if pdfUrl is null or undefined
+        const pdfUrl = newsletter.pdfUrl;
+        if (!pdfUrl) {
+          return {
+            id: newsletter.id,
+            thumbnailUrl: ''
+          };
+        }
+        
+        // Remove leading slash if present
+        const pdfPath = pdfUrl.startsWith('/') ? pdfUrl.substring(1) : pdfUrl;
+        const thumbnailUrl = await getPdfThumbnailUrl(pdfPath);
+        
+        return {
+          id: newsletter.id,
+          thumbnailUrl
+        };
+      });
+      
+      const thumbnails = await Promise.all(thumbnailPromises);
+      res.json({ success: true, thumbnails });
+    } catch (error) {
+      console.error("Error generating thumbnails:", error);
+      res.status(500).json({ success: false, message: "Failed to generate thumbnails" });
+    }
+  });
 
   const httpServer = createServer(app);
 

@@ -46,7 +46,8 @@ export async function generatePdfThumbnail(pdfPath: string): Promise<string> {
     
     // Create a canvas for rendering
     const canvas = createCanvas(viewport.width, viewport.height);
-    const context = canvas.getContext('2d');
+    // Using any to avoid type conflicts with pdf.js and node-canvas
+    const context = canvas.getContext('2d') as any;
     
     // Render the PDF page to the canvas
     await page.render({

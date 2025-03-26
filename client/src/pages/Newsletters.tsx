@@ -7,10 +7,10 @@ import PageTransition from "@/components/PageTransition";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { fadeIn, fadeUp } from "@/lib/animations";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Newsletter {
   id: number;
@@ -19,6 +19,14 @@ interface Newsletter {
   fileUrl: string;
   publishDate: string;
   nurseryId: number;
+}
+
+interface ThumbnailResponse {
+  success: boolean;
+  thumbnails: {
+    id: number;
+    thumbnailUrl: string;
+  }[];
 }
 
 interface Nursery {
@@ -49,6 +57,11 @@ export default function NewslettersPage() {
   // Get all newsletters data
   const { data: newsletters = [], isLoading } = useQuery<Newsletter[]>({
     queryKey: ["/api/newsletters"],
+  });
+  
+  // Get PDF thumbnails
+  const { data: thumbnailsData, isLoading: thumbnailsLoading } = useQuery<ThumbnailResponse>({
+    queryKey: ["/api/newsletters/thumbnails"],
   });
 
   // Filter newsletters based on selected location
@@ -170,10 +183,20 @@ export default function NewslettersPage() {
                         >
                           {/* Newsletter Preview Image */}
                           <div className="aspect-[4/5] bg-gray-100 flex items-center justify-center border-b relative">
-                            <div className="flex flex-col items-center justify-center">
-                              <FileText className="h-12 w-12 text-gray-400 mb-2" />
-                              <span className="text-lg font-medium text-gray-500">Front Page</span>
-                            </div>
+                            {thumbnailsLoading ? (
+                              <Skeleton className="w-full h-full absolute" />
+                            ) : thumbnailsData?.thumbnails.find(t => t.id === newsletter.id)?.thumbnailUrl ? (
+                              <img 
+                                src={thumbnailsData?.thumbnails.find(t => t.id === newsletter.id)?.thumbnailUrl} 
+                                alt={`${newsletter.title} preview`}
+                                className="w-full h-full object-contain"
+                              />
+                            ) : (
+                              <div className="flex flex-col items-center justify-center">
+                                <FileText className="h-12 w-12 text-gray-400 mb-2" />
+                                <span className="text-lg font-medium text-gray-500">Preview Unavailable</span>
+                              </div>
+                            )}
                           </div>
                           
                           {/* Newsletter Title */}
