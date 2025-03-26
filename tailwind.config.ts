@@ -44,6 +44,18 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+        // Coat of Many Colours palette
+        rainbow: {
+          red: "#FF5757",     // Red
+          orange: "#FF9747",  // Orange
+          yellow: "#FFDE59",  // Yellow
+          green: "#4CAF50",   // Green
+          blue: "#42A5F5",    // Blue
+          indigo: "#5C6BC0",  // Indigo
+          violet: "#9C27B0",  // Violet
+          pink: "#EC407A",    // Pink
+          teal: "#26A69A",    // Teal
+        },
         chart: {
           "1": "hsl(var(--chart-1))",
           "2": "hsl(var(--chart-2))",
