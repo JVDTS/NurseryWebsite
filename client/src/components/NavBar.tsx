@@ -81,9 +81,9 @@ export default function NavBar() {
   ];
 
   return (
-    <header className={`fixed w-full z-50 transition-all duration-300 px-1 sm:px-4 ${isScrolled ? 'py-1' : 'py-1 sm:py-2'}`}>
+    <header className={`fixed w-full z-50 transition-all duration-300 px-1 sm:px-4 ${isScrolled ? 'py-2' : 'py-3 sm:py-4'}`}>
       <div className="max-w-[90rem] mx-auto">
-        <nav className="flex justify-between items-center rounded-full px-3 sm:px-6 py-2 sm:py-2 bg-white/90 backdrop-blur-sm shadow-md">
+        <nav className="flex justify-between items-center rounded-full px-4 sm:px-8 py-3 sm:py-4 bg-white/90 backdrop-blur-sm shadow-md">
           <div className="flex items-center flex-grow-0">
             <button 
               className="lg:hidden flex items-center justify-center p-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors mr-1"
@@ -111,7 +111,7 @@ export default function NavBar() {
               <ScrollToTopLink 
                 key={link.href}
                 href={link.href} 
-                className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors text-sm lg:text-base"
+                className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors text-sm lg:text-lg"
               >
                 {link.label}
               </ScrollToTopLink>
@@ -121,7 +121,7 @@ export default function NavBar() {
             <div className="relative" ref={nurseriesRef}>
               <button 
                 onClick={toggleNurseriesDropdown}
-                className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors flex items-center text-sm lg:text-base"
+                className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors flex items-center text-sm lg:text-lg"
               >
                 Our Nurseries
                 <ChevronDown className={`ml-1 h-4 w-4 transition-transform ${showNurseriesDropdown ? 'rotate-180' : ''}`} />
@@ -163,7 +163,7 @@ export default function NavBar() {
             <div className="relative" ref={parentInfoRef}>
               <button 
                 onClick={toggleParentInfoDropdown}
-                className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors flex items-center text-sm lg:text-base"
+                className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors flex items-center text-sm lg:text-lg"
               >
                 Parent Info
                 <ChevronDown className={`ml-1 h-4 w-4 transition-transform ${showParentInfoDropdown ? 'rotate-180' : ''}`} />
@@ -196,14 +196,14 @@ export default function NavBar() {
             {/* Newsletters link */}
             <ScrollToTopLink 
               href="/newsletters" 
-              className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors text-sm lg:text-base"
+              className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors text-sm lg:text-lg"
             >
               Newsletters
             </ScrollToTopLink>
             
             <a 
               href="#contact" 
-              className="ml-2 lg:ml-4 px-3 lg:px-5 py-2 border-b border-orange-500 text-gray-800 font-heading font-semibold transition-all hover:border-gray-800 text-sm lg:text-base"
+              className="ml-2 lg:ml-4 px-3 lg:px-5 py-2 border-b border-orange-500 text-gray-800 font-heading font-semibold transition-all hover:border-gray-800 text-sm lg:text-lg"
             >
               Get In Touch
             </a>
@@ -222,9 +222,9 @@ export default function NavBar() {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="lg:hidden overflow-hidden mt-2 fixed left-2 right-2 sm:left-4 sm:right-4 top-[50px] bottom-auto z-50"
+              className="lg:hidden overflow-hidden mt-2 fixed left-2 right-2 sm:left-4 sm:right-4 top-[65px] bottom-auto z-50"
             >
-              <div className="flex flex-col space-y-1 py-2 px-2 sm:px-4 bg-white/95 backdrop-blur-md rounded-xl shadow-lg max-h-[calc(100vh-70px)] overflow-y-auto">
+              <div className="flex flex-col space-y-1 py-2 px-2 sm:px-4 bg-white/95 backdrop-blur-md rounded-xl shadow-lg max-h-[calc(100vh-80px)] overflow-y-auto">
                 {navLinks.map(link => (
                   <ScrollToTopLink
                     key={link.href}
