@@ -5,17 +5,27 @@ import passport from "passport";
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
 import { storage } from "./storage";
+import { generateSecureToken } from "./security";
 
 if (!process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
 }
 
 export async function setupAuth(app: Express) {
+  // Generate a secure session secret if not provided
+  const sessionSecret = process.env.SESSION_SECRET || generateSecureToken(32);
+  
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET!,
+    secret: sessionSecret,
     resave: false,
     saveUninitialized: false,
     store: storage.sessionStore,
+    cookie: {
+      httpOnly: true, // Prevents JavaScript access to cookies
+      sameSite: 'strict', // CSRF protection
+      secure: process.env.NODE_ENV === 'production', // Require HTTPS in production
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
   };
   app.set("trust proxy", 1);
   app.use(session(sessionSettings));

@@ -2,10 +2,46 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import session from "express-session";
+import { generateSecureToken } from "./security";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Add security headers with Helmet
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https://images.unsplash.com", "blob:"],
+      connectSrc: ["'self'"],
+    },
+  },
+  // Allow iframe embedding for PDF preview
+  frameguard: {
+    action: 'sameorigin'
+  },
+  // Set secure cookies in production
+  hsts: process.env.NODE_ENV === 'production' ? undefined : false
+}));
+
+// Add rate limiting to prevent abuse
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: "Too many requests, please try again later." }
+});
+
+// Apply rate limiting to API routes
+app.use("/api/", apiLimiter);
 
 // Serve uploaded files statically
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));

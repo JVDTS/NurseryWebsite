@@ -8,6 +8,7 @@ import {
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
+import { hashPassword } from "./security";
 
 // Storage interface for all CRUD operations
 export interface IStorage {
@@ -216,8 +217,13 @@ export class MemStorage implements IStorage {
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userCurrentId++;
     const now = new Date();
+    
+    // Hash the password using bcrypt
+    const hashedPassword = await hashPassword(insertUser.password);
+    
     const user: User = { 
-      ...insertUser, 
+      ...insertUser,
+      password: hashedPassword, // Store the hashed password 
       id, 
       role: insertUser.role ?? 'regular', // Ensure role is not undefined
       nurseryId: insertUser.nurseryId ?? null, // Ensure nurseryId is not undefined
@@ -232,6 +238,11 @@ export class MemStorage implements IStorage {
     const user = await this.getUser(id);
     if (!user) {
       return undefined;
+    }
+    
+    // If password is being updated, hash it
+    if (userData.password) {
+      userData.password = await hashPassword(userData.password);
     }
     
     const updatedUser: User = { 
