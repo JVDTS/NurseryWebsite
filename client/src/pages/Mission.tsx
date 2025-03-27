@@ -197,28 +197,40 @@ export default function MissionPage() {
               viewport={{ once: true, margin: "-100px" }}
             >
               <motion.div variants={fadeUp} className="text-center mb-16">
-                <h2 className="text-3xl font-heading font-bold text-primary mb-4">Our Core Pillars</h2>
-                <div className="h-1 w-20 bg-primary mx-auto mb-8"></div>
+                <h2 className="text-3xl font-heading font-bold text-rainbow-green mb-4">Our Core Pillars</h2>
+                <div className="h-1 w-20 bg-gradient-to-r from-rainbow-blue via-rainbow-green to-rainbow-yellow mx-auto mb-8"></div>
                 <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                   Five fundamental principles that guide our approach to early childhood education
                 </p>
               </motion.div>
               
               <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {missionPillars.map((pillar, index) => (
-                  <motion.div
-                    key={pillar.title}
-                    variants={childFadeIn}
-                    custom={index}
-                    className="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center"
-                  >
-                    <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-6 text-primary">
-                      {pillar.icon}
-                    </div>
-                    <h3 className="text-xl font-heading font-bold mb-4">{pillar.title}</h3>
-                    <p className="text-muted-foreground">{pillar.description}</p>
-                  </motion.div>
-                ))}
+                {missionPillars.map((pillar, index) => {
+                  // Rainbow colors for pillars
+                  const colors = [
+                    { bg: "bg-rainbow-red/10", text: "text-rainbow-red", icon: "text-rainbow-red" },
+                    { bg: "bg-rainbow-blue/10", text: "text-rainbow-blue", icon: "text-rainbow-blue" },
+                    { bg: "bg-rainbow-orange/10", text: "text-rainbow-orange", icon: "text-rainbow-orange" },
+                    { bg: "bg-rainbow-indigo/10", text: "text-rainbow-indigo", icon: "text-rainbow-indigo" },
+                    { bg: "bg-rainbow-green/10", text: "text-rainbow-green", icon: "text-rainbow-green" }
+                  ];
+                  const color = colors[index % colors.length];
+                  
+                  return (
+                    <motion.div
+                      key={pillar.title}
+                      variants={childFadeIn}
+                      custom={index}
+                      className="bg-white rounded-xl shadow-md p-8 flex flex-col items-center text-center hover:shadow-lg transition-all"
+                    >
+                      <div className={`h-16 w-16 rounded-full ${color.bg} flex items-center justify-center mb-6 ${color.icon}`}>
+                        {pillar.icon}
+                      </div>
+                      <h3 className={`text-xl font-heading font-bold mb-4 ${color.text}`}>{pillar.title}</h3>
+                      <p className="text-muted-foreground">{pillar.description}</p>
+                    </motion.div>
+                  );
+                })}
               </div>
             </motion.div>
           </div>
@@ -235,27 +247,40 @@ export default function MissionPage() {
               viewport={{ once: true, margin: "-100px" }}
             >
               <motion.div variants={fadeUp} className="text-center mb-16">
-                <h2 className="text-3xl font-heading font-bold text-primary mb-4">Our Educational Approach</h2>
-                <div className="h-1 w-20 bg-primary mx-auto mb-8"></div>
+                <h2 className="text-3xl font-heading font-bold text-rainbow-violet mb-4">Our Educational Approach</h2>
+                <div className="h-1 w-20 bg-gradient-to-r from-rainbow-violet via-rainbow-pink to-rainbow-red mx-auto mb-8"></div>
                 <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                   A holistic curriculum that nurtures all aspects of a child's development
                 </p>
               </motion.div>
               
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {educationalApproach.map((approach, index) => (
-                  <motion.div
-                    key={approach.title}
-                    variants={childFadeIn}
-                    custom={index}
-                    className="bg-white rounded-xl shadow-md p-6 border border-primary/10"
-                  >
-                    <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold mb-4 ${approach.color}`}>
-                      {approach.title}
-                    </div>
-                    <p className="text-muted-foreground">{approach.description}</p>
-                  </motion.div>
-                ))}
+                {educationalApproach.map((approach, index) => {
+                  // Rainbow colors for approach cards
+                  const colors = [
+                    { bg: "bg-rainbow-red/10", text: "text-rainbow-red" },
+                    { bg: "bg-rainbow-orange/10", text: "text-rainbow-orange" },
+                    { bg: "bg-rainbow-yellow/10", text: "text-rainbow-yellow" },
+                    { bg: "bg-rainbow-green/10", text: "text-rainbow-green" },
+                    { bg: "bg-rainbow-blue/10", text: "text-rainbow-blue" },
+                    { bg: "bg-rainbow-indigo/10", text: "text-rainbow-indigo" }
+                  ];
+                  const color = colors[index % colors.length];
+                  
+                  return (
+                    <motion.div
+                      key={approach.title}
+                      variants={childFadeIn}
+                      custom={index}
+                      className={`bg-white rounded-xl shadow-md p-6 border border-gray-100 hover:shadow-lg transition-all ${color.bg}`}
+                    >
+                      <div className={`inline-block px-3 py-1 rounded-full text-sm font-semibold mb-4 ${color.text}`}>
+                        {approach.title}
+                      </div>
+                      <p className="text-muted-foreground">{approach.description}</p>
+                    </motion.div>
+                  );
+                })}
               </div>
             </motion.div>
           </div>
@@ -272,50 +297,62 @@ export default function MissionPage() {
               viewport={{ once: true, margin: "-100px" }}
             >
               <motion.div variants={fadeUp} className="text-center mb-16">
-                <h2 className="text-3xl font-heading font-bold text-primary mb-4">Our Goals</h2>
-                <div className="h-1 w-20 bg-primary mx-auto mb-8"></div>
+                <h2 className="text-3xl font-heading font-bold text-rainbow-yellow mb-4">Our Goals</h2>
+                <div className="h-1 w-20 bg-gradient-to-r from-rainbow-orange via-rainbow-yellow to-rainbow-green mx-auto mb-8"></div>
                 <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
                   Where we are today and where we're heading tomorrow
                 </p>
               </motion.div>
               
               <div className="space-y-6">
-                {goals.map((goal, index) => (
-                  <motion.div
-                    key={goal.title}
-                    variants={childFadeIn}
-                    custom={index}
-                    className="bg-white rounded-xl shadow-md overflow-hidden border border-primary/10"
-                  >
-                    <div className="bg-primary text-white py-3 px-6">
-                      <h3 className="font-heading font-bold text-xl">{goal.title}</h3>
-                    </div>
-                    <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
-                      <div className="p-6">
-                        <h4 className="font-semibold mb-2 flex items-center">
-                          <span className="bg-blue-100 text-blue-600 text-xs font-semibold px-2.5 py-0.5 rounded-full mr-2">
-                            Current
-                          </span>
-                          Where We Are
-                        </h4>
-                        <p className="text-muted-foreground">{goal.current}</p>
+                {goals.map((goal, index) => {
+                  // Rainbow colors for goals
+                  const colors = [
+                    { bg: "bg-rainbow-red", text: "text-white" },
+                    { bg: "bg-rainbow-orange", text: "text-white" },
+                    { bg: "bg-rainbow-yellow", text: "text-foreground" },
+                    { bg: "bg-rainbow-green", text: "text-white" },
+                    { bg: "bg-rainbow-blue", text: "text-white" }
+                  ];
+                  const color = colors[index % colors.length];
+                  
+                  return (
+                    <motion.div
+                      key={goal.title}
+                      variants={childFadeIn}
+                      custom={index}
+                      className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all"
+                    >
+                      <div className={`${color.bg} ${color.text} py-3 px-6`}>
+                        <h3 className="font-heading font-bold text-xl">{goal.title}</h3>
                       </div>
-                      <div className="p-6">
-                        <h4 className="font-semibold mb-2 flex items-center">
-                          <span className="bg-green-100 text-green-600 text-xs font-semibold px-2.5 py-0.5 rounded-full mr-2">
-                            Future
-                          </span>
-                          Where We're Going
-                        </h4>
-                        <p className="text-muted-foreground">{goal.future}</p>
+                      <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
+                        <div className="p-6">
+                          <h4 className="font-semibold mb-2 flex items-center">
+                            <span className="bg-rainbow-blue/10 text-rainbow-blue text-xs font-semibold px-2.5 py-0.5 rounded-full mr-2">
+                              Current
+                            </span>
+                            Where We Are
+                          </h4>
+                          <p className="text-muted-foreground">{goal.current}</p>
+                        </div>
+                        <div className="p-6">
+                          <h4 className="font-semibold mb-2 flex items-center">
+                            <span className="bg-rainbow-green/10 text-rainbow-green text-xs font-semibold px-2.5 py-0.5 rounded-full mr-2">
+                              Future
+                            </span>
+                            Where We're Going
+                          </h4>
+                          <p className="text-muted-foreground">{goal.future}</p>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  );
+                })}
               </div>
               
               <motion.div variants={fadeUp} className="mt-16 text-center">
-                <a href="/contact" className="inline-block px-6 py-3 bg-primary text-white rounded-full font-heading font-semibold shadow-md hover:shadow-lg transition-all">
+                <a href="/contact" className="inline-block px-6 py-3 bg-gradient-to-r from-rainbow-blue to-rainbow-indigo text-white rounded-full font-heading font-semibold shadow-md hover:shadow-lg transition-all">
                   Partner With Us
                 </a>
               </motion.div>
@@ -327,19 +364,19 @@ export default function MissionPage() {
         <section className="py-20">
           <div className="container mx-auto px-4">
             <motion.div
-              className="max-w-4xl mx-auto bg-white rounded-xl shadow-md p-10 border border-primary/10 text-center"
+              className="max-w-4xl mx-auto bg-gradient-to-r from-rainbow-pink/10 via-white to-rainbow-indigo/10 rounded-xl shadow-md p-10 border border-rainbow-pink/20 text-center"
               variants={fadeUp}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
             >
-              <div className="text-5xl text-primary mb-6">"</div>
+              <div className="text-5xl text-rainbow-pink mb-6">"</div>
               <blockquote className="text-2xl font-heading text-foreground italic mb-6">
                 Our greatest responsibility is not just to care for children today, but to help shape 
                 who they will become tomorrow. Every interaction, every lesson, every moment of play 
                 is an opportunity to nurture their potential.
               </blockquote>
-              <div className="font-semibold">Sarah Johnson</div>
+              <div className="font-semibold text-rainbow-pink">Sarah Johnson</div>
               <div className="text-muted-foreground">Founder & Director</div>
             </motion.div>
           </div>

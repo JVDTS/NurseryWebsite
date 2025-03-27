@@ -36,16 +36,29 @@ export default function HeroSection() {
             variants={fadeUp}
           >
             <h1 className="font-heading font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-6 leading-tight text-white">
-              Welcome to <span className="text-primary block mt-2">Coat of Many Colours Nursery</span>
+              Welcome to 
+              <div className="mt-2 bg-clip-text text-transparent bg-gradient-to-r from-rainbow-red via-rainbow-yellow to-rainbow-violet">
+                Coat of Many Colours Nursery
+              </div>
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-white mb-8 max-w-2xl">
               A vibrant place for children to learn, explore, and grow in a nurturing environment.
             </p>
             <div className="flex flex-wrap gap-3 sm:gap-4">
-              <AnimatedButton href="#about" variant="primary" size="lg" className="text-sm sm:text-base py-2 px-4 sm:py-3 sm:px-6">
+              <AnimatedButton 
+                href="#about" 
+                variant="primary"
+                size="lg" 
+                className="text-sm sm:text-base py-2 px-4 sm:py-3 sm:px-6 bg-gradient-to-r from-rainbow-blue to-rainbow-indigo text-white hover:shadow-lg transition-all"
+              >
                 Discover More
               </AnimatedButton>
-              <AnimatedButton href="#contact" variant="outline" size="lg" className="text-sm sm:text-base py-2 px-4 sm:py-3 sm:px-6">
+              <AnimatedButton 
+                href="#contact" 
+                variant="outline" 
+                size="lg" 
+                className="text-sm sm:text-base py-2 px-4 sm:py-3 sm:px-6 border-rainbow-pink text-rainbow-pink hover:bg-rainbow-pink/10"
+              >
                 Book a Visit
               </AnimatedButton>
             </div>
