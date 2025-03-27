@@ -17,7 +17,7 @@ export default function FeesPage() {
         animate="visible"
       >
         <motion.div variants={fadeUp} className="mb-12">
-          <h2 className="text-2xl font-heading font-bold text-primary mb-4">Fee Structure</h2>
+          <h2 className="text-2xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-rainbow-red via-rainbow-orange to-rainbow-yellow mb-4">Fee Structure</h2>
           <p className="text-muted-foreground mb-6">
             At Coat of Many Colours Nursery, we strive to provide high-quality childcare at competitive rates. 
             Our fees include all meals, snacks, and standard activities. 
@@ -25,8 +25,8 @@ export default function FeesPage() {
           </p>
           
           <div className="grid gap-8 md:grid-cols-2">
-            <motion.div variants={childFadeIn} className="bg-white shadow-md rounded-lg p-6 border border-primary/10">
-              <h3 className="text-xl font-heading font-bold mb-3 text-primary">Full Day Care</h3>
+            <motion.div variants={childFadeIn} className="bg-white shadow-md rounded-lg p-6 border border-rainbow-red/20">
+              <h3 className="text-xl font-heading font-bold mb-3 text-rainbow-red">Full Day Care</h3>
               <p className="font-medium text-foreground">8:00am - 6:00pm</p>
               <div className="mt-4 space-y-2">
                 <div className="flex justify-between">
@@ -45,8 +45,8 @@ export default function FeesPage() {
               </div>
             </motion.div>
             
-            <motion.div variants={childFadeIn} className="bg-white shadow-md rounded-lg p-6 border border-primary/10">
-              <h3 className="text-xl font-heading font-bold mb-3 text-primary">Half Day Care</h3>
+            <motion.div variants={childFadeIn} className="bg-white shadow-md rounded-lg p-6 border border-rainbow-orange/20">
+              <h3 className="text-xl font-heading font-bold mb-3 text-rainbow-orange">Half Day Care</h3>
               <p className="font-medium text-foreground">8:00am - 1:00pm or 1:00pm - 6:00pm</p>
               <div className="mt-4 space-y-2">
                 <div className="flex justify-between">
@@ -68,10 +68,10 @@ export default function FeesPage() {
         </motion.div>
         
         <motion.div variants={fadeUp} className="mb-12">
-          <h2 className="text-2xl font-heading font-bold text-primary mb-4">Additional Services</h2>
+          <h2 className="text-2xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-rainbow-green via-rainbow-blue to-rainbow-purple mb-4">Additional Services</h2>
           
-          <div className="bg-white shadow-md rounded-lg p-6 border border-primary/10 mb-6">
-            <h3 className="text-xl font-heading font-bold mb-3">Early Drop-off / Late Pick-up</h3>
+          <div className="bg-white shadow-md rounded-lg p-6 border border-rainbow-green/20 mb-6">
+            <h3 className="text-xl font-heading font-bold mb-3 text-rainbow-green">Early Drop-off / Late Pick-up</h3>
             <p className="mb-4">Subject to availability and by prior arrangement only.</p>
             <div className="space-y-2">
               <div className="flex justify-between">
@@ -85,8 +85,8 @@ export default function FeesPage() {
             </div>
           </div>
           
-          <div className="bg-white shadow-md rounded-lg p-6 border border-primary/10">
-            <h3 className="text-xl font-heading font-bold mb-3">Special Activities and Trips</h3>
+          <div className="bg-white shadow-md rounded-lg p-6 border border-rainbow-blue/20">
+            <h3 className="text-xl font-heading font-bold mb-3 text-rainbow-blue">Special Activities and Trips</h3>
             <p className="mb-4">Occasionally, we organize special activities and trips that may incur additional costs.</p>
             <div className="space-y-2">
               <div className="flex justify-between">
@@ -102,31 +102,31 @@ export default function FeesPage() {
         </motion.div>
         
         <motion.div variants={fadeUp} className="mb-12">
-          <h2 className="text-2xl font-heading font-bold text-primary mb-4">Discounts</h2>
+          <h2 className="text-2xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-rainbow-pink via-rainbow-red to-rainbow-orange mb-4">Discounts</h2>
           
-          <div className="bg-white shadow-md rounded-lg p-6 border border-primary/10">
+          <div className="bg-white shadow-md rounded-lg p-6 border border-rainbow-pink/20">
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span>Sibling Discount:</span>
-                <span className="px-3 py-1 bg-primary/10 rounded-full text-primary font-semibold">10% off for second child</span>
+                <span className="px-3 py-1 bg-rainbow-red/10 rounded-full text-rainbow-red font-semibold">10% off for second child</span>
               </div>
               <div className="flex justify-between items-center">
                 <span>NHS/Emergency Services Discount:</span>
-                <span className="px-3 py-1 bg-primary/10 rounded-full text-primary font-semibold">5% off</span>
+                <span className="px-3 py-1 bg-rainbow-orange/10 rounded-full text-rainbow-orange font-semibold">5% off</span>
               </div>
               <div className="flex justify-between items-center">
                 <span>Advance Payment Discount (3 months):</span>
-                <span className="px-3 py-1 bg-primary/10 rounded-full text-primary font-semibold">3% off</span>
+                <span className="px-3 py-1 bg-rainbow-pink/10 rounded-full text-rainbow-pink font-semibold">3% off</span>
               </div>
             </div>
           </div>
         </motion.div>
         
         <motion.div variants={fadeUp}>
-          <h2 className="text-2xl font-heading font-bold text-primary mb-4">Payment Information</h2>
+          <h2 className="text-2xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-rainbow-blue via-rainbow-purple to-rainbow-pink mb-4">Payment Information</h2>
           
-          <div className="bg-white shadow-md rounded-lg p-6 border border-primary/10 mb-6">
-            <h3 className="text-xl font-heading font-bold mb-3">Terms</h3>
+          <div className="bg-white shadow-md rounded-lg p-6 border border-rainbow-blue/20 mb-6">
+            <h3 className="text-xl font-heading font-bold mb-3 text-rainbow-blue">Terms</h3>
             <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
               <li>Fees are payable monthly in advance by the 1st of each month.</li>
               <li>We accept direct bank transfers, childcare vouchers, and credit/debit card payments.</li>
@@ -136,8 +136,8 @@ export default function FeesPage() {
             </ul>
           </div>
           
-          <div className="bg-white shadow-md rounded-lg p-6 border border-primary/10">
-            <h3 className="text-xl font-heading font-bold mb-3">Funding and Schemes</h3>
+          <div className="bg-white shadow-md rounded-lg p-6 border border-rainbow-purple/20">
+            <h3 className="text-xl font-heading font-bold mb-3 text-rainbow-purple">Funding and Schemes</h3>
             <p className="mb-4">We accept various government funding schemes:</p>
             <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
               <li>15 hours free entitlement for 3-4 year olds</li>
