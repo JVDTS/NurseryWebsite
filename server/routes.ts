@@ -8,6 +8,9 @@ import { fromZodError } from "zod-validation-error";
 import session from "express-session";
 import MemoryStore from "memorystore";
 import { processFileUpload, getFileUrl, deleteFile } from "./fileStorage";
+import csrf from "csurf";
+import { sendContactEmail } from "./emailService";
+import { comparePassword } from "./security";
 
 // Define custom session properties
 declare module 'express-session' {
@@ -114,7 +117,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     saveUninitialized: false,
     store: new SessionStore({
       checkPeriod: 86400000 // 24 hours
-    })
+    }),
+    cookie: {
+      httpOnly: true, // Prevents JavaScript access to cookies
+      sameSite: 'strict', // CSRF protection
+      secure: process.env.NODE_ENV === 'production', // Require HTTPS in production
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
   };
   
   app.set("trust proxy", 1);
@@ -122,6 +131,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Set up session store for storage
   storage.sessionStore = sessionSettings.store;
+  
+  // Setup CSRF protection
+  const csrfProtection = csrf({ cookie: false });
+  
+  // Apply CSRF protection to state-changing routes
+  // Create a list of routes that should be protected by CSRF
+  const csrfProtectedRoutes = [
+    '/api/admin/login',
+    '/api/admin/logout',
+    '/api/admin/nurseries',
+    '/api/admin/events',
+    '/api/admin/gallery',
+    '/api/admin/newsletters',
+    '/api/contact'
+  ];
+  
+  // Apply CSRF middleware to routes that modify state
+  app.use((req, res, next) => {
+    const path = req.path;
+    const method = req.method;
+    
+    // Only apply CSRF protection to state-changing methods on protected routes
+    const isStateChangingMethod = ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method);
+    const needsProtection = csrfProtectedRoutes.some(route => path.startsWith(route)) && isStateChangingMethod;
+    
+    if (needsProtection) {
+      return csrfProtection(req, res, next);
+    }
+    
+    next();
+  });
+  
+  // Add a route to get a CSRF token
+  app.get('/api/csrf-token', csrfProtection, (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+  });
   
   // Auth login schema
   const loginSchema = z.object({
@@ -135,7 +180,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { username, password } = loginSchema.parse(req.body);
       
       const user = await storage.getUserByUsername(username);
-      if (!user || user.password !== password) {
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid username or password"
+        });
+      }
+      
+      // Use bcrypt to compare passwords
+      const passwordMatch = await comparePassword(password, user.password);
+      if (!passwordMatch) {
         return res.status(401).json({
           success: false,
           message: "Invalid username or password"
