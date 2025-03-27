@@ -56,14 +56,14 @@ export default function TermDatesPage() {
         animate="visible"
       >
         <motion.div variants={fadeUp} className="mb-12">
-          <h2 className="text-2xl font-heading font-bold text-primary mb-4">Nursery Opening</h2>
-          <div className="bg-white shadow-md rounded-lg p-6 border border-primary/10">
+          <h2 className="text-2xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-rainbow-red via-rainbow-yellow to-rainbow-green mb-4">Nursery Opening</h2>
+          <div className="bg-white shadow-md rounded-lg p-6 border border-rainbow-yellow/20">
             <p className="mb-4">
               Coat of Many Colours Nursery operates Monday to Friday throughout the year, except for bank holidays and specified closure periods.
             </p>
             <div className="grid gap-6 md:grid-cols-2">
               <div>
-                <h3 className="text-lg font-heading font-bold mb-2 text-primary">Regular Opening Hours</h3>
+                <h3 className="text-lg font-heading font-bold mb-2 text-rainbow-red">Regular Opening Hours</h3>
                 <ul className="space-y-2">
                   <li className="flex justify-between">
                     <span className="font-medium">Monday - Friday:</span>
@@ -76,7 +76,7 @@ export default function TermDatesPage() {
                 </ul>
               </div>
               <div>
-                <h3 className="text-lg font-heading font-bold mb-2 text-primary">Term Time vs. Full Year</h3>
+                <h3 className="text-lg font-heading font-bold mb-2 text-rainbow-blue">Term Time vs. Full Year</h3>
                 <p className="text-sm text-muted-foreground">
                   We offer both term-time only and full-year attendance options. Term-time follows the dates below, 
                   while full-year care is available throughout the year except during our specified closure periods.
@@ -87,30 +87,50 @@ export default function TermDatesPage() {
         </motion.div>
         
         <motion.div variants={fadeUp} className="mb-12">
-          <h2 className="text-2xl font-heading font-bold text-primary mb-6">Academic Year {currentYear}/{nextYear}</h2>
+          <h2 className="text-2xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-rainbow-green via-rainbow-blue to-rainbow-purple mb-6">Academic Year {currentYear}/{nextYear}</h2>
           <div className="space-y-6">
             {termDates.map((term, index) => (
               <motion.div 
                 key={term.term} 
                 variants={childFadeIn}
                 custom={index}
-                className="bg-white shadow-md rounded-lg overflow-hidden border border-primary/10"
+                className={`bg-white shadow-md rounded-lg overflow-hidden border ${
+                  index === 0 ? "border-rainbow-red/20" : 
+                  index === 1 ? "border-rainbow-green/20" : 
+                  "border-rainbow-blue/20"
+                }`}
               >
-                <div className="bg-primary text-white py-3 px-6">
+                <div className={`${
+                  index === 0 ? "bg-rainbow-red" : 
+                  index === 1 ? "bg-rainbow-green" : 
+                  "bg-rainbow-blue"
+                } text-white py-3 px-6`}>
                   <h3 className="text-xl font-heading font-bold">{term.term}</h3>
                 </div>
                 <div className="p-6">
                   <div className="space-y-4">
                     <div>
-                      <h4 className="font-medium text-primary">Term Dates:</h4>
+                      <h4 className={`font-medium ${
+                        index === 0 ? "text-rainbow-red" : 
+                        index === 1 ? "text-rainbow-green" : 
+                        "text-rainbow-blue"
+                      }`}>Term Dates:</h4>
                       <p className="text-lg font-semibold">{term.dates}</p>
                     </div>
                     <div>
-                      <h4 className="font-medium text-primary">Half Term Break:</h4>
+                      <h4 className={`font-medium ${
+                        index === 0 ? "text-rainbow-red" : 
+                        index === 1 ? "text-rainbow-green" : 
+                        "text-rainbow-blue"
+                      }`}>Half Term Break:</h4>
                       <p>{term.halfTerm}</p>
                     </div>
                     <div>
-                      <h4 className="font-medium text-primary">Staff Training Days (Nursery Closed):</h4>
+                      <h4 className={`font-medium ${
+                        index === 0 ? "text-rainbow-red" : 
+                        index === 1 ? "text-rainbow-green" : 
+                        "text-rainbow-blue"
+                      }`}>Staff Training Days (Nursery Closed):</h4>
                       <ul className="list-disc pl-5">
                         {term.insetDays.map((day, i) => (
                           <li key={i}>{day}</li>
@@ -125,9 +145,9 @@ export default function TermDatesPage() {
         </motion.div>
         
         <motion.div variants={fadeUp} className="mb-12">
-          <h2 className="text-2xl font-heading font-bold text-primary mb-6">Holiday Closures</h2>
+          <h2 className="text-2xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-rainbow-purple via-rainbow-pink to-rainbow-red mb-6">Holiday Closures</h2>
           
-          <div className="bg-white shadow-md rounded-lg p-6 border border-primary/10">
+          <div className="bg-white shadow-md rounded-lg p-6 border border-rainbow-pink/20">
             <p className="mb-6">
               The nursery will be fully closed during the following periods:
             </p>
@@ -137,7 +157,7 @@ export default function TermDatesPage() {
                   key={holiday.holiday}
                   variants={childFadeIn} 
                   custom={index}
-                  className="border-l-4 border-primary pl-4 py-2"
+                  className="border-l-4 border-rainbow-purple pl-4 py-2"
                 >
                   <h3 className="font-heading font-bold text-lg">{holiday.holiday}</h3>
                   <p className="text-muted-foreground">{holiday.dates}</p>
@@ -148,19 +168,19 @@ export default function TermDatesPage() {
         </motion.div>
         
         <motion.div variants={fadeUp}>
-          <h2 className="text-2xl font-heading font-bold text-primary mb-4">Additional Information</h2>
+          <h2 className="text-2xl font-heading font-bold bg-clip-text text-transparent bg-gradient-to-r from-rainbow-orange via-rainbow-yellow to-rainbow-green mb-4">Additional Information</h2>
           
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="bg-white shadow-md rounded-lg p-6 border border-primary/10">
-              <h3 className="text-xl font-heading font-bold mb-3">Term-Time Only Attendance</h3>
+            <div className="bg-white shadow-md rounded-lg p-6 border border-rainbow-orange/20">
+              <h3 className="text-xl font-heading font-bold mb-3 text-rainbow-orange">Term-Time Only Attendance</h3>
               <p className="text-muted-foreground">
                 For parents choosing term-time only attendance, please note that fees are calculated based on 38 weeks per year. 
                 You will not be charged for holiday periods between terms, but payment is required for half-term breaks.
               </p>
             </div>
             
-            <div className="bg-white shadow-md rounded-lg p-6 border border-primary/10">
-              <h3 className="text-xl font-heading font-bold mb-3">Full Year Attendance</h3>
+            <div className="bg-white shadow-md rounded-lg p-6 border border-rainbow-green/20">
+              <h3 className="text-xl font-heading font-bold mb-3 text-rainbow-green">Full Year Attendance</h3>
               <p className="text-muted-foreground">
                 Full year attendance covers 48 weeks per year (excluding the 4-week closure periods). 
                 Fees are calculated on a monthly basis and spread evenly throughout the year.
@@ -168,8 +188,8 @@ export default function TermDatesPage() {
             </div>
           </div>
           
-          <div className="mt-6 bg-white shadow-md rounded-lg p-6 border border-primary/10">
-            <h3 className="text-xl font-heading font-bold mb-3">Holiday Allowance (Full Year Only)</h3>
+          <div className="mt-6 bg-white shadow-md rounded-lg p-6 border border-rainbow-blue/20">
+            <h3 className="text-xl font-heading font-bold mb-3 text-rainbow-blue">Holiday Allowance (Full Year Only)</h3>
             <p className="mb-4">
               Families on full-year contracts are entitled to two weeks' holiday allowance per academic year at a 50% fee reduction. 
               This allowance is subject to the following conditions:
