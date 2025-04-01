@@ -201,6 +201,14 @@ export default function NavBar() {
               Newsletters
             </ScrollToTopLink>
             
+            {/* Gallery link */}
+            <ScrollToTopLink 
+              href="/gallery" 
+              className="font-heading font-semibold text-gray-800 hover:text-orange-500 transition-colors text-sm lg:text-lg"
+            >
+              Gallery
+            </ScrollToTopLink>
+            
             <a 
               href="#contact" 
               className="ml-2 lg:ml-4 px-3 lg:px-5 py-2 border-b border-orange-500 text-gray-800 font-heading font-semibold transition-all hover:border-gray-800 text-sm lg:text-lg"
@@ -318,6 +326,15 @@ export default function NavBar() {
                   onClick={closeMenu}
                 >
                   Newsletters
+                </ScrollToTopLink>
+                
+                {/* Mobile gallery link */}
+                <ScrollToTopLink
+                  href="/gallery"
+                  className="font-heading font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 text-base flex items-center"
+                  onClick={closeMenu}
+                >
+                  Gallery
                 </ScrollToTopLink>
                 
                 <a
