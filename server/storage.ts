@@ -104,6 +104,9 @@ export class MemStorage implements IStorage {
     
     // Initialize sample newsletters
     this.initializeSampleNewsletters();
+    
+    // Initialize sample gallery images
+    this.initializeSampleGalleryImages();
   }
   
   private initializeNurseries() {
@@ -501,6 +504,110 @@ export class MemStorage implements IStorage {
     this.createNewsletter(uxbridgeJanuaryNewsletter);
     this.createNewsletter(hounslowJanuaryNewsletter);
     this.createNewsletter(hounslowFebruaryNewsletter);
+  }
+  
+  // Initialize sample gallery images
+  private initializeSampleGalleryImages() {
+    // Hayes Nursery gallery images
+    const hayesGalleryImages: InsertGalleryImage[] = [
+      {
+        imageUrl: "https://images.unsplash.com/photo-1526634332515-d56c5fd16991?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+        caption: "Art and Craft Session - Children creating colorful paintings during our weekly art workshop",
+        nurseryId: 1,
+        uploadedBy: 2, // Hayes admin
+        createdAt: new Date("2025-03-10")
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+        caption: "Spring Festival - Our annual celebration with performances by the children",
+        nurseryId: 1,
+        uploadedBy: 2, // Hayes admin
+        createdAt: new Date("2025-03-15")
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1567057419565-4349c49d8a04?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+        caption: "Story Time - Children engaged in our daily reading circle",
+        nurseryId: 1,
+        uploadedBy: 2, // Hayes admin
+        createdAt: new Date("2025-03-20")
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1555861496-0666c8981751?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+        caption: "Music Workshop - Learning rhythm and movement in our music class",
+        nurseryId: 1,
+        uploadedBy: 2, // Hayes admin
+        createdAt: new Date("2025-03-25")
+      }
+    ];
+    
+    // Uxbridge Nursery gallery images
+    const uxbridgeGalleryImages: InsertGalleryImage[] = [
+      {
+        imageUrl: "https://images.unsplash.com/photo-1544487660-b86394cba400?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+        caption: "Gardening Project - Children planting seeds in our nursery garden",
+        nurseryId: 2,
+        uploadedBy: 3, // Uxbridge admin
+        createdAt: new Date("2025-03-12")
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1571210862729-78a52d3779a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+        caption: "Science Experiment Day - Exploring bubbles and reactions",
+        nurseryId: 2,
+        uploadedBy: 3, // Uxbridge admin
+        createdAt: new Date("2025-03-18")
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1541692641319-981cc79ee10a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+        caption: "Cooking Class - Making healthy snacks in our kitchen area",
+        nurseryId: 2,
+        uploadedBy: 3, // Uxbridge admin
+        createdAt: new Date("2025-03-22")
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1472162072942-cd5147eb3902?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+        caption: "Parent's Day - Families joining us for activities and presentations",
+        nurseryId: 2,
+        uploadedBy: 3, // Uxbridge admin
+        createdAt: new Date("2025-03-26")
+      }
+    ];
+    
+    // Hounslow Nursery gallery images
+    const hounslowGalleryImages: InsertGalleryImage[] = [
+      {
+        imageUrl: "https://images.unsplash.com/photo-1543248939-4296e1fea89b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+        caption: "Forest School - Outdoor learning in our local woodland area",
+        nurseryId: 3,
+        uploadedBy: 4, // Hounslow admin
+        createdAt: new Date("2025-03-05")
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1560969184-10fe8719e047?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+        caption: "Sports Day - Children participating in fun physical activities",
+        nurseryId: 3,
+        uploadedBy: 4, // Hounslow admin
+        createdAt: new Date("2025-03-14")
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1516214104703-d870798883c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+        caption: "Cultural Week - Learning about different countries and traditions",
+        nurseryId: 3,
+        uploadedBy: 4, // Hounslow admin
+        createdAt: new Date("2025-03-19")
+      },
+      {
+        imageUrl: "https://images.unsplash.com/photo-1604881988758-f76ad2f7aac1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+        caption: "Technology Day - Exploring simple coding with our interactive boards",
+        nurseryId: 3,
+        uploadedBy: 4, // Hounslow admin
+        createdAt: new Date("2025-03-24")
+      }
+    ];
+    
+    // Add all gallery images to storage
+    [...hayesGalleryImages, ...uxbridgeGalleryImages, ...hounslowGalleryImages].forEach(image => {
+      this.createGalleryImage(image);
+    });
   }
 }
 
