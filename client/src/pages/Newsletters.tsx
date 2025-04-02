@@ -19,6 +19,7 @@ interface Newsletter {
   fileUrl: string;
   publishDate: string;
   nurseryId: number;
+  tags?: string; // Optional tags field for categorizing newsletters
 }
 
 interface ThumbnailResponse {
@@ -70,7 +71,8 @@ export default function NewslettersPage() {
     const matchesSearch = 
       searchTerm === "" || 
       newsletter.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      newsletter.description.toLowerCase().includes(searchTerm.toLowerCase());
+      newsletter.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (newsletter.tags && newsletter.tags.toLowerCase().includes(searchTerm.toLowerCase()));
     
     // Filter by location
     const matchesLocation = selectedLocation === "all" || 
@@ -136,7 +138,7 @@ export default function NewslettersPage() {
                     <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                     <Input
                       type="text"
-                      placeholder="Search newsletters..."
+                      placeholder="Search newsletters by title, description or tags..."
                       className="pl-10 w-full border-2 focus:border-primary h-10"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
@@ -199,14 +201,21 @@ export default function NewslettersPage() {
                             )}
                           </div>
                           
-                          {/* Newsletter Title */}
+                          {/* Newsletter Title and Tags */}
                           <div className="p-3 border-b">
                             <h3 className="text-center font-medium text-gray-800 truncate">
                               {newsletter.title}
                             </h3>
-                            <p className="text-center text-sm text-gray-500 truncate">
-                              {format(new Date(newsletter.publishDate), 'MMMM yyyy')}
-                            </p>
+                            <div className="flex flex-col items-center">
+                              <p className="text-center text-sm text-gray-500">
+                                {format(new Date(newsletter.publishDate), 'MMMM yyyy')}
+                              </p>
+                              {newsletter.tags && (
+                                <span className="mt-1 px-2 py-0.5 text-xs rounded-full bg-primary/10 text-primary">
+                                  {newsletter.tags}
+                                </span>
+                              )}
+                            </div>
                           </div>
                           
                           {/* Newsletter Action */}

@@ -33,6 +33,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -66,6 +67,7 @@ interface Newsletter {
   fileUrl: string;
   publishDate: string;
   nurseryId: number;
+  tags?: string; // Optional tags field for categorizing newsletters
 }
 
 // Define the validation schema for newsletter form
@@ -80,6 +82,8 @@ const newsletterFormSchema = z.object({
   publishDate: z.date({
     required_error: "Please select a date",
   }),
+  // Add tags field for identifying which nursery the newsletter belongs to
+  tags: z.string().optional(),
 });
 
 type NewsletterFormValues = z.infer<typeof newsletterFormSchema>;
@@ -104,6 +108,7 @@ export default function AdminNewsletters() {
       title: '',
       description: '',
       fileUrl: '',
+      tags: getNurseryName(nurseryId), // Default to current nursery name
     },
   });
 
@@ -114,6 +119,7 @@ export default function AdminNewsletters() {
       title: '',
       description: '',
       fileUrl: '',
+      tags: '',
     },
   });
 
@@ -192,6 +198,9 @@ export default function AdminNewsletters() {
       editForm.setValue('title', selectedNewsletter.title);
       editForm.setValue('description', selectedNewsletter.description);
       editForm.setValue('fileUrl', selectedNewsletter.fileUrl);
+      
+      // Set the nursery tag
+      editForm.setValue('tags', getNurseryName(selectedNewsletter.nurseryId));
       
       // Convert string date to Date object
       const [year, month, day] = selectedNewsletter.publishDate.split('-').map(Number);
@@ -536,6 +545,26 @@ export default function AdminNewsletters() {
                       )}
                     />
                     
+                    <FormField
+                      control={form.control}
+                      name="tags"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nursery Tag</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="Nursery name (e.g., CMC Hayes)" 
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Tag to identify which nursery this newsletter belongs to
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
                     <DialogFooter>
                       <Button type="submit" disabled={addNewsletterMutation.isPending}>
                         {addNewsletterMutation.isPending ? (
@@ -570,11 +599,18 @@ export default function AdminNewsletters() {
                       <div className="flex justify-between items-start">
                         <div>
                           <CardTitle className="text-lg">{newsletter.title}</CardTitle>
-                          {isSuperAdmin && (
-                            <CardDescription>
-                              {getNurseryName(newsletter.nurseryId)} Nursery
-                            </CardDescription>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {isSuperAdmin && (
+                              <CardDescription>
+                                {getNurseryName(newsletter.nurseryId)} Nursery
+                              </CardDescription>
+                            )}
+                            {newsletter.tags && (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                                {newsletter.tags}
+                              </span>
+                            )}
+                          </div>
                         </div>
                         <div className="flex space-x-2">
                           <Button
@@ -752,6 +788,26 @@ export default function AdminNewsletters() {
                           />
                         </PopoverContent>
                       </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={editForm.control}
+                  name="tags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nursery Tag</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Nursery name (e.g., CMC Hayes)" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Tag to identify which nursery this newsletter belongs to
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

@@ -72,6 +72,7 @@ export const newsletters = pgTable("newsletters", {
   nurseryId: integer("nursery_id").notNull(),
   publishedBy: integer("published_by").notNull(),
   publishDate: timestamp("publish_date").defaultNow().notNull(),
+  tags: text("tags"), // Optional tags field for categorizing newsletters
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

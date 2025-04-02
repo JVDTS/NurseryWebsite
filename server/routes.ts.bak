@@ -1198,8 +1198,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         description: newsletter.content,
         fileUrl: newsletter.pdfUrl,
         publishDate: newsletter.publishDate,
-        nurseryId: newsletter.nurseryId,
-        tags: newsletter.tags || ""
+        nurseryId: newsletter.nurseryId
       }));
       
       res.status(200).json({
