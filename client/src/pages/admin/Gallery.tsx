@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { apiRequest } from '@/lib/queryClient';
@@ -9,7 +9,7 @@ import DashboardLayout from '@/components/admin/DashboardLayout';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Eye, Image as ImageIcon, Plus, Trash2, Loader2, X } from 'lucide-react';
+import { Eye, Image as ImageIcon, Plus, Trash2, Loader2, X, Upload } from 'lucide-react';
 
 import {
   Card,
@@ -62,7 +62,7 @@ interface GalleryImage {
 
 // Define the validation schema for gallery image form
 const galleryImageSchema = z.object({
-  imageUrl: z.string().url({ message: 'Please enter a valid URL for the image' }),
+  imageUrl: z.string().min(1, { message: 'Image URL or file upload is required' }),
   caption: z.string().min(5, { message: 'Caption must be at least 5 characters' }),
   nurseryId: z.number().optional(), // Will be set by the component for non-super admins
 });
@@ -74,6 +74,8 @@ export default function AdminGallery() {
   const { toast } = useToast();
   const [isAddImageOpen, setIsAddImageOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Get nurseryId for fetching images
   const nurseryId = user?.nurseryId || 0;
@@ -88,6 +90,74 @@ export default function AdminGallery() {
       nurseryId: nurseryId,
     },
   });
+  
+  // Upload file mutation
+  const uploadFileMutation = useMutation({
+    mutationFn: async (file: File) => {
+      // Get CSRF token
+      const csrfResponse = await fetch('/api/csrf-token', {
+        credentials: 'include',
+      });
+      const { csrfToken } = await csrfResponse.json();
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const response = await fetch('/api/admin/upload/gallery', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: {
+          'X-CSRF-Token': csrfToken, // Add CSRF token
+        },
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to upload file');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      // Update the form with the uploaded file URL
+      form.setValue('imageUrl', data.fileUrl);
+      toast({
+        title: 'File Uploaded',
+        description: 'The image has been uploaded successfully.',
+      });
+      setIsUploading(false);
+    },
+    onError: (error) => {
+      toast({
+        title: 'Upload Error',
+        description: `Failed to upload image: ${error.message}`,
+        variant: 'destructive',
+      });
+      setIsUploading(false);
+    },
+  });
+  
+  // Handle file selection
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      
+      // Check if file is an image
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: 'Invalid File',
+          description: 'Please select an image file (JPEG, PNG, etc.)',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      setIsUploading(true);
+      uploadFileMutation.mutate(file);
+    }
+  };
 
   // Fetch gallery images based on user role
   const { data, isLoading } = useQuery<{ images: GalleryImage[] }>({
@@ -197,13 +267,45 @@ export default function AdminGallery() {
                       name="imageUrl"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Image URL</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="https://example.com/image.jpg" 
-                              {...field} 
-                            />
-                          </FormControl>
+                          <FormLabel>Image URL or Upload</FormLabel>
+                          <div className="space-y-2">
+                            <FormControl>
+                              <Input 
+                                placeholder="https://example.com/image.jpg" 
+                                {...field} 
+                              />
+                            </FormControl>
+                            
+                            <div className="relative">
+                              <input
+                                type="file"
+                                id="file-upload"
+                                ref={fileInputRef}
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                className="hidden"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isUploading}
+                              >
+                                {isUploading ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Uploading...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Upload className="mr-2 h-4 w-4" />
+                                    Upload Image
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}

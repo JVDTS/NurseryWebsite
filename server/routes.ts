@@ -540,6 +540,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Upload a gallery image file
+  app.post("/api/admin/upload/gallery", nurseryAdminOnly, async (req: Request, res: Response) => {
+    try {
+      const fileData = await processFileUpload(req);
+      
+      if (!fileData) {
+        return res.status(400).json({
+          success: false,
+          message: "No file uploaded"
+        });
+      }
+      
+      // Check if file is an image
+      if (!fileData.mimetype.startsWith('image/')) {
+        // Clean up the uploaded file
+        fs.unlinkSync(fileData.path);
+        
+        return res.status(400).json({
+          success: false,
+          message: "Only image files are allowed for gallery"
+        });
+      }
+      
+      const fileUrl = getFileUrl(fileData.filename);
+      
+      res.status(200).json({
+        success: true,
+        fileUrl,
+        filename: fileData.filename,
+        originalname: fileData.originalname,
+        size: fileData.size
+      });
+      
+    } catch (error) {
+      console.error("Error uploading gallery image file:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to upload gallery image file"
+      });
+    }
+  });
+  
   // Add a gallery image
   app.post("/api/admin/nurseries/:nurseryId/gallery", nurseryAdminOnly, nurseryAccessCheck("nurseryId"), async (req: Request, res: Response) => {
     try {
@@ -547,7 +589,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Gallery image schema
       const galleryImageSchema = z.object({
-        imageUrl: z.string().url(),
+        imageUrl: z.string(), // Allow both URLs and local file paths
         caption: z.string().optional()
       });
       
@@ -604,6 +646,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           success: false,
           message: "You do not have permission to delete this image"
         });
+      }
+      
+      // If it's a file stored in our uploads folder, delete the actual file
+      if (image.imageUrl.startsWith('/uploads/')) {
+        // Extract the filename from URL
+        const filename = image.imageUrl.split('/').pop();
+        if (filename) {
+          deleteFile(filename);
+        }
       }
       
       await storage.deleteGalleryImage(imageId);

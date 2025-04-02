@@ -6,7 +6,7 @@ import { fetchCsrfToken } from '@/lib/csrf';
 import { useToast } from '@/hooks/use-toast';
 import { 
   LayoutDashboard, LogOut, Users, Newspaper, Image, 
-  Calendar, Settings, ChevronDown, Menu, X, 
+  Settings, ChevronDown, Menu, X, 
   Home as HomeIcon
 } from 'lucide-react';
 
@@ -93,15 +93,6 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
       href: '/admin/dashboard',
       icon: LayoutDashboard,
       active: location === '/admin/dashboard',
-      show: true,
-    },
-    {
-      name: 'Events',
-      href: user?.role === 'super_admin' 
-        ? '/admin/events' 
-        : `/admin/nurseries/${user?.nurseryId}/events`,
-      icon: Calendar,
-      active: location.includes('/events'),
       show: true,
     },
     {
