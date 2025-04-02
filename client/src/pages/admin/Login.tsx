@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/use-auth';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { fetchCsrfToken } from '@/lib/csrf';
+import { useToast } from '@/hooks/use-toast';
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -22,6 +24,9 @@ export default function AdminLogin() {
   const { login, isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
+  const [tokenLoading, setTokenLoading] = useState(true);
+  const { toast } = useToast();
 
   // Create form
   const form = useForm<LoginFormValues>({
@@ -32,6 +37,28 @@ export default function AdminLogin() {
     },
   });
 
+  // Fetch CSRF token on component mount
+  useEffect(() => {
+    const getCsrfToken = async () => {
+      try {
+        setTokenLoading(true);
+        const token = await fetchCsrfToken();
+        setCsrfToken(token);
+      } catch (error) {
+        console.error('Failed to fetch CSRF token:', error);
+        toast({
+          title: 'Authentication Error',
+          description: 'Could not initialize secure login. Please refresh the page.',
+          variant: 'destructive',
+        });
+      } finally {
+        setTokenLoading(false);
+      }
+    };
+
+    getCsrfToken();
+  }, [toast]);
+
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
@@ -40,9 +67,18 @@ export default function AdminLogin() {
   }, [isAuthenticated, setLocation]);
 
   async function onSubmit(data: LoginFormValues) {
+    if (!csrfToken) {
+      toast({
+        title: 'Authentication Error',
+        description: 'Security token missing. Please refresh the page.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     try {
       setIsSubmitting(true);
-      const success = await login(data.username, data.password);
+      const success = await login(data.username, data.password, csrfToken);
       
       if (success) {
         setLocation('/admin/dashboard');

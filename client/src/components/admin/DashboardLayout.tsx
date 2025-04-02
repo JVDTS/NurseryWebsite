@@ -1,7 +1,9 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
+import { fetchCsrfToken } from '@/lib/csrf';
+import { useToast } from '@/hooks/use-toast';
 import { 
   LayoutDashboard, LogOut, Users, Newspaper, Image, 
   Calendar, Settings, ChevronDown, Menu, X, 
@@ -30,10 +32,40 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
   const { user, logout } = useAuth();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  // Fetch CSRF token on component mount
+  useEffect(() => {
+    const getCsrfToken = async () => {
+      try {
+        const token = await fetchCsrfToken();
+        setCsrfToken(token);
+      } catch (error) {
+        console.error('Failed to fetch CSRF token:', error);
+      }
+    };
+
+    getCsrfToken();
+  }, []);
 
   const handleLogout = async () => {
-    await logout();
-    window.location.href = '/admin/login';
+    try {
+      if (csrfToken) {
+        await logout(csrfToken);
+      } else {
+        await logout();
+        console.warn('Logging out without CSRF token');
+      }
+      window.location.href = '/admin/login';
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast({
+        title: 'Logout Error',
+        description: 'Failed to log out. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   // Get user's initials for avatar
