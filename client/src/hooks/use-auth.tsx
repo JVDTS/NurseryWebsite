@@ -64,15 +64,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       
+      console.log('Attempting login with token:', csrfToken ? 'Token received' : 'No token');
+      
+      if (!csrfToken) {
+        toast({
+          title: 'Security Error',
+          description: 'Missing security token. Please refresh and try again.',
+          variant: 'destructive',
+        });
+        return false;
+      }
+      
       const response = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'X-CSRF-Token': csrfToken
+          'X-CSRF-Token': csrfToken,
+          'Cache-Control': 'no-cache',
         },
         body: JSON.stringify({ username, password }),
         credentials: 'include'
       });
+      
+      // Handle CSRF token errors specifically
+      if (response.status === 403) {
+        console.error('CSRF token validation failed');
+        toast({
+          title: 'Security Error',
+          description: 'Security validation failed. Please refresh and try again.',
+          variant: 'destructive',
+        });
+        return false;
+      }
       
       const data = await response.json();
       
@@ -110,13 +133,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       
+      // If no token provided, try to fetch a fresh one
+      let tokenToUse = csrfToken;
+      if (!tokenToUse) {
+        try {
+          // Import dynamically to avoid circular dependencies
+          const { fetchCsrfToken } = await import('@/lib/csrf');
+          tokenToUse = await fetchCsrfToken();
+        } catch (tokenError) {
+          console.error('Failed to fetch CSRF token for logout:', tokenError);
+        }
+      }
+      
       const headers: HeadersInit = {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
       };
       
-      // Add CSRF token if provided
-      if (csrfToken) {
-        headers['X-CSRF-Token'] = csrfToken;
+      // Add CSRF token if available
+      if (tokenToUse) {
+        headers['X-CSRF-Token'] = tokenToUse;
+        console.log('Logging out with CSRF token');
+      } else {
+        console.warn('Logging out without CSRF token');
       }
       
       await fetch('/api/admin/logout', {

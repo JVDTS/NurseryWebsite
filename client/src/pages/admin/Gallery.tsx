@@ -96,11 +96,13 @@ export default function AdminGallery() {
   // Upload file mutation
   const uploadFileMutation = useMutation({
     mutationFn: async (file: File) => {
-      // Get CSRF token
-      const csrfResponse = await fetch('/api/csrf-token', {
-        credentials: 'include',
-      });
-      const { csrfToken } = await csrfResponse.json();
+      // Get a fresh CSRF token with cache busting
+      const { fetchCsrfToken } = await import('@/lib/csrf');
+      const csrfToken = await fetchCsrfToken();
+      
+      if (!csrfToken) {
+        throw new Error('Could not get security token. Please refresh the page and try again.');
+      }
       
       const formData = new FormData();
       formData.append('file', file);
@@ -113,6 +115,7 @@ export default function AdminGallery() {
         credentials: 'include',
         headers: {
           'X-CSRF-Token': csrfToken, // Add CSRF token
+          'Cache-Control': 'no-cache',
         },
       });
       

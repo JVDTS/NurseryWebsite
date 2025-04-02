@@ -3,8 +3,15 @@
 // Function to fetch a CSRF token from the server
 export async function fetchCsrfToken(): Promise<string> {
   try {
-    const response = await fetch('/api/csrf-token', {
-      credentials: 'include' // Include cookies
+    // Add a cache-busting parameter to prevent caching
+    const timestamp = Date.now();
+    const response = await fetch(`/api/csrf-token?_t=${timestamp}`, {
+      credentials: 'include', // Include cookies
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
     });
     
     if (!response.ok) {
@@ -12,6 +19,11 @@ export async function fetchCsrfToken(): Promise<string> {
     }
     
     const data = await response.json();
+    if (!data.csrfToken) {
+      throw new Error('CSRF token not found in response');
+    }
+    
+    console.log('Fresh CSRF token fetched successfully');
     return data.csrfToken;
   } catch (error) {
     console.error('Error fetching CSRF token:', error);
