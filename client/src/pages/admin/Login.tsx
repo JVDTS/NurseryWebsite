@@ -57,6 +57,13 @@ export default function AdminLogin() {
     };
 
     getCsrfToken();
+    
+    // Set up an interval to refresh the token periodically
+    const refreshInterval = setInterval(getCsrfToken, 60000); // Refresh every minute
+    
+    return () => {
+      clearInterval(refreshInterval);
+    };
   }, [toast]);
 
   // Redirect if already authenticated
@@ -67,22 +74,37 @@ export default function AdminLogin() {
   }, [isAuthenticated, setLocation]);
 
   async function onSubmit(data: LoginFormValues) {
-    if (!csrfToken) {
-      toast({
-        title: 'Authentication Error',
-        description: 'Security token missing. Please refresh the page.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    
     try {
       setIsSubmitting(true);
-      const success = await login(data.username, data.password, csrfToken);
+      
+      // Get a fresh CSRF token right before login attempt
+      const freshToken = await fetchCsrfToken();
+      
+      if (!freshToken) {
+        toast({
+          title: 'Authentication Error',
+          description: 'Security token missing. Please refresh the page.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      // Update the token state
+      setCsrfToken(freshToken);
+      
+      // Use the fresh token for login
+      const success = await login(data.username, data.password, freshToken);
       
       if (success) {
         setLocation('/admin/dashboard');
       }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        title: 'Login Failed',
+        description: 'There was a problem logging in. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setIsSubmitting(false);
     }

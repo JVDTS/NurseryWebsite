@@ -165,7 +165,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Add a route to get a CSRF token
   app.get('/api/csrf-token', csrfProtection, (req, res) => {
-    res.json({ csrfToken: req.csrfToken() });
+    // Set cache control headers to prevent caching
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+      'Surrogate-Control': 'no-store'
+    });
+    
+    // Generate a fresh token
+    const token = req.csrfToken();
+    console.log('Generated new CSRF token');
+    
+    res.json({ csrfToken: token });
   });
   
   // Auth login schema
