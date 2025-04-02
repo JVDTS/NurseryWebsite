@@ -87,7 +87,9 @@ export default function AdminGallery() {
     defaultValues: {
       imageUrl: '',
       caption: '',
-      nurseryId: nurseryId,
+      // For super admin, default to Hayes (1) instead of 0
+      // For other admins, use their assigned nursery
+      nurseryId: isSuperAdmin ? 1 : nurseryId,
     },
   });
   
@@ -177,9 +179,15 @@ export default function AdminGallery() {
   // Mutation for adding a new gallery image
   const addImageMutation = useMutation({
     mutationFn: async (data: GalleryImageFormValues) => {
-      return apiRequest('POST', `/api/admin/nurseries/${nurseryId}/gallery`, {
+      // For super admin, we need to use the nurseryId selected in the form
+      // If not a super admin, use the user's assigned nurseryId
+      const targetNurseryId = isSuperAdmin ? (data.nurseryId || 1) : nurseryId;
+      
+      console.log('Adding image to nursery:', targetNurseryId, data);
+      
+      return apiRequest('POST', `/api/admin/nurseries/${targetNurseryId}/gallery`, {
         ...data,
-        nurseryId: nurseryId,
+        nurseryId: targetNurseryId,
       });
     },
     onSuccess: () => {
@@ -361,7 +369,7 @@ export default function AdminGallery() {
                               <select 
                                 className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                                 {...field}
-                                value={field.value || nurseryId}
+                                value={field.value || 1}
                                 onChange={(e) => field.onChange(parseInt(e.target.value))}
                               >
                                 <option value="1">Hayes</option>
