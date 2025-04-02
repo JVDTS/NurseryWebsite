@@ -62,7 +62,7 @@ interface GalleryImage {
 
 // Define the validation schema for gallery image form
 const galleryImageSchema = z.object({
-  imageUrl: z.string().min(1, { message: 'Image URL or file upload is required' }),
+  imageUrl: z.string().min(1, { message: 'Please upload an image file or provide a URL' }),
   caption: z.string().min(5, { message: 'Caption must be at least 5 characters' }),
   nurseryId: z.number().optional(), // Will be set by the component for non-super admins
 });
@@ -267,15 +267,8 @@ export default function AdminGallery() {
                       name="imageUrl"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Image URL or Upload</FormLabel>
-                          <div className="space-y-2">
-                            <FormControl>
-                              <Input 
-                                placeholder="https://example.com/image.jpg" 
-                                {...field} 
-                              />
-                            </FormControl>
-                            
+                          <FormLabel>Upload Image</FormLabel>
+                          <div className="space-y-4">
                             <div className="relative">
                               <input
                                 type="file"
@@ -287,7 +280,7 @@ export default function AdminGallery() {
                               />
                               <Button
                                 type="button"
-                                variant="outline"
+                                variant="default"
                                 className="w-full"
                                 onClick={() => fileInputRef.current?.click()}
                                 disabled={isUploading}
@@ -300,11 +293,36 @@ export default function AdminGallery() {
                                 ) : (
                                   <>
                                     <Upload className="mr-2 h-4 w-4" />
-                                    Upload Image
+                                    Select Image File
                                   </>
                                 )}
                               </Button>
                             </div>
+                            
+                            {field.value && (
+                              <div className="flex items-center justify-between bg-muted/30 p-2 rounded border">
+                                <div className="flex items-center">
+                                  <ImageIcon className="h-4 w-4 mr-2 text-green-600" />
+                                  <span className="text-sm truncate max-w-[200px]">{field.value.split('/').pop()}</span>
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => form.setValue('imageUrl', '')}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            )}
+                            
+                            <FormControl>
+                              <Input 
+                                placeholder="Or enter an image URL directly" 
+                                {...field} 
+                                className="text-xs text-muted-foreground"
+                              />
+                            </FormControl>
                           </div>
                           <FormMessage />
                         </FormItem>
