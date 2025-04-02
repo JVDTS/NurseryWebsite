@@ -24,15 +24,38 @@ async function throwIfResNotOk(res: Response) {
   }
 }
 
+import { fetchCsrfToken } from './csrf';
+
 export async function apiRequest<T = any>(
   method: string,
   url: string,
   data?: unknown | undefined,
-  options?: { on401: UnauthorizedBehavior }
+  options?: { on401: UnauthorizedBehavior, skipCsrf?: boolean }
 ): Promise<T> {
+  // For state-changing methods (POST, PUT, DELETE, PATCH), fetch CSRF token first
+  // unless skipCsrf is explicitly set to true
+  const isStateChangingMethod = ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method.toUpperCase());
+  const needsCsrfToken = isStateChangingMethod && options?.skipCsrf !== true;
+  
+  let headers: HeadersInit = data ? { "Content-Type": "application/json" } : {};
+  
+  // Add CSRF token for state-changing methods
+  if (needsCsrfToken) {
+    try {
+      const csrfToken = await fetchCsrfToken();
+      headers = {
+        ...headers,
+        'X-CSRF-Token': csrfToken
+      };
+    } catch (error) {
+      console.error('Failed to fetch CSRF token for API request:', error);
+      throw new Error('Security validation failed. Please refresh the page and try again.');
+    }
+  }
+  
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers,
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
