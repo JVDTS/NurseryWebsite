@@ -53,17 +53,18 @@ import {
 // Types for gallery images
 interface GalleryImage {
   id: number;
-  title: string;
-  description: string;
   imageUrl: string;
+  caption: string;
   nurseryId: number;
+  uploadedBy: number;
+  createdAt: string;
 }
 
 // Define the validation schema for gallery image form
 const galleryImageSchema = z.object({
-  title: z.string().min(3, { message: 'Title must be at least 3 characters' }),
-  description: z.string().min(5, { message: 'Description must be at least 5 characters' }),
   imageUrl: z.string().url({ message: 'Please enter a valid URL for the image' }),
+  caption: z.string().min(5, { message: 'Caption must be at least 5 characters' }),
+  nurseryId: z.number().optional(), // Will be set by the component for non-super admins
 });
 
 type GalleryImageFormValues = z.infer<typeof galleryImageSchema>;
@@ -82,9 +83,9 @@ export default function AdminGallery() {
   const form = useForm<GalleryImageFormValues>({
     resolver: zodResolver(galleryImageSchema),
     defaultValues: {
-      title: '',
-      description: '',
       imageUrl: '',
+      caption: '',
+      nurseryId: nurseryId,
     },
   });
 
@@ -193,38 +194,6 @@ export default function AdminGallery() {
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="title"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Title</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Image title" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Description</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Brief description of the image"
-                              className="min-h-[80px]"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={form.control}
                       name="imageUrl"
                       render={({ field }) => (
                         <FormItem>
@@ -239,6 +208,49 @@ export default function AdminGallery() {
                         </FormItem>
                       )}
                     />
+                    
+                    <FormField
+                      control={form.control}
+                      name="caption"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Caption</FormLabel>
+                          <FormControl>
+                            <Textarea
+                              placeholder="Brief description of the image"
+                              className="min-h-[80px]"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    {isSuperAdmin && (
+                      <FormField
+                        control={form.control}
+                        name="nurseryId"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nursery</FormLabel>
+                            <FormControl>
+                              <select 
+                                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                {...field}
+                                value={field.value || nurseryId}
+                                onChange={(e) => field.onChange(parseInt(e.target.value))}
+                              >
+                                <option value="1">Hayes</option>
+                                <option value="2">Uxbridge</option>
+                                <option value="3">Hounslow</option>
+                              </select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
                     
                     <DialogFooter>
                       <Button type="submit" disabled={addImageMutation.isPending}>
@@ -273,7 +285,7 @@ export default function AdminGallery() {
                     <div className="relative aspect-video bg-muted">
                       <img
                         src={image.imageUrl}
-                        alt={image.title}
+                        alt="Gallery image"
                         className="object-cover w-full h-full"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = 'https://placehold.co/600x400?text=Image+Not+Found';
@@ -314,7 +326,9 @@ export default function AdminGallery() {
                       </div>
                     </div>
                     <CardHeader className="p-3">
-                      <CardTitle className="text-sm truncate">{image.title}</CardTitle>
+                      <CardTitle className="text-sm truncate">
+                        {new Date(image.createdAt).toLocaleDateString()}
+                      </CardTitle>
                       {isSuperAdmin && (
                         <CardDescription className="text-xs">
                           {getNurseryName(image.nurseryId)} Nursery
@@ -323,7 +337,7 @@ export default function AdminGallery() {
                     </CardHeader>
                     <CardContent className="p-3 pt-0">
                       <p className="text-xs text-muted-foreground line-clamp-2">
-                        {image.description}
+                        {image.caption}
                       </p>
                     </CardContent>
                   </Card>
