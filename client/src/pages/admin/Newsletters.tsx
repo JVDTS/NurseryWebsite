@@ -12,6 +12,13 @@ import { z } from 'zod';
 import { CalendarIcon, FileText, Plus, Loader2, Pencil, Trash2, Calendar, Upload } from 'lucide-react';
 import { FileUpload } from '@/components/ui/file-upload';
 import { format } from 'date-fns';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import {
   Card,
@@ -551,12 +558,24 @@ export default function AdminNewsletters() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Nursery Tag</FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="Nursery name (e.g., CMC Hayes)" 
-                              {...field} 
-                            />
-                          </FormControl>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a nursery tag" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {nurseryTagOptions.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <FormDescription>
                             Tag to identify which nursery this newsletter belongs to
                           </FormDescription>
@@ -799,12 +818,24 @@ export default function AdminNewsletters() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nursery Tag</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="Nursery name (e.g., CMC Hayes)" 
-                          {...field} 
-                        />
-                      </FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a nursery tag" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {nurseryTagOptions.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormDescription>
                         Tag to identify which nursery this newsletter belongs to
                       </FormDescription>
@@ -835,6 +866,13 @@ export default function AdminNewsletters() {
 }
 
 // Helper function to get nursery name from ID
+// Define the nursery tag options
+const nurseryTagOptions = [
+  { value: 'Hayes', label: 'CMC Hayes' },
+  { value: 'Uxbridge', label: 'CMC Uxbridge' },
+  { value: 'Hounslow', label: 'CMC Hounslow' },
+];
+
 function getNurseryName(nurseryId: number): string {
   switch(nurseryId) {
     case 1: return 'Hayes';
