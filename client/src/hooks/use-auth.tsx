@@ -16,8 +16,8 @@ interface AuthContextProps {
   user: AdminUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<boolean>;
-  logout: () => Promise<void>;
+  login: (username: string, password: string, csrfToken: string) => Promise<boolean>;
+  logout: (csrfToken?: string) => Promise<void>;
   checkAuth: () => Promise<boolean>;
 }
 
@@ -60,13 +60,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Login function
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const login = async (username: string, password: string, csrfToken: string): Promise<boolean> => {
     try {
       setIsLoading(true);
       
       const response = await fetch('/api/admin/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
         body: JSON.stringify({ username, password }),
         credentials: 'include'
       });
@@ -103,11 +106,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Logout function
-  const logout = async (): Promise<void> => {
+  const logout = async (csrfToken?: string): Promise<void> => {
     try {
       setIsLoading(true);
+      
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json'
+      };
+      
+      // Add CSRF token if provided
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+      }
+      
       await fetch('/api/admin/logout', {
         method: 'POST',
+        headers,
         credentials: 'include'
       });
       
