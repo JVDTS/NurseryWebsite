@@ -41,6 +41,7 @@ export async function processFileUpload(req: Request): Promise<UploadedFile | nu
     try {
       const bb = Busboy({ headers: req.headers });
       let fileData: UploadedFile | null = null;
+      let filePromises: Promise<void>[] = [];
 
       bb.on('file', (fieldname: string, file: NodeJS.ReadableStream, info: FileInfo) => {
         const { filename, mimeType } = info;
@@ -53,24 +54,39 @@ export async function processFileUpload(req: Request): Promise<UploadedFile | nu
           fileSize += data.length;
         });
         
-        file.pipe(writeStream);
-        
-        writeStream.on('finish', () => {
-          fileData = {
-            originalname: filename,
-            filename: path.basename(saveTo),
-            mimetype: mimeType,
-            path: saveTo,
-            size: fileSize
-          };
+        // Create a promise for this file's completion
+        const filePromise = new Promise<void>((resolveFile, rejectFile) => {
+          writeStream.on('finish', () => {
+            fileData = {
+              originalname: filename,
+              filename: path.basename(saveTo),
+              mimetype: mimeType,
+              path: saveTo,
+              size: fileSize
+            };
+            resolveFile();
+          });
+          
+          writeStream.on('error', (err) => {
+            rejectFile(err);
+          });
         });
+        
+        filePromises.push(filePromise);
+        file.pipe(writeStream);
       });
       
-      bb.on('finish', () => {
-        if (fileData) {
-          resolve(fileData);
-        } else {
-          resolve(null);
+      bb.on('finish', async () => {
+        try {
+          // Wait for all file writes to complete
+          if (filePromises.length > 0) {
+            await Promise.all(filePromises);
+            resolve(fileData);
+          } else {
+            resolve(null); // No files were processed
+          }
+        } catch (err) {
+          reject(err);
         }
       });
       
