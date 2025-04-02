@@ -72,7 +72,11 @@ interface Newsletter {
 const newsletterFormSchema = z.object({
   title: z.string().min(3, { message: 'Title must be at least 3 characters' }),
   description: z.string().min(5, { message: 'Description must be at least 5 characters' }),
-  fileUrl: z.string().url({ message: 'Please upload a file or enter a valid URL' }).optional(),
+  fileUrl: z.string()
+    .min(1, { message: 'Please upload a file or enter a valid URL' })
+    .refine(val => val.startsWith('/uploads/') || val.startsWith('http'), { 
+      message: 'Please upload a file or enter a valid URL' 
+    }),
   publishDate: z.date({
     required_error: "Please select a date",
   }),
@@ -132,6 +136,12 @@ export default function AdminNewsletters() {
   // File upload mutation
   const uploadFileMutation = useMutation({
     mutationFn: async (file: File) => {
+      // Get CSRF token
+      const csrfResponse = await fetch('/api/csrf-token', {
+        credentials: 'include',
+      });
+      const { csrfToken } = await csrfResponse.json();
+      
       const formData = new FormData();
       formData.append('file', file);
       
@@ -140,6 +150,9 @@ export default function AdminNewsletters() {
         method: 'POST',
         body: formData,
         credentials: 'include',
+        headers: {
+          'X-CSRF-Token': csrfToken, // Add CSRF token
+        },
       });
       
       if (!response.ok) {
@@ -147,6 +160,7 @@ export default function AdminNewsletters() {
         throw new Error(error.message || 'Failed to upload file');
       }
       
+      console.log('PDF upload successful');
       return response.json();
     },
     onSuccess: (data) => {
@@ -179,6 +193,54 @@ export default function AdminNewsletters() {
       editForm.setValue('publishDate', new Date(year, month - 1, day));
     }
   }, [selectedNewsletter, isEditNewsletterOpen, editForm]);
+  
+  // File upload mutation for edit form
+  const uploadEditFileMutation = useMutation({
+    mutationFn: async (file: File) => {
+      // Get CSRF token
+      const csrfResponse = await fetch('/api/csrf-token', {
+        credentials: 'include',
+      });
+      const { csrfToken } = await csrfResponse.json();
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Using vanilla fetch for FormData upload
+      const response = await fetch('/api/admin/upload/newsletter', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: {
+          'X-CSRF-Token': csrfToken, // Add CSRF token
+        },
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to upload file');
+      }
+      
+      console.log('PDF upload successful (edit)');
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: 'File Uploaded',
+        description: 'The file has been uploaded successfully.',
+      });
+      
+      // Set the file URL in the edit form
+      editForm.setValue('fileUrl', data.fileUrl);
+    },
+    onError: (error) => {
+      toast({
+        title: 'Upload Error',
+        description: `Failed to upload file: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
 
   // Fetch newsletters based on user role
   const { data, isLoading } = useQuery<{ newsletters: Newsletter[] }>({
@@ -276,13 +338,23 @@ export default function AdminNewsletters() {
     },
   });
 
-  // Handle file upload
+  // Handle file upload for add form
   const handleFileUpload = (file: File | null) => {
     setUploadedFile(file);
     
     if (file) {
       setIsUploading(true);
       uploadFileMutation.mutate(file);
+    }
+  };
+  
+  // Handle file upload for edit form
+  const handleEditFileUpload = (file: File | null) => {
+    setUploadedFile(file);
+    
+    if (file) {
+      setIsUploading(true);
+      uploadEditFileMutation.mutate(file);
     }
   };
 
@@ -606,13 +678,13 @@ export default function AdminNewsletters() {
                         <FileUpload
                           label="Upload a new PDF"
                           value={uploadedFile}
-                          onChange={handleFileUpload}
+                          onChange={handleEditFileUpload}
                           accept={{
                             'application/pdf': []
                           }}
                           showPreview={true}
                         />
-                        {uploadFileMutation.isPending && (
+                        {uploadEditFileMutation.isPending && (
                           <div className="flex items-center justify-center py-2">
                             <Loader2 className="h-4 w-4 animate-spin mr-2" />
                             <span className="text-sm text-muted-foreground">Uploading...</span>

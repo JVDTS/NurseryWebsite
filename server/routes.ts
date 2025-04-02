@@ -694,6 +694,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Upload a newsletter file
   app.post("/api/admin/upload/newsletter", nurseryAdminOnly, async (req: Request, res: Response) => {
     try {
+      console.log("Processing file upload for newsletter...");
       const fileData = await processFileUpload(req);
       
       if (!fileData) {
@@ -703,8 +704,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
-      // Check if file is a PDF
-      if (fileData.mimetype !== 'application/pdf') {
+      // Check if file is a PDF (by mimetype or extension)
+      const isPdfByMimetype = fileData.mimetype === 'application/pdf';
+      const isPdfByExtension = fileData.filename.toLowerCase().endsWith('.pdf');
+      
+      if (!isPdfByMimetype && !isPdfByExtension) {
         // Clean up the uploaded file
         fs.unlinkSync(fileData.path);
         
@@ -715,6 +719,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const fileUrl = getFileUrl(fileData.filename);
+      console.log(`File uploaded successfully: ${fileData.filename}`);
       
       res.status(200).json({
         success: true,
@@ -801,7 +806,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newsletterSchema = z.object({
         title: z.string().min(3),
         description: z.string().min(5),
-        fileUrl: z.string().url(),
+        fileUrl: z.string()
+          .refine(val => val.startsWith('/uploads/') || val.startsWith('http'), {
+            message: 'Please provide a valid URL or an uploaded file path'
+          }),
         publishDate: z.string().or(z.date())
       });
       
@@ -879,7 +887,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newsletterUpdateSchema = z.object({
         title: z.string().min(3).optional(),
         description: z.string().min(5).optional(),
-        fileUrl: z.string().url().optional(),
+        fileUrl: z.string()
+          .refine(val => val.startsWith('/uploads/') || val.startsWith('http'), {
+            message: 'Please provide a valid URL or an uploaded file path'
+          })
+          .optional(),
         publishDate: z.string().or(z.date()).optional()
       });
       
