@@ -543,19 +543,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Upload a gallery image file
   app.post("/api/admin/upload/gallery", nurseryAdminOnly, async (req: Request, res: Response) => {
     try {
+      console.log('Processing file upload for gallery...');
+      
+      // Check content type to ensure it's multipart form data
+      const contentType = req.headers['content-type'] || '';
+      if (!contentType.includes('multipart/form-data')) {
+        console.error('Invalid content type for file upload:', contentType);
+        return res.status(400).json({
+          success: false,
+          message: "Invalid request format. Must be multipart/form-data."
+        });
+      }
+      
       const fileData = await processFileUpload(req);
       
       if (!fileData) {
+        console.error('No file received in the upload request');
         return res.status(400).json({
           success: false,
-          message: "No file uploaded"
+          message: "No file uploaded. Please select a file."
         });
       }
+      
+      console.log('File uploaded successfully:', fileData.filename);
       
       // Check if file is an image
       if (!fileData.mimetype.startsWith('image/')) {
         // Clean up the uploaded file
         fs.unlinkSync(fileData.path);
+        console.error('Invalid file type uploaded:', fileData.mimetype);
         
         return res.status(400).json({
           success: false,
@@ -577,7 +593,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error uploading gallery image file:", error);
       res.status(500).json({
         success: false,
-        message: "Failed to upload gallery image file"
+        message: error instanceof Error ? error.message : "Failed to upload gallery image file"
       });
     }
   });

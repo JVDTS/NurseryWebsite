@@ -103,6 +103,8 @@ export default function AdminGallery() {
       const formData = new FormData();
       formData.append('file', file);
       
+      console.log(`Uploading file: ${file.name}, size: ${file.size}, type: ${file.type}`);
+      
       const response = await fetch('/api/admin/upload/gallery', {
         method: 'POST',
         body: formData,
@@ -112,12 +114,15 @@ export default function AdminGallery() {
         },
       });
       
+      const responseData = await response.json();
+      
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to upload file');
+        console.error('Upload failed:', responseData);
+        throw new Error(responseData.message || 'Failed to upload file');
       }
       
-      return response.json();
+      console.log('Upload successful:', responseData);
+      return responseData;
     },
     onSuccess: (data) => {
       // Update the form with the uploaded file URL
