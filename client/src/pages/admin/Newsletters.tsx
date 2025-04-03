@@ -209,9 +209,30 @@ export default function AdminNewsletters() {
       // Set the nursery tag
       editForm.setValue('tags', getNurseryName(selectedNewsletter.nurseryId));
       
-      // Convert string date to Date object
-      const [year, month, day] = selectedNewsletter.publishDate.split('-').map(Number);
-      editForm.setValue('publishDate', new Date(year, month - 1, day));
+      try {
+        // Convert string date to Date object
+        // Note: month in JS Date is 0-indexed (0-11), but our string format is 1-indexed (1-12)
+        const dateParts = selectedNewsletter.publishDate.split('-');
+        if (dateParts.length === 3) {
+          const [year, month, day] = dateParts.map(Number);
+          const date = new Date(year, month - 1, day);
+          
+          // Check if the date is valid before setting it
+          if (!isNaN(date.getTime())) {
+            editForm.setValue('publishDate', date);
+          } else {
+            // Set to current date if invalid
+            editForm.setValue('publishDate', new Date());
+          }
+        } else {
+          // Fallback to current date
+          editForm.setValue('publishDate', new Date());
+        }
+      } catch (error) {
+        console.error('Error parsing date:', error);
+        // Fallback to current date
+        editForm.setValue('publishDate', new Date());
+      }
     }
   }, [selectedNewsletter, isEditNewsletterOpen, editForm]);
   
@@ -529,8 +550,8 @@ export default function AdminNewsletters() {
                                     !field.value ? "text-muted-foreground" : ""
                                   }`}
                                 >
-                                  {field.value ? (
-                                    format(field.value, "PPP")
+                                  {field.value && !isNaN(new Date(field.value).getTime()) ? (
+                                    format(new Date(field.value), "PPP")
                                   ) : (
                                     <span>Pick a date</span>
                                   )}
@@ -672,7 +693,9 @@ export default function AdminNewsletters() {
                         <div className="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4">
                           <div className="flex items-center text-sm text-muted-foreground">
                             <Calendar className="mr-2 h-4 w-4" />
-                            {format(new Date(newsletter.publishDate), 'PPP')}
+                            {newsletter.publishDate && !isNaN(new Date(newsletter.publishDate).getTime()) 
+                              ? format(new Date(newsletter.publishDate), 'PPP')
+                              : 'No date'}
                           </div>
                           <Button size="sm" variant="outline" asChild>
                             <a href={newsletter.fileUrl} target="_blank" rel="noopener noreferrer">
@@ -789,8 +812,8 @@ export default function AdminNewsletters() {
                                 !field.value ? "text-muted-foreground" : ""
                               }`}
                             >
-                              {field.value ? (
-                                format(field.value, "PPP")
+                              {field.value && !isNaN(new Date(field.value).getTime()) ? (
+                                format(new Date(field.value), "PPP")
                               ) : (
                                 <span>Pick a date</span>
                               )}
