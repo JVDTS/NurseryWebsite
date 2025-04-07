@@ -56,6 +56,23 @@ export interface IStorage {
   getContactSubmissions(): Promise<ContactSubmission[]>;
 }
 
+// Import DbStorage if PostgreSQL database is configured
+let DbStorageImplementation;
+try {
+  // Check if DATABASE_URL is configured
+  if (process.env.DATABASE_URL) {
+    // Dynamic import to avoid breaking if PostgreSQL is not configured
+    DbStorageImplementation = require('./dbStorage').DbStorage;
+    console.log('DATABASE_URL found:', process.env.DATABASE_URL);
+  } else {
+    console.log('DATABASE_URL environment variable not found');
+    DbStorageImplementation = null;
+  }
+} catch (e) {
+  console.error('Error loading PostgreSQL database implementation:', e);
+  DbStorageImplementation = null;
+}
+
 // In-memory storage implementation for development
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
@@ -397,6 +414,7 @@ export class MemStorage implements IStorage {
       id,
       pdfUrl: insertNewsletter.pdfUrl ?? null, // Ensure pdfUrl is not undefined
       publishDate: insertNewsletter.publishDate ?? now, // Ensure publishDate is not undefined
+      tags: insertNewsletter.tags ?? null, // Ensure tags is not undefined
       createdAt: now,
       updatedAt: now
     };
@@ -611,4 +629,24 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Use database storage if PostgreSQL is configured, otherwise use in-memory storage
+let storage: IStorage;
+
+if (process.env.DATABASE_URL && DbStorageImplementation) {
+  try {
+    console.log('Using PostgreSQL database storage with URL:', process.env.DATABASE_URL);
+    storage = new DbStorageImplementation();
+  } catch (error) {
+    console.error('Error initializing PostgreSQL storage:', error);
+    console.log('Falling back to in-memory storage due to error');
+    storage = new MemStorage();
+  }
+} else {
+  console.log('Using in-memory storage (DATABASE_URL availability: ' + 
+    (process.env.DATABASE_URL ? 'Yes' : 'No') + 
+    ', DbStorageImplementation: ' + 
+    (DbStorageImplementation ? 'Yes' : 'No') + ')');
+  storage = new MemStorage();
+}
+
+export { storage };
