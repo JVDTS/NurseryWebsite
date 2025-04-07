@@ -80,7 +80,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <NurserySelectorProvider>
-          <div className="min-h-screen">
+          <div className="min-h-screen overflow-x-hidden relative w-full">
             <ScrollToTop />
             <PageTransition>
               <Router />
