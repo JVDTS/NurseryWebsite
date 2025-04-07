@@ -81,25 +81,25 @@ export default function NavBar() {
   ];
 
   return (
-    <header className={`fixed w-full z-50 transition-all duration-300 px-1 sm:px-4 ${isScrolled ? 'py-2' : 'py-3 sm:py-4'}`}>
+    <header className={`fixed w-full z-50 transition-all duration-300 px-1 sm:px-4 ${isScrolled ? 'py-1' : 'py-1 sm:py-4'}`}>
       <div className="max-w-[90rem] mx-auto">
-        <nav className="flex justify-between items-center rounded-full px-4 sm:px-8 py-3 sm:py-4 bg-white/90 backdrop-blur-sm shadow-md">
-          <div className="flex items-center flex-grow-0">
+        <nav className="flex justify-between items-center rounded-xl sm:rounded-full px-2 sm:px-8 py-2 sm:py-4 bg-white/90 backdrop-blur-sm shadow-md mx-1">
+          <div className="flex items-center flex-shrink-0">
             <button 
               className="lg:hidden flex items-center justify-center p-1 rounded-full bg-primary/10 hover:bg-primary/20 text-primary transition-colors mr-1"
               onClick={toggleMenu}
               aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMenuOpen ? <X className="h-4 w-4 sm:h-5 sm:w-5" /> : <Menu className="h-4 w-4 sm:h-5 sm:w-5" />}
             </button>
             
             <ScrollToTopLink href="/" className="flex items-center">
               <img 
                 src="/images/cmc-logo.png" 
                 alt="CMC Logo" 
-                className="w-7 h-7 sm:w-10 sm:h-10 md:w-12 md:h-12 shrink-0 object-contain"
+                className="w-6 h-6 sm:w-10 sm:h-10 md:w-12 md:h-12 shrink-0 object-contain"
               />
-              <span className="ml-1 md:ml-3 font-heading font-bold text-xs sm:text-sm md:text-lg text-primary truncate max-w-[100px] sm:max-w-full">
+              <span className="ml-1 md:ml-3 font-heading font-bold text-xs sm:text-sm md:text-lg text-primary truncate max-w-[80px] sm:max-w-full">
                 <span className={isMobile ? "inline" : "hidden"}>CMC Nursery</span>
                 <span className={!isMobile ? "inline" : "hidden"}>Coat of Many Colours</span>
               </span>
@@ -230,14 +230,14 @@ export default function NavBar() {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="lg:hidden overflow-hidden mt-2 fixed left-2 right-2 sm:left-4 sm:right-4 top-[65px] bottom-auto z-50"
+              className="lg:hidden overflow-hidden mt-1 fixed left-1 right-1 sm:left-4 sm:right-4 top-[55px] bottom-auto z-50"
             >
-              <div className="flex flex-col space-y-1 py-2 px-2 sm:px-4 bg-white/95 backdrop-blur-md rounded-xl shadow-lg max-h-[calc(100vh-80px)] overflow-y-auto">
+              <div className="flex flex-col space-y-1 py-2 px-1 sm:px-4 bg-white/95 backdrop-blur-md rounded-xl shadow-lg max-h-[calc(100vh-80px)] overflow-y-auto">
                 {navLinks.map(link => (
                   <ScrollToTopLink
                     key={link.href}
                     href={link.href}
-                    className="font-heading font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 text-base flex items-center"
+                    className="font-heading font-semibold py-2 px-3 sm:px-4 rounded-md hover:bg-gray-100 text-sm sm:text-base flex items-center"
                     onClick={closeMenu}
                   >
                     {link.label}
@@ -248,10 +248,10 @@ export default function NavBar() {
                 <div className="relative">
                   <button 
                     onClick={toggleNurseriesDropdown}
-                    className="font-heading w-full text-left font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 flex items-center justify-between text-base"
+                    className="font-heading w-full text-left font-semibold py-2 px-3 sm:px-4 rounded-md hover:bg-gray-100 flex items-center justify-between text-sm sm:text-base"
                   >
                     Our Nurseries
-                    <ChevronDown className={`h-5 w-5 transition-transform ${showNurseriesDropdown ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`h-4 w-4 sm:h-5 sm:w-5 transition-transform ${showNurseriesDropdown ? 'rotate-180' : ''}`} />
                   </button>
                   
                   <AnimatePresence>
@@ -261,13 +261,13 @@ export default function NavBar() {
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="pl-4 mt-1 mb-1 bg-gray-50/80 rounded-md"
+                        className="pl-3 sm:pl-4 mt-1 mb-1 bg-gray-50/80 rounded-md"
                       >
                         {nurseryLocations.map(location => (
                           <ScrollToTopLink
                             key={location.href}
                             href={location.href}
-                            className="block py-3 px-4 font-heading font-medium text-gray-600 hover:text-primary"
+                            className="block py-2 px-3 sm:px-4 font-heading font-medium text-gray-600 hover:text-primary text-xs sm:text-sm"
                             onClick={closeMenu}
                           >
                             {location.label}
@@ -275,7 +275,7 @@ export default function NavBar() {
                         ))}
                         <ScrollToTopLink
                           href="/#nurseries"
-                          className="block py-3 px-4 font-heading font-medium text-gray-600 hover:text-primary border-t border-gray-100"
+                          className="block py-2 px-3 sm:px-4 font-heading font-medium text-gray-600 hover:text-primary border-t border-gray-100 text-xs sm:text-sm"
                           onClick={closeMenu}
                         >
                           View All Nurseries
@@ -289,10 +289,10 @@ export default function NavBar() {
                 <div className="relative">
                   <button 
                     onClick={toggleParentInfoDropdown}
-                    className="font-heading w-full text-left font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 flex items-center justify-between text-base"
+                    className="font-heading w-full text-left font-semibold py-2 px-3 sm:px-4 rounded-md hover:bg-gray-100 flex items-center justify-between text-sm sm:text-base"
                   >
                     Parent Info
-                    <ChevronDown className={`h-5 w-5 transition-transform ${showParentInfoDropdown ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`h-4 w-4 sm:h-5 sm:w-5 transition-transform ${showParentInfoDropdown ? 'rotate-180' : ''}`} />
                   </button>
                   
                   <AnimatePresence>
@@ -302,13 +302,13 @@ export default function NavBar() {
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="pl-4 mt-1 mb-1 bg-gray-50/80 rounded-md"
+                        className="pl-3 sm:pl-4 mt-1 mb-1 bg-gray-50/80 rounded-md"
                       >
                         {parentInfoItems.map((item, index) => (
                           <ScrollToTopLink
                             key={item.href}
                             href={item.href}
-                            className={`block py-3 px-4 font-heading font-medium text-gray-600 hover:text-primary ${index > 0 ? 'border-t border-gray-50' : ''}`}
+                            className={`block py-2 px-3 sm:px-4 font-heading font-medium text-gray-600 hover:text-primary text-xs sm:text-sm ${index > 0 ? 'border-t border-gray-50' : ''}`}
                             onClick={closeMenu}
                           >
                             {item.label}
@@ -322,7 +322,7 @@ export default function NavBar() {
                 {/* Mobile newsletters link */}
                 <ScrollToTopLink
                   href="/newsletters"
-                  className="font-heading font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 text-base flex items-center"
+                  className="font-heading font-semibold py-2 px-3 sm:px-4 rounded-md hover:bg-gray-100 text-sm sm:text-base flex items-center"
                   onClick={closeMenu}
                 >
                   Newsletters
@@ -331,7 +331,7 @@ export default function NavBar() {
                 {/* Mobile gallery link */}
                 <ScrollToTopLink
                   href="/gallery"
-                  className="font-heading font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 text-base flex items-center"
+                  className="font-heading font-semibold py-2 px-3 sm:px-4 rounded-md hover:bg-gray-100 text-sm sm:text-base flex items-center"
                   onClick={closeMenu}
                 >
                   Gallery
@@ -339,7 +339,7 @@ export default function NavBar() {
                 
                 <a
                   href="#contact"
-                  className="font-heading font-semibold py-2.5 px-4 rounded-md hover:bg-gray-100 text-base flex items-center justify-center border-b border-orange-500"
+                  className="font-heading font-semibold py-2 px-3 sm:px-4 rounded-md hover:bg-gray-100 text-sm sm:text-base flex items-center justify-center border-b border-orange-500"
                   onClick={closeMenu}
                 >
                   Get In Touch
