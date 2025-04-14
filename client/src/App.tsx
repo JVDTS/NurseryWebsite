@@ -13,6 +13,7 @@ import AboutPage from "@/pages/About";
 import MissionPage from "@/pages/Mission";
 import NewslettersPage from "@/pages/Newsletters";
 import GalleryPage from "@/pages/Gallery";
+import ViewContactSubmissions from "@/pages/ViewContactSubmissions";
 
 // Nursery pages
 import HayesNursery from "@/pages/nurseries/Hayes";

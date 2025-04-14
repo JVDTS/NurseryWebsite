@@ -1262,6 +1262,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // API endpoint to view all contact form submissions
+  app.get("/api/contact-submissions", async (req: Request, res: Response) => {
+    try {
+      const contactSubmissions = await storage.getContactSubmissions();
+      res.json({ success: true, data: contactSubmissions });
+    } catch (error) {
+      console.error("Error fetching contact submissions:", error);
+      res.status(500).json({ success: false, message: "Failed to fetch contact submissions" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
