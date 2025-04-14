@@ -4,7 +4,8 @@ import {
   nurseries, type Nursery, type InsertNursery,
   events, type Event, type InsertEvent,
   galleryImages, type GalleryImage, type InsertGalleryImage,
-  newsletters, type Newsletter, type InsertNewsletter
+  newsletters, type Newsletter, type InsertNewsletter,
+  activityLogs, type ActivityLog, type InsertActivityLog
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -21,6 +22,7 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>; // Added method to get all users
   
   // Nursery methods
   getNursery(id: number): Promise<Nursery | undefined>;
@@ -54,6 +56,12 @@ export interface IStorage {
   // Contact methods
   createContactSubmission(contact: InsertContact): Promise<ContactSubmission>;
   getContactSubmissions(): Promise<ContactSubmission[]>;
+  
+  // Activity Log methods
+  logActivity(activity: InsertActivityLog): Promise<ActivityLog>;
+  getActivityLogs(): Promise<ActivityLog[]>;
+  getActivityLogsByUser(userId: number): Promise<ActivityLog[]>;
+  getActivityLogsByNursery(nurseryId: number): Promise<ActivityLog[]>;
 }
 
 // Import DbStorage if PostgreSQL database is configured
@@ -483,7 +491,8 @@ export class MemStorage implements IStorage {
     const newContact: ContactSubmission = { 
       ...contact, 
       id,
-      phone: contact.phone ?? null  // Ensure phone is not undefined
+      phone: contact.phone ?? null,  // Ensure phone is not undefined
+      createdAt: contact.createdAt || new Date() // Ensure createdAt is not undefined
     };
     this.contacts.set(id, newContact);
     return newContact;
@@ -491,6 +500,43 @@ export class MemStorage implements IStorage {
 
   async getContactSubmissions(): Promise<ContactSubmission[]> {
     return Array.from(this.contacts.values());
+  }
+  
+  // Get all users for admin user management
+  async getAllUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
+  }
+  
+  // Activity log methods
+  private activityLogs: Map<number, ActivityLog> = new Map();
+  private activityLogCurrentId: number = 1;
+  
+  async logActivity(activity: InsertActivityLog): Promise<ActivityLog> {
+    const id = this.activityLogCurrentId++;
+    const newActivity: ActivityLog = {
+      ...activity,
+      id,
+      createdAt: new Date()
+    };
+    this.activityLogs.set(id, newActivity);
+    return newActivity;
+  }
+  
+  async getActivityLogs(): Promise<ActivityLog[]> {
+    return Array.from(this.activityLogs.values())
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()); // Sort by date descending
+  }
+  
+  async getActivityLogsByUser(userId: number): Promise<ActivityLog[]> {
+    return Array.from(this.activityLogs.values())
+      .filter(log => log.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+  
+  async getActivityLogsByNursery(nurseryId: number): Promise<ActivityLog[]> {
+    return Array.from(this.activityLogs.values())
+      .filter(log => log.nurseryId === nurseryId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
   // Initialize sample newsletters

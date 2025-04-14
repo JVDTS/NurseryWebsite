@@ -129,10 +129,43 @@ export const contactSubmissions = pgTable("contact_submissions", {
   phone: text("phone"),
   nurseryLocation: text("nursery_location").notNull(),
   message: text("message").notNull(),
-  createdAt: text("created_at").notNull()
+  createdAt: timestamp("created_at").defaultNow().notNull()
 });
 
 export const insertContactSchema = createInsertSchema(contactSubmissions);
 
 export type InsertContact = z.infer<typeof insertContactSchema>;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
+
+// Activity log action enum
+export const actionTypeEnum = pgEnum('action_type', [
+  'create_user', 
+  'update_user', 
+  'create_event', 
+  'update_event', 
+  'delete_event',
+  'upload_gallery',
+  'delete_gallery',
+  'create_newsletter',
+  'update_newsletter',
+  'delete_newsletter'
+]);
+
+// Activity log schema for tracking admin actions
+export const activityLogs = pgTable("activity_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(), // User who performed the action
+  username: text("username").notNull(), // Username for quick reference
+  userRole: roleEnum("user_role").notNull(), // Role of the user
+  nurseryId: integer("nursery_id"), // Associated nursery if applicable
+  nurseryName: text("nursery_name"), // Nursery name for quick reference
+  actionType: actionTypeEnum("action_type").notNull(), // Type of action performed
+  resourceId: integer("resource_id"), // ID of the resource affected
+  description: text("description").notNull(), // Description of the action
+  createdAt: timestamp("created_at").defaultNow().notNull(), // When the action occurred
+});
+
+// Activity log input schema
+export const insertActivityLogSchema = createInsertSchema(activityLogs);
+export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
+export type ActivityLog = typeof activityLogs.$inferSelect;
