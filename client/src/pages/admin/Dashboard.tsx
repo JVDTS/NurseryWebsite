@@ -3,8 +3,11 @@ import { Link } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import DashboardLayout from '@/components/admin/DashboardLayout';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import UserManagement from '@/components/admin/UserManagement';
+import ActivityLogs from '@/components/admin/ActivityLogs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Newspaper, Image, Clock } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Users, Newspaper, Image, Clock, UserCog, ActivityIcon } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
 export default function AdminDashboard() {
@@ -177,6 +180,51 @@ export default function AdminDashboard() {
               </Link>
             </CardContent>
           </Card>
+          
+          {/* Super Admin Only Features */}
+          {user?.role === 'super_admin' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Admin Management</CardTitle>
+                <CardDescription>Manage users and monitor activity</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="users" className="space-y-4">
+                  <TabsList>
+                    <TabsTrigger value="users" className="flex items-center gap-2">
+                      <UserCog size={14} />
+                      User Management
+                    </TabsTrigger>
+                    <TabsTrigger value="activity" className="flex items-center gap-2">
+                      <ActivityIcon size={14} />
+                      Activity Logs
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="users" className="space-y-4">
+                    <UserManagement />
+                  </TabsContent>
+                  
+                  <TabsContent value="activity" className="space-y-4">
+                    <ActivityLogs />
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* Nursery Admin Only Features */}
+          {user?.role === 'nursery_admin' && user?.nurseryId && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Nursery Management</CardTitle>
+                <CardDescription>Monitor activity for your nursery</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ActivityLogs nurseryId={user.nurseryId} />
+              </CardContent>
+            </Card>
+          )}
         </div>
       </DashboardLayout>
     </ProtectedRoute>
