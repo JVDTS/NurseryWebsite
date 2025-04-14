@@ -76,7 +76,7 @@ export default function AdminDashboard() {
         <div className="space-y-6">
           {/* Welcome Card */}
           <Card>
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-2 text-center">
               <CardTitle className="text-2xl font-bold">
                 {getWelcomeMessage()}, {user?.firstName}!
               </CardTitle>
@@ -87,7 +87,7 @@ export default function AdminDashboard() {
                 }
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex justify-center">
               <div className="text-sm text-muted-foreground">
                 <Clock className="inline-block mr-1 h-4 w-4" />
                 {new Date().toLocaleDateString('en-UK', { 
@@ -103,13 +103,13 @@ export default function AdminDashboard() {
           {/* Stats Grid */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+              <CardHeader className="flex flex-row items-center justify-center space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium mr-2">
                   Gallery Images
                 </CardTitle>
                 <Image className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="text-center">
                 <div className="text-2xl font-bold">{stats.galleryImages}</div>
                 <p className="text-xs text-muted-foreground">
                   Photos in gallery
@@ -118,13 +118,13 @@ export default function AdminDashboard() {
             </Card>
             
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+              <CardHeader className="flex flex-row items-center justify-center space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium mr-2">
                   Newsletters
                 </CardTitle>
                 <Newspaper className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="text-center">
                 <div className="text-2xl font-bold">{stats.newsletters}</div>
                 <p className="text-xs text-muted-foreground">
                   Published newsletters
@@ -133,13 +133,13 @@ export default function AdminDashboard() {
             </Card>
             
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+              <CardHeader className="flex flex-row items-center justify-center space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium mr-2">
                   Staff Members
                 </CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
-              <CardContent>
+              <CardContent className="text-center">
                 <div className="text-2xl font-bold">{stats.staff}</div>
                 <p className="text-xs text-muted-foreground">
                   Active staff members
@@ -150,15 +150,15 @@ export default function AdminDashboard() {
 
           {/* Quick Actions */}
           <Card>
-            <CardHeader>
+            <CardHeader className="text-center">
               <CardTitle>Quick Actions</CardTitle>
               <CardDescription>Common tasks you can perform</CardDescription>
             </CardHeader>
             <CardContent className="grid gap-2 md:grid-cols-2">
               <Link href={user?.role === 'super_admin' ? '/admin/gallery' : `/admin/nurseries/${user?.nurseryId}/gallery`}>
                 <a className="block">
-                  <button className="p-4 border rounded-lg text-left hover:bg-gray-50 transition-colors w-full">
-                    <div className="flex items-center gap-2 mb-2">
+                  <button className="p-4 border rounded-lg text-center hover:bg-gray-50 transition-colors w-full">
+                    <div className="flex items-center justify-center gap-2 mb-2">
                       <Image className="h-5 w-5 text-primary" />
                       <span className="font-medium">Manage Gallery</span>
                     </div>
@@ -169,8 +169,8 @@ export default function AdminDashboard() {
               
               <Link href={user?.role === 'super_admin' ? '/admin/newsletters' : `/admin/nurseries/${user?.nurseryId}/newsletters`}>
                 <a className="block">
-                  <button className="p-4 border rounded-lg text-left hover:bg-gray-50 transition-colors w-full">
-                    <div className="flex items-center gap-2 mb-2">
+                  <button className="p-4 border rounded-lg text-center hover:bg-gray-50 transition-colors w-full">
+                    <div className="flex items-center justify-center gap-2 mb-2">
                       <Newspaper className="h-5 w-5 text-primary" />
                       <span className="font-medium">Manage Newsletters</span>
                     </div>
@@ -184,7 +184,7 @@ export default function AdminDashboard() {
           {/* Super Admin Only - User Management */}
           {user?.role === 'super_admin' && (
             <Card>
-              <CardHeader>
+              <CardHeader className="text-center">
                 <CardTitle>User Management</CardTitle>
                 <CardDescription>Create and manage users across all nurseries</CardDescription>
               </CardHeader>
@@ -197,7 +197,7 @@ export default function AdminDashboard() {
           {/* Activity Logs - For Super Admin (all nurseries) */}
           {user?.role === 'super_admin' && (
             <Card>
-              <CardHeader>
+              <CardHeader className="text-center">
                 <CardTitle>Activity Logs</CardTitle>
                 <CardDescription>Monitor activity across all nurseries</CardDescription>
               </CardHeader>
@@ -210,7 +210,7 @@ export default function AdminDashboard() {
           {/* Activity Logs - For Nursery Admin (specific nursery) */}
           {user?.role === 'nursery_admin' && user?.nurseryId && (
             <Card>
-              <CardHeader>
+              <CardHeader className="text-center">
                 <CardTitle>Nursery Activity</CardTitle>
                 <CardDescription>Monitor activity for your nursery</CardDescription>
               </CardHeader>

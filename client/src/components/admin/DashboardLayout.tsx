@@ -313,8 +313,8 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
                 {user?.role === 'super_admin' && <NurserySelector />}
               </div>
             </div>
-            <div className="px-4 mx-auto mt-4 max-w-7xl w-full flex justify-center sm:px-6 md:px-8">
-              <div className="w-full max-w-4xl">
+            <div className="px-4 mx-auto mt-4 w-full flex justify-center sm:px-6 md:px-8">
+              <div className="w-full max-w-3xl">
                 {children}
               </div>
             </div>
