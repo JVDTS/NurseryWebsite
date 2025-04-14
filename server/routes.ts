@@ -282,6 +282,205 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // ===== SUPER ADMIN USER MANAGEMENT ROUTES =====
+  
+  // Get all users (for super admin)
+  app.get("/api/admin/users", superAdminOnly, async (req: Request, res: Response) => {
+    try {
+      const users = await storage.getAllUsers();
+      
+      // Remove passwords from response
+      const usersWithoutPasswords = users.map(user => {
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      });
+      
+      res.status(200).json({ 
+        success: true, 
+        users: usersWithoutPasswords 
+      });
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to fetch users" 
+      });
+    }
+  });
+  
+  // Create new user (super admin only)
+  app.post("/api/admin/users", superAdminOnly, async (req: Request, res: Response) => {
+    try {
+      const userData = req.body;
+      
+      // Check if username already exists
+      const existingUsername = await storage.getUserByUsername(userData.username);
+      if (existingUsername) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Username already exists" 
+        });
+      }
+      
+      // Check if email already exists
+      const existingEmail = await storage.getUserByEmail(userData.email);
+      if (existingEmail) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Email already exists" 
+        });
+      }
+      
+      const newUser = await storage.createUser(userData);
+      
+      // Don't return the password
+      const { password, ...newUserWithoutPassword } = newUser;
+      
+      // Log this activity
+      const adminUser = await storage.getUser(req.session.userId!);
+      if (adminUser) {
+        const nursery = userData.nurseryId ? await storage.getNursery(userData.nurseryId) : null;
+        
+        await storage.logActivity({
+          userId: adminUser.id,
+          username: adminUser.username,
+          userRole: adminUser.role,
+          nurseryId: nursery?.id || null,
+          nurseryName: nursery?.name || null,
+          actionType: 'create_user',
+          resourceId: newUser.id,
+          description: `Created new user ${newUser.username} with role ${newUser.role}`
+        });
+      }
+      
+      res.status(201).json({ 
+        success: true, 
+        user: newUserWithoutPassword 
+      });
+    } catch (error) {
+      console.error("Error creating user:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to create user" 
+      });
+    }
+  });
+  
+  // Update user (super admin only)
+  app.put("/api/admin/users/:id", superAdminOnly, async (req: Request, res: Response) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const userData = req.body;
+      
+      // Check if user exists
+      const existingUser = await storage.getUser(userId);
+      if (!existingUser) {
+        return res.status(404).json({ 
+          success: false, 
+          message: "User not found" 
+        });
+      }
+      
+      // If username is being updated, check if it's already taken
+      if (userData.username && userData.username !== existingUser.username) {
+        const existingUsername = await storage.getUserByUsername(userData.username);
+        if (existingUsername && existingUsername.id !== userId) {
+          return res.status(400).json({ 
+            success: false, 
+            message: "Username already exists" 
+          });
+        }
+      }
+      
+      // If email is being updated, check if it's already taken
+      if (userData.email && userData.email !== existingUser.email) {
+        const existingEmail = await storage.getUserByEmail(userData.email);
+        if (existingEmail && existingEmail.id !== userId) {
+          return res.status(400).json({ 
+            success: false, 
+            message: "Email already exists" 
+          });
+        }
+      }
+      
+      const updatedUser = await storage.updateUser(userId, userData);
+      if (!updatedUser) {
+        return res.status(500).json({ 
+          success: false, 
+          message: "Failed to update user" 
+        });
+      }
+      
+      // Log this activity
+      const adminUser = await storage.getUser(req.session.userId!);
+      if (adminUser) {
+        const nursery = updatedUser.nurseryId ? await storage.getNursery(updatedUser.nurseryId) : null;
+        
+        await storage.logActivity({
+          userId: adminUser.id,
+          username: adminUser.username,
+          userRole: adminUser.role,
+          nurseryId: nursery?.id || null,
+          nurseryName: nursery?.name || null,
+          actionType: 'update_user',
+          resourceId: updatedUser.id,
+          description: `Updated user ${updatedUser.username}`
+        });
+      }
+      
+      // Don't return the password
+      const { password, ...updatedUserWithoutPassword } = updatedUser;
+      
+      res.status(200).json({ 
+        success: true, 
+        user: updatedUserWithoutPassword 
+      });
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to update user" 
+      });
+    }
+  });
+  
+  // ===== ACTIVITY LOGS ROUTES =====
+  
+  // Get all activity logs (super admin only)
+  app.get("/api/admin/activity-logs", superAdminOnly, async (req: Request, res: Response) => {
+    try {
+      const logs = await storage.getActivityLogs();
+      res.status(200).json({ 
+        success: true, 
+        logs 
+      });
+    } catch (error) {
+      console.error("Error fetching activity logs:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to fetch activity logs" 
+      });
+    }
+  });
+  
+  // Get activity logs for a specific nursery (nursery admin or super admin)
+  app.get("/api/admin/nurseries/:nurseryId/activity-logs", nurseryAdminOnly, nurseryAccessCheck("nurseryId"), async (req: Request, res: Response) => {
+    try {
+      const nurseryId = parseInt(req.params.nurseryId);
+      const logs = await storage.getActivityLogsByNursery(nurseryId);
+      res.status(200).json({ 
+        success: true, 
+        logs 
+      });
+    } catch (error) {
+      console.error("Error fetching nursery activity logs:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to fetch nursery activity logs" 
+      });
+    }
+  });
 
   // ===== NURSERY ADMIN ROUTES =====
   
@@ -1037,7 +1236,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add timestamp
       const contactData = {
         ...validatedData,
-        createdAt: new Date().toISOString()
+        createdAt: new Date()
       };
       
       // Store the contact submission

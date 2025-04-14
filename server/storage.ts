@@ -516,6 +516,9 @@ export class MemStorage implements IStorage {
     const newActivity: ActivityLog = {
       ...activity,
       id,
+      resourceId: activity.resourceId || null,
+      nurseryId: activity.nurseryId || null,
+      nurseryName: activity.nurseryName || null,
       createdAt: new Date()
     };
     this.activityLogs.set(id, newActivity);
