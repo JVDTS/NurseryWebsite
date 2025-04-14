@@ -73,7 +73,7 @@ export default function AdminDashboard() {
   return (
     <ProtectedRoute>
       <DashboardLayout title="Dashboard">
-        <div className="space-y-6 max-w-4xl mx-auto">
+        <div className="space-y-6">
           {/* Welcome Card */}
           <Card>
             <CardHeader className="pb-2">

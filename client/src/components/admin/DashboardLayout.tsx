@@ -308,13 +308,13 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
         <main className="flex-1">
           <div className="py-6">
             <div className="px-4 mx-auto max-w-7xl sm:px-6 md:px-8">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-4">
                 <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
                 {user?.role === 'super_admin' && <NurserySelector />}
               </div>
             </div>
-            <div className="px-4 mx-auto mt-4 max-w-7xl sm:px-6 md:px-8 flex justify-center">
-              <div className="w-full">
+            <div className="px-4 mx-auto mt-4 max-w-7xl w-full flex justify-center sm:px-6 md:px-8">
+              <div className="w-full max-w-4xl">
                 {children}
               </div>
             </div>
