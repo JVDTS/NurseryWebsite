@@ -44,6 +44,7 @@ function Router() {
       <Route path="/mission" component={MissionPage} />
       <Route path="/newsletters" component={NewslettersPage} />
       <Route path="/gallery" component={GalleryPage} />
+      <Route path="/view-contact-submissions" component={ViewContactSubmissions} />
       
       {/* Nursery routes */}
       <Route path="/nurseries/hayes" component={HayesNursery} />

@@ -124,6 +124,42 @@ export class MemStorage implements IStorage {
     
     // Initialize sample gallery images
     this.initializeSampleGalleryImages();
+    
+    // Initialize sample contact submissions
+    this.initializeSampleContactSubmissions();
+  }
+  
+  private initializeSampleContactSubmissions() {
+    const contact1: InsertContact = {
+      name: "Sarah Johnson",
+      email: "sarah.johnson@example.com",
+      phone: "077-3456-7890",
+      nurseryLocation: "hayes",
+      message: "I'm interested in enrolling my 3-year-old daughter in your nursery starting next month. Could you please provide information about your available spots and fees?",
+      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) // 5 days ago
+    };
+    
+    const contact2: InsertContact = {
+      name: "Michael Roberts",
+      email: "m.roberts@example.com",
+      phone: "079-8765-4321",
+      nurseryLocation: "uxbridge",
+      message: "We're relocating to the area next month and looking for a nursery for our twins (age 4). Do you have availability for two children? I'd also like to arrange a visit if possible.",
+      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) // 2 days ago
+    };
+    
+    const contact3: InsertContact = {
+      name: "Priya Patel",
+      email: "priya.p@example.com",
+      phone: null,
+      nurseryLocation: "hounslow",
+      message: "I'd like to know more about your curriculum and daily activities for toddlers. My son is very active and I'm looking for a program that can challenge him.",
+      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) // 1 day ago
+    };
+    
+    this.createContactSubmission(contact1);
+    this.createContactSubmission(contact2);
+    this.createContactSubmission(contact3);
   }
   
   private initializeNurseries() {
