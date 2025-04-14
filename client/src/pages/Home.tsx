@@ -5,6 +5,7 @@ import MissionSection from "@/components/MissionSection";
 import NurseriesSection from "@/components/NurseriesSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import GallerySection from "@/components/GallerySection";
+import FAQSection from "@/components/FAQSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 
@@ -18,6 +19,7 @@ export default function Home() {
       <NurseriesSection />
       <TestimonialsSection />
       <GallerySection />
+      <FAQSection />
       <ContactSection />
       <div className="fixed bottom-4 right-4 z-50">
         <a 
