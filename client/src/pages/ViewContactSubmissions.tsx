@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
+} from "@/components/ui/dialog";
 
 interface ContactSubmission {
   id: number;
@@ -17,6 +24,8 @@ export default function ViewContactSubmissions() {
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedSubmission, setSelectedSubmission] = useState<ContactSubmission | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -67,7 +76,8 @@ export default function ViewContactSubmissions() {
       <NavBar />
       <div className="container mx-auto px-4 py-28">
         <div className="bg-white rounded-xl shadow-md p-6">
-          <h1 className="text-3xl font-heading font-bold mb-8 text-center">Contact Form Submissions</h1>
+          <h1 className="text-3xl font-heading font-bold mb-4 text-center">Contact Form Submissions</h1>
+          <p className="text-center text-gray-500 mb-8 text-sm">Click on any row to view the full message details</p>
           
           {loading ? (
             <div className="flex justify-center items-center h-64">
@@ -98,7 +108,14 @@ export default function ViewContactSubmissions() {
                 </thead>
                 <tbody>
                   {submissions.map((submission) => (
-                    <tr key={submission.id} className="border-b border-gray-200 hover:bg-gray-50">
+                    <tr 
+                      key={submission.id} 
+                      className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
+                      onClick={() => {
+                        setSelectedSubmission(submission);
+                        setIsDialogOpen(true);
+                      }}
+                    >
                       <td className="px-4 py-3 text-sm text-gray-500">{submission.id}</td>
                       <td className="px-4 py-3 text-sm font-medium">{submission.name}</td>
                       <td className="px-4 py-3 text-sm text-blue-600">{submission.email}</td>
@@ -128,6 +145,50 @@ export default function ViewContactSubmissions() {
         </div>
       </div>
       <Footer />
+
+      {/* Message Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-xl">Message from {selectedSubmission?.name}</DialogTitle>
+            <DialogDescription className="text-sm text-gray-500">
+              {selectedSubmission && (
+                <>
+                  Submitted on {formatDate(selectedSubmission.createdAt)}
+                  {' '}for {selectedSubmission.nurseryLocation.charAt(0).toUpperCase() + selectedSubmission.nurseryLocation.slice(1)} nursery
+                </>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="mt-4 space-y-4">
+            <div>
+              <h4 className="font-medium text-sm text-gray-500">Contact Information</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+                <div>
+                  <span className="text-sm font-medium">Email:</span> 
+                  <span className="text-sm text-blue-600">{selectedSubmission?.email}</span>
+                </div>
+                {selectedSubmission?.phone && (
+                  <div>
+                    <span className="text-sm font-medium">Phone:</span> 
+                    <span className="text-sm">{selectedSubmission?.phone}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div>
+              <h4 className="font-medium text-sm text-gray-500">Message</h4>
+              <div className="mt-1 p-4 bg-gray-50 rounded-md">
+                <p className="text-gray-700 whitespace-pre-wrap">
+                  {selectedSubmission?.message}
+                </p>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
