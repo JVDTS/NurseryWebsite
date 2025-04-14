@@ -73,7 +73,7 @@ export default function AdminDashboard() {
   return (
     <ProtectedRoute>
       <DashboardLayout title="Dashboard">
-        <div className="space-y-6">
+        <div className="space-y-6 max-w-4xl mx-auto">
           {/* Welcome Card */}
           <Card>
             <CardHeader className="pb-2">
@@ -181,43 +181,37 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
           
-          {/* Super Admin Only Features */}
+          {/* Super Admin Only - User Management */}
           {user?.role === 'super_admin' && (
             <Card>
               <CardHeader>
-                <CardTitle>Admin Management</CardTitle>
-                <CardDescription>Manage users and monitor activity</CardDescription>
+                <CardTitle>User Management</CardTitle>
+                <CardDescription>Create and manage users across all nurseries</CardDescription>
               </CardHeader>
               <CardContent>
-                <Tabs defaultValue="users" className="space-y-4">
-                  <TabsList>
-                    <TabsTrigger value="users" className="flex items-center gap-2">
-                      <UserCog size={14} />
-                      User Management
-                    </TabsTrigger>
-                    <TabsTrigger value="activity" className="flex items-center gap-2">
-                      <ActivityIcon size={14} />
-                      Activity Logs
-                    </TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="users" className="space-y-4">
-                    <UserManagement />
-                  </TabsContent>
-                  
-                  <TabsContent value="activity" className="space-y-4">
-                    <ActivityLogs />
-                  </TabsContent>
-                </Tabs>
+                <UserManagement />
               </CardContent>
             </Card>
           )}
           
-          {/* Nursery Admin Only Features */}
+          {/* Activity Logs - For Super Admin (all nurseries) */}
+          {user?.role === 'super_admin' && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Activity Logs</CardTitle>
+                <CardDescription>Monitor activity across all nurseries</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ActivityLogs />
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* Activity Logs - For Nursery Admin (specific nursery) */}
           {user?.role === 'nursery_admin' && user?.nurseryId && (
             <Card>
               <CardHeader>
-                <CardTitle>Nursery Management</CardTitle>
+                <CardTitle>Nursery Activity</CardTitle>
                 <CardDescription>Monitor activity for your nursery</CardDescription>
               </CardHeader>
               <CardContent>
