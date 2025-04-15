@@ -28,19 +28,9 @@ export default function AdminContactSubmissions() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 
+  // Fetch contact submissions data
   const { data, isLoading, error } = useQuery<{ success: boolean; data: ContactSubmission[] }>({
-    queryKey: ['/api/contact-submissions'],
-    onSuccess: (data) => {
-      // Successfully fetched data
-    },
-    onError: (err: Error) => {
-      console.error('Error fetching contact submissions:', err);
-      toast({
-        title: 'Error',
-        description: 'Failed to load contact submissions',
-        variant: 'destructive'
-      });
-    }
+    queryKey: ['/api/contact-submissions']
   });
 
   // Format date to readable string
@@ -85,7 +75,7 @@ export default function AdminContactSubmissions() {
             ) : (
               <div>
                 <div className="p-4 bg-gray-50 border-b text-gray-500 text-sm">
-                  Showing {data.data.length} contact submissions. Click on a row to view full details.
+                  Showing {data?.data?.length || 0} contact submissions. Click on a row to view full details.
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -100,7 +90,7 @@ export default function AdminContactSubmissions() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {data.data.map((submission) => (
+                      {data?.data?.map((submission: ContactSubmission) => (
                         <tr 
                           key={submission.id} 
                           className="hover:bg-gray-50 cursor-pointer"
@@ -179,9 +169,11 @@ export default function AdminContactSubmissions() {
                   <div>
                     <div className="text-sm font-medium text-gray-700">Preferred Nursery</div>
                     <div className="text-sm">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${selectedSubmission ? getLocationClass(selectedSubmission.nurseryLocation) : ''}`}>
-                        {selectedSubmission?.nurseryLocation.charAt(0).toUpperCase() + selectedSubmission?.nurseryLocation.slice(1)}
-                      </span>
+                      {selectedSubmission && (
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getLocationClass(selectedSubmission.nurseryLocation)}`}>
+                          {selectedSubmission.nurseryLocation.charAt(0).toUpperCase() + selectedSubmission.nurseryLocation.slice(1)}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
