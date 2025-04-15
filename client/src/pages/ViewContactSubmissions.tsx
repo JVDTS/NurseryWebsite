@@ -23,7 +23,7 @@ export default function ViewContactSubmissions() {
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const { toast } = useToast();
 
-  const fetchSubmissions = useCallback(async () => {
+  const fetchSubmissions = useCallback(async (isManualRefresh = false) => {
     try {
       setLoading(true);
       const response = await fetch('/api/contact-submissions');
@@ -42,8 +42,8 @@ export default function ViewContactSubmissions() {
         setSubmissions(sortedSubmissions);
         setLastRefreshed(new Date());
         
-        // Show success toast on manual refresh
-        if (lastRefreshed !== null) {
+        // Show success toast only on manual refresh
+        if (isManualRefresh) {
           toast({
             title: 'Success',
             description: `Loaded ${sortedSubmissions.length} submission${sortedSubmissions.length !== 1 ? 's' : ''}`,
@@ -64,7 +64,7 @@ export default function ViewContactSubmissions() {
     } finally {
       setLoading(false);
     }
-  }, [toast, lastRefreshed]);
+  }, [toast]);
 
   useEffect(() => {
     fetchSubmissions();
@@ -109,7 +109,7 @@ export default function ViewContactSubmissions() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => fetchSubmissions()}
+              onClick={() => fetchSubmissions(true)}
               disabled={loading}
               className="flex items-center gap-1"
             >
