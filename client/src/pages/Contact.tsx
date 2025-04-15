@@ -4,8 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { contactFormSchema } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { NavBar } from "@/components/NavBar";
-import { Footer } from "@/components/Footer";
+import NavBar from "@/components/NavBar";
+import Footer from "@/components/Footer";
 import { 
   Form,
   FormControl,
@@ -134,7 +134,7 @@ export default function Contact() {
               
               <div className="absolute bottom-20 right-10">
                 <img 
-                  src="/uploads/toy-train.png" 
+                  src="/uploads/toy-train.svg" 
                   alt="Toy train" 
                   className="w-32 h-auto"
                 />
