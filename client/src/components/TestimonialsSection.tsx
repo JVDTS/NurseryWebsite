@@ -279,6 +279,7 @@ export default function TestimonialsSection() {
                   image={reviews[currentIndex].image}
                   date={reviews[currentIndex].date}
                   rating={reviews[currentIndex].rating}
+                  reviewUrl={reviews[currentIndex].reviewUrl}
                   delay={0}
                 />
               </motion.div>
