@@ -70,8 +70,14 @@ try {
   // Check if DATABASE_URL is configured
   if (process.env.DATABASE_URL) {
     // Dynamic import to avoid breaking if PostgreSQL is not configured
-    DbStorageImplementation = require('./dbStorage').DbStorage;
-    console.log('DATABASE_URL found:', process.env.DATABASE_URL);
+    try {
+      const dbModule = await import('./dbStorage');
+      DbStorageImplementation = dbModule.DbStorage;
+      console.log('DATABASE_URL found:', process.env.DATABASE_URL);
+    } catch (importError) {
+      console.error('Error importing dbStorage:', importError);
+      DbStorageImplementation = null;
+    }
   } else {
     console.log('DATABASE_URL environment variable not found');
     DbStorageImplementation = null;

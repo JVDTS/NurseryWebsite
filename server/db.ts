@@ -1,8 +1,6 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-
-// Use require for importing pg
-const pg = require('pg');
-const Pool = pg.Pool;
+import pg from 'pg';
+const { Pool } = pg;
 
 // Create the database connection pool with error handling
 let pool;
