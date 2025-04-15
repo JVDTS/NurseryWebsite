@@ -305,11 +305,11 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
 
       {/* Main Content */}
       <div className="flex flex-col flex-1 overflow-y-auto">
-        <main className="flex-1 flex flex-col">
-          <div className="py-6 w-full max-w-7xl mx-auto">
-            <div className="px-4 mb-6">
+        <main className="flex-1 flex flex-col items-center">
+          <div className="py-6 w-full max-w-4xl">
+            <div className="px-4 mx-auto text-center mb-6">
               <h1 className="text-2xl font-semibold text-gray-900 mb-2">{title}</h1>
-              {user?.role === 'super_admin' && <div className="flex"><NurserySelector /></div>}
+              {user?.role === 'super_admin' && <div className="flex justify-center"><NurserySelector /></div>}
             </div>
             <div className="px-4 w-full">
               {children}
