@@ -65,21 +65,31 @@ export interface IStorage {
 }
 
 // Import DbStorage if PostgreSQL database is configured
-let DbStorageImplementation;
-try {
-  // Check if DATABASE_URL is configured
-  if (process.env.DATABASE_URL) {
-    // Dynamic import to avoid breaking if PostgreSQL is not configured
-    DbStorageImplementation = require('./dbStorage').DbStorage;
-    console.log('DATABASE_URL found:', process.env.DATABASE_URL);
-  } else {
-    console.log('DATABASE_URL environment variable not found');
-    DbStorageImplementation = null;
+let DbStorageImplementation = null;
+
+// We'll initialize the storage instance at the module level but configure it after import resolution
+const initDbImplementation = async () => {
+  try {
+    // Check if DATABASE_URL is configured
+    if (process.env.DATABASE_URL) {
+      // Dynamic import using ES modules syntax
+      const dbStorageModule = await import('./dbStorage');
+      DbStorageImplementation = dbStorageModule.DbStorage;
+      console.log('DATABASE_URL found and database implementation loaded successfully');
+      
+      // Now we can initialize storage with the database
+      if (!storageInitialized) {
+        storage = new DbStorageImplementation();
+        storageInitialized = true;
+        console.log('Database storage initialized successfully');
+      }
+    } else {
+      console.log('DATABASE_URL environment variable not found');
+    }
+  } catch (e) {
+    console.error('Error loading PostgreSQL database implementation:', e);
   }
-} catch (e) {
-  console.error('Error loading PostgreSQL database implementation:', e);
-  DbStorageImplementation = null;
-}
+};
 
 // In-memory storage implementation for development
 export class MemStorage implements IStorage {

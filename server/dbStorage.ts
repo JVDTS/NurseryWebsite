@@ -7,7 +7,8 @@ import {
   events, Event, InsertEvent,
   galleryImages, GalleryImage, InsertGalleryImage,
   newsletters, Newsletter, InsertNewsletter,
-  contactSubmissions, ContactSubmission, InsertContact
+  contactSubmissions, ContactSubmission, InsertContact,
+  activityLogs, ActivityLog, InsertActivityLog
 } from '../shared/schema';
 import { IStorage } from './storage';
 import { hashPassword } from './security';
@@ -260,5 +261,42 @@ export class DbStorage implements IStorage {
 
   async getContactSubmissions(): Promise<ContactSubmission[]> {
     return await drizzleDb.select().from(contactSubmissions);
+  }
+
+  // Get all users for admin user management
+  async getAllUsers(): Promise<User[]> {
+    return await drizzleDb.select().from(users);
+  }
+  
+  // Activity log methods
+  async logActivity(activity: InsertActivityLog): Promise<ActivityLog> {
+    const result = await drizzleDb.insert(activityLogs)
+      .values({
+        ...activity,
+        resourceId: activity.resourceId || null,
+        nurseryId: activity.nurseryId || null,
+        nurseryName: activity.nurseryName || null,
+        createdAt: new Date()
+      })
+      .returning();
+      
+    return result[0];
+  }
+  
+  async getActivityLogs(): Promise<ActivityLog[]> {
+    return await drizzleDb.select().from(activityLogs)
+      .orderBy(sql`${activityLogs.createdAt} DESC`);
+  }
+  
+  async getActivityLogsByUser(userId: number): Promise<ActivityLog[]> {
+    return await drizzleDb.select().from(activityLogs)
+      .where(eq(activityLogs.userId, userId))
+      .orderBy(sql`${activityLogs.createdAt} DESC`);
+  }
+  
+  async getActivityLogsByNursery(nurseryId: number): Promise<ActivityLog[]> {
+    return await drizzleDb.select().from(activityLogs)
+      .where(eq(activityLogs.nurseryId, nurseryId))
+      .orderBy(sql`${activityLogs.createdAt} DESC`);
   }
 }
