@@ -3,14 +3,20 @@ import { Link } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import DashboardLayout from '@/components/admin/DashboardLayout';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, Newspaper, Image, Clock } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { 
+  Users, Newspaper, Image, Calendar, Clock, Pencil, Search,
+  BarChart3, ArrowRight, ArrowUp, FileText, Settings, Plus, MoreHorizontal
+} from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default function AdminDashboard() {
   const { user } = useAuth();
   const [stats, setStats] = useState({
     newsletters: 5,
+    events: 8,
     galleryImages: 18,
     staff: 4
   });
@@ -30,6 +36,14 @@ export default function AdminDashboard() {
       : [`/api/admin/nurseries/${user?.nurseryId}/newsletters`],
     enabled: !!user,
   });
+
+  // Fetch events
+  const { data: eventsData } = useQuery<{ events: any[] }>({
+    queryKey: user?.role === 'super_admin' 
+      ? ['/api/admin/events'] 
+      : [`/api/admin/nurseries/${user?.nurseryId}/events`],
+    enabled: !!user,
+  });
   
   // Update stats with actual data when available
   useEffect(() => {
@@ -42,9 +56,13 @@ export default function AdminDashboard() {
     if (newslettersData?.newsletters) {
       updatedStats.newsletters = newslettersData.newsletters.length;
     }
+
+    if (eventsData?.events) {
+      updatedStats.events = eventsData.events.length;
+    }
     
     setStats(updatedStats);
-  }, [galleryData, newslettersData]);
+  }, [galleryData, newslettersData, eventsData]);
 
   // Format welcome message based on time of day
   const getWelcomeMessage = () => {
@@ -67,115 +85,307 @@ export default function AdminDashboard() {
     }
   };
 
+  // Format date for display
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('en-UK', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
+  // Sample upcoming events data (would be replaced with actual events)
+  const sampleRecentEvents = eventsData?.events?.slice(0, 3).map(event => ({
+    id: event.id,
+    title: event.title,
+    date: formatDate(event.date),
+    nurseryName: getNurseryNameById(event.nurseryId)
+  })) || [];
+
+  // Get nursery name by ID
+  function getNurseryNameById(id: number): string {
+    switch(id) {
+      case 1: return 'Hayes';
+      case 2: return 'Uxbridge';
+      case 3: return 'Hounslow';
+      default: return 'Unknown Nursery';
+    }
+  }
+
   return (
     <ProtectedRoute>
       <DashboardLayout title="Dashboard">
-        <div className="space-y-6">
-          {/* Welcome Card */}
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-2xl font-bold">
-                {getWelcomeMessage()}, {user?.firstName}!
-              </CardTitle>
-              <CardDescription>
-                {user?.role === 'super_admin' 
-                  ? 'Here\'s an overview of all nurseries'
-                  : `Here's an overview of ${getNurseryName()} nursery`
-                }
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm text-muted-foreground">
-                <Clock className="inline-block mr-1 h-4 w-4" />
-                {new Date().toLocaleDateString('en-UK', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}
-              </div>
-            </CardContent>
-          </Card>
-
+        <div className="grid gap-6">
           {/* Stats Grid */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* Activity Stats */}
+            <Card className="overflow-hidden">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-purple-100 bg-opacity-50">
                 <CardTitle className="text-sm font-medium">
-                  Gallery Images
+                  Activity
                 </CardTitle>
-                <Image className="h-4 w-4 text-muted-foreground" />
+                <div className="rounded-md bg-purple-500 p-2">
+                  <BarChart3 className="h-4 w-4 text-white" />
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.galleryImages}</div>
-                <p className="text-xs text-muted-foreground">
-                  Photos in gallery
-                </p>
+              <CardContent className="pt-6">
+                <div className="text-3xl font-bold">${(stats.galleryImages + stats.newsletters + stats.events) * 100}</div>
+                <div className="text-xs text-green-500 font-medium flex items-center mt-1">
+                  <ArrowUp className="h-3 w-3 mr-1" />
+                  +12%
+                </div>
               </CardContent>
             </Card>
             
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            {/* Events Stats */}
+            <Card className="overflow-hidden">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-teal-100 bg-opacity-50">
                 <CardTitle className="text-sm font-medium">
-                  Newsletters
+                  Events
                 </CardTitle>
-                <Newspaper className="h-4 w-4 text-muted-foreground" />
+                <div className="rounded-md bg-teal-500 p-2">
+                  <Calendar className="h-4 w-4 text-white" />
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.newsletters}</div>
-                <p className="text-xs text-muted-foreground">
-                  Published newsletters
-                </p>
+              <CardContent className="pt-6">
+                <div className="text-3xl font-bold">{stats.events}</div>
+                <div className="text-xs text-green-500 font-medium flex items-center mt-1">
+                  <ArrowUp className="h-3 w-3 mr-1" />
+                  +22%
+                </div>
               </CardContent>
             </Card>
             
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            {/* Products (Gallery) Stats */}
+            <Card className="overflow-hidden">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-orange-100 bg-opacity-50">
                 <CardTitle className="text-sm font-medium">
-                  Staff Members
+                  Gallery
                 </CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+                <div className="rounded-md bg-orange-500 p-2">
+                  <Image className="h-4 w-4 text-white" />
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stats.staff}</div>
-                <p className="text-xs text-muted-foreground">
-                  Active staff members
-                </p>
+              <CardContent className="pt-6">
+                <div className="text-3xl font-bold">{stats.galleryImages}</div>
+                <div className="text-xs text-green-500 font-medium flex items-center mt-1">
+                  <ArrowUp className="h-3 w-3 mr-1" />
+                  +12%
+                </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Quick Actions */}
+          {/* Activity Chart & Recent Events */}
+          <div className="grid gap-6 lg:grid-cols-7">
+            {/* Activity Chart */}
+            <Card className="col-span-7 lg:col-span-4">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Activity</CardTitle>
+                  <CardDescription>Monthly Activity Growth</CardDescription>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button variant="outline" size="sm" className="h-8">
+                    <Clock className="mr-2 h-3.5 w-3.5" />
+                    Last 30 Days
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {/* Chart placeholder - in a real implementation, this would be a chart */}
+                <div className="h-[260px] w-full rounded-md bg-gray-100 flex items-center justify-center">
+                  <p className="text-gray-500 text-sm">Activity Chart Placeholder</p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Events */}
+            <Card className="col-span-7 lg:col-span-3">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Recent Events</CardTitle>
+                  <CardDescription>Latest scheduled events</CardDescription>
+                </div>
+                <div className="flex space-x-2">
+                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {sampleRecentEvents.length > 0 ? (
+                    sampleRecentEvents.map((event, i) => (
+                      <div key={i} className="flex items-center">
+                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                          <Calendar className="h-5 w-5 text-gray-500" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-medium">{event.title}</h4>
+                          <p className="text-xs text-gray-500">{event.date}</p>
+                        </div>
+                        <div className="text-sm font-medium text-green-600">{event.nurseryName}</div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500">No recent events found</p>
+                  )}
+                </div>
+              </CardContent>
+              <CardFooter className="border-t px-6 py-3">
+                <Link href={user?.role === 'super_admin' ? '/admin/events' : `/admin/nurseries/${user?.nurseryId}/events`}>
+                  <a className="text-sm text-primary font-medium flex items-center hover:underline w-full">
+                    View More
+                    <ArrowRight className="ml-auto h-4 w-4" />
+                  </a>
+                </Link>
+              </CardFooter>
+            </Card>
+          </div>
+
+          {/* Latest Content */}
           <Card>
             <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>Common tasks you can perform</CardDescription>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <CardTitle>Latest Content</CardTitle>
+                  <CardDescription>Recently added content items across all sections</CardDescription>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                    <input 
+                      type="text" 
+                      placeholder="Search content..." 
+                      className="pl-9 h-9 bg-gray-50 rounded-md text-sm border border-gray-200 w-full sm:w-60 focus:ring-1 focus:ring-primary focus:border-primary" 
+                    />
+                  </div>
+                  <Button size="sm" className="h-9">
+                    <Plus className="mr-2 h-4 w-4" /> Add New
+                  </Button>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent className="grid gap-2 md:grid-cols-2">
-              <Link href={user?.role === 'super_admin' ? '/admin/gallery' : `/admin/nurseries/${user?.nurseryId}/gallery`}>
-                <a className="block">
-                  <button className="p-4 border rounded-lg text-left hover:bg-gray-50 transition-colors w-full">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Image className="h-5 w-5 text-primary" />
-                      <span className="font-medium">Manage Gallery</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">Upload and manage gallery photos</p>
-                  </button>
-                </a>
-              </Link>
-              
-              <Link href={user?.role === 'super_admin' ? '/admin/newsletters' : `/admin/nurseries/${user?.nurseryId}/newsletters`}>
-                <a className="block">
-                  <button className="p-4 border rounded-lg text-left hover:bg-gray-50 transition-colors w-full">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Newspaper className="h-5 w-5 text-primary" />
-                      <span className="font-medium">Manage Newsletters</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">Publish and organize newsletters</p>
-                  </button>
-                </a>
-              </Link>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">
+                      <input type="checkbox" className="h-4 w-4 rounded border-gray-300" />
+                    </TableHead>
+                    <TableHead>Item</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Date Created</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {/* Sample rows - would be replaced with actual data */}
+                  <TableRow>
+                    <TableCell>
+                      <input type="checkbox" className="h-4 w-4 rounded border-gray-300" />
+                    </TableCell>
+                    <TableCell className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center">
+                        <Image className="h-5 w-5 text-gray-500" />
+                      </div>
+                      <div>
+                        <div className="font-medium">Spring Festival Photos</div>
+                        <div className="text-xs text-gray-500">{getNurseryName() || 'Hounslow'} Nursery</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>Gallery Image</TableCell>
+                    <TableCell>{formatDate(new Date().toISOString())}</TableCell>
+                    <TableCell>
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Published
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="icon">
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>
+                      <input type="checkbox" className="h-4 w-4 rounded border-gray-300" />
+                    </TableCell>
+                    <TableCell className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center">
+                        <FileText className="h-5 w-5 text-gray-500" />
+                      </div>
+                      <div>
+                        <div className="font-medium">April Newsletter</div>
+                        <div className="text-xs text-gray-500">{getNurseryName() || 'Hayes'} Nursery</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>Newsletter</TableCell>
+                    <TableCell>{formatDate(new Date().toISOString())}</TableCell>
+                    <TableCell>
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Published
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="icon">
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>
+                      <input type="checkbox" className="h-4 w-4 rounded border-gray-300" />
+                    </TableCell>
+                    <TableCell className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded bg-gray-100 flex items-center justify-center">
+                        <Calendar className="h-5 w-5 text-gray-500" />
+                      </div>
+                      <div>
+                        <div className="font-medium">Summer Fair</div>
+                        <div className="text-xs text-gray-500">{getNurseryName() || 'Uxbridge'} Nursery</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>Event</TableCell>
+                    <TableCell>{formatDate(new Date().toISOString())}</TableCell>
+                    <TableCell>
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                        Upcoming
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="icon">
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </CardContent>
+            <CardFooter className="flex items-center justify-between border-t px-6 py-4">
+              <div className="text-sm text-gray-500">
+                Showing <span className="font-medium">3</span> of <span className="font-medium">{stats.events + stats.newsletters + stats.galleryImages}</span> items
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button variant="outline" size="sm" disabled>
+                  Previous
+                </Button>
+                <Button variant="outline" size="sm">
+                  Next
+                </Button>
+              </div>
+            </CardFooter>
           </Card>
         </div>
       </DashboardLayout>
