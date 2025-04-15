@@ -116,18 +116,20 @@ export default function TestimonialsSection() {
   const slideInterval = useRef<number | null>(null);
   
   // Fetch reviews from API
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError } = useQuery<{ success: boolean, reviews: DaynurseriesReview[] }>({
     queryKey: ['/api/reviews'],
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
   
   // Use real reviews from API or fallback if error/loading
-  const reviews = !isLoading && !isError && data?.success && data.reviews?.length > 0
+  const reviews = !isLoading && !isError && data?.success && data.reviews && data.reviews.length > 0
     ? data.reviews.map((review: DaynurseriesReview, index: number) => ({
         quote: review.text,
         author: review.author,
         date: review.date,
         rating: review.rating,
+        role: undefined,
+        image: undefined,
         delay: index * 0.1
       }))
     : fallbackTestimonials;
@@ -271,7 +273,7 @@ export default function TestimonialsSection() {
             </motion.button>
             
             <div className="flex space-x-3">
-              {reviews.map((_, index) => (
+              {reviews.map((_: TestimonialProps, index: number) => (
                 <button 
                   key={index}
                   onClick={() => {
