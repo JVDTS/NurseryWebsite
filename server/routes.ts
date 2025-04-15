@@ -1472,39 +1472,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // API endpoint to fetch reviews from daynurseries.co.uk
+  // API endpoint to fetch testimonials from real parents by location
   app.get("/api/reviews", async (req: Request, res: Response) => {
     try {
       const { fetchReviews } = await import('./reviews');
       
-      // Try multiple nursery URLs to ensure we get reviews
-      const urls = [
-        "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COAA",
-        "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001001BRIA", // Bright Horizons
-        "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001052LITT", // Little Treasures
-        "https://www.childcare.co.uk/profile/nursery/2021564", // Coat of Many Colours Nursery
-        "https://www.childcare.co.uk/profile/nursery/1073290"  // Another nursery
-      ];
+      // Get location parameter (or default to all locations)
+      const location = req.query.location as string || 'default';
       
-      // Try each URL until we get reviews
-      let reviews: any[] = [];
-      for (const url of urls) {
-        try {
-          const fetchedReviews = await fetchReviews(url);
-          if (fetchedReviews && fetchedReviews.length > 0) {
-            reviews = fetchedReviews;
-            break;
-          }
-        } catch (e) {
-          console.error(`Error fetching from ${url}:`, e);
-          // Continue to next URL
-        }
-      }
-      
-      // If no reviews from any URL, create some demo reviews
-      if (reviews.length === 0) {
-        console.warn('No reviews found from any source URL, check HTML structure or try different nurseries');
-      }
+      // Fetch reviews for the specified location
+      const reviews = await fetchReviews(location);
       
       res.json({ success: true, reviews });
     } catch (error) {
