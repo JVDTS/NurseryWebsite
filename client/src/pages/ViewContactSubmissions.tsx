@@ -35,8 +35,14 @@ export default function ViewContactSubmissions() {
       const data = await response.json();
       
       if (data.success && Array.isArray(data.data)) {
-        // Sort submissions by date (newest first)
+        // Sort submissions by date (newest first) or by ID if dates are not available
         const sortedSubmissions = [...data.data].sort((a, b) => {
+          // If either date is null, use ID for sorting
+          if (!a.createdAt || !b.createdAt) {
+            return b.id - a.id; // Higher ID is likely more recent
+          }
+          
+          // Otherwise sort by date
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         });
         setSubmissions(sortedSubmissions);
@@ -71,9 +77,18 @@ export default function ViewContactSubmissions() {
   }, [fetchSubmissions]);
 
   // Format date to readable string with proper timezone handling
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) {
+      return 'Not available';
+    }
+    
     try {
       const date = new Date(dateString);
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return 'Invalid date';
+      }
       
       // Format date with proper day/month/year and localized time
       return new Intl.DateTimeFormat('en-GB', {
@@ -86,7 +101,7 @@ export default function ViewContactSubmissions() {
       }).format(date);
     } catch (err) {
       console.error('Error formatting date:', err);
-      return dateString;
+      return 'Date error';
     }
   };
 
