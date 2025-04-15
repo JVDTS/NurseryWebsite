@@ -133,10 +133,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   storage.sessionStore = sessionSettings.store;
   
   // Setup CSRF protection
-  const csrfProtection = csrf({ 
-    cookie: false, // Use sessions instead of cookies
-    ignoreMethods: ['GET', 'HEAD', 'OPTIONS'] // Don't require CSRF for these methods
-  });
+  const csrfProtection = csrf({ cookie: false });
   
   // Apply CSRF protection to state-changing routes
   // Create a list of routes that should be protected by CSRF
@@ -1265,8 +1262,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // API endpoint to view all contact form submissions (protected)
-  app.get("/api/contact-submissions", authenticateUser, async (req: Request, res: Response) => {
+  // API endpoint to view all contact form submissions
+  app.get("/api/contact-submissions", async (req: Request, res: Response) => {
     try {
       const contactSubmissions = await storage.getContactSubmissions();
       res.json({ success: true, data: contactSubmissions });
