@@ -133,7 +133,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   storage.sessionStore = sessionSettings.store;
   
   // Setup CSRF protection
-  const csrfProtection = csrf({ cookie: false });
+  const csrfProtection = csrf({ 
+    cookie: false, // Use sessions instead of cookies
+    ignoreMethods: ['GET', 'HEAD', 'OPTIONS'] // Don't require CSRF for these methods
+  });
   
   // Apply CSRF protection to state-changing routes
   // Create a list of routes that should be protected by CSRF

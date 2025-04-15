@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { clearCsrfToken } from '@/lib/csrf';
 
 // Define types for user and auth context
 export type AdminUser = {
@@ -163,6 +164,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers,
         credentials: 'include'
       });
+      
+      // Clear CSRF token cache when logging out
+      clearCsrfToken();
       
       setUser(null);
       toast({
