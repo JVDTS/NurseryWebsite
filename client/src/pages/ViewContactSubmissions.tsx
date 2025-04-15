@@ -95,7 +95,28 @@ export default function ViewContactSubmissions() {
       <NavBar />
       <div className="container mx-auto px-4 py-28">
         <div className="bg-white rounded-xl shadow-md p-6">
-          <h1 className="text-3xl font-heading font-bold mb-8 text-center">Contact Form Submissions</h1>
+          <h1 className="text-3xl font-heading font-bold mb-4 text-center">Contact Form Submissions</h1>
+          
+          <div className="flex justify-between items-center mb-6">
+            <div className="text-sm text-gray-500">
+              {lastRefreshed && (
+                <span>
+                  Last updated: {formatDate(lastRefreshed.toISOString())} • 
+                  {submissions.length} submission{submissions.length !== 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => fetchSubmissions()}
+              disabled={loading}
+              className="flex items-center gap-1"
+            >
+              <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
+              Refresh
+            </Button>
+          </div>
           
           {loading ? (
             <div className="flex justify-center items-center h-64">
