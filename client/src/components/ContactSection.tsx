@@ -67,8 +67,16 @@ export default function ContactSection() {
 
   const onSubmit = async (data: typeof contactFormSchema._type) => {
     setIsSubmitting(true);
+    console.log("Submitting contact form data:", data);
+    
     try {
-      const response = await apiRequest("POST", "/api/contact", data);
+      // Skip CSRF for contact form temporarily to diagnose issues
+      const response = await apiRequest("POST", "/api/contact", data, { 
+        on401: "throw",
+        skipCsrf: true 
+      });
+      
+      console.log("Contact form response:", response);
       
       if (response.emailSent) {
         toast({
@@ -84,9 +92,10 @@ export default function ContactSection() {
       
       form.reset();
     } catch (error) {
+      console.error("Contact form submission error:", error);
       toast({
         title: "Something went wrong",
-        description: "Please try again later.",
+        description: "Please try again later. See console for details.",
         variant: "destructive"
       });
     } finally {

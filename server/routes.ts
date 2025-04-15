@@ -143,8 +143,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     '/api/admin/nurseries',
     '/api/admin/events',
     '/api/admin/gallery',
-    '/api/admin/newsletters',
-    '/api/contact'
+    '/api/admin/newsletters'
+    // Removed '/api/contact' from CSRF protection to troubleshoot form submissions
   ];
   
   // Apply CSRF middleware to routes that modify state

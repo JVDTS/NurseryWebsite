@@ -20,6 +20,12 @@ const transporter = nodemailer.createTransport({
  */
 export async function sendContactEmail(formData: ContactFormData): Promise<boolean> {
   try {
+    // Check if email credentials are configured
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.log('Email credentials not configured, skipping email sending but storing submission');
+      return false;
+    }
+    
     // Get nursery name from location
     const nurseryName = formData.nurseryLocation
       ? formData.nurseryLocation.charAt(0).toUpperCase() + formData.nurseryLocation.slice(1)
@@ -50,6 +56,13 @@ export async function sendContactEmail(formData: ContactFormData): Promise<boole
       
       This email was sent from the CMC Nursery website contact form.
     `;
+
+    // For development purposes, log the email content
+    console.log('Email content would be:', {
+      to: 'IT@kingsborough.org.uk',
+      subject: `New Contact Form Submission - ${nurseryName} Nursery`,
+      messageText
+    });
 
     // Send email to IT@kingsborough.org.uk 
     const info = await transporter.sendMail({
