@@ -115,7 +115,7 @@ export default function AdminDashboard() {
   return (
     <ProtectedRoute>
       <DashboardLayout title="Dashboard">
-        <div className="grid gap-6">
+        <div className="grid gap-6 max-w-6xl mx-auto">
           {/* Stats Grid */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {/* Activity Stats */}
@@ -180,12 +180,12 @@ export default function AdminDashboard() {
           <div className="grid gap-6 lg:grid-cols-7">
             {/* Activity Chart */}
             <Card className="col-span-7 lg:col-span-4">
-              <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader className="text-center">
                 <div>
                   <CardTitle>Activity</CardTitle>
                   <CardDescription>Monthly Activity Growth</CardDescription>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center justify-center mt-2">
                   <Button variant="outline" size="sm" className="h-8">
                     <Clock className="mr-2 h-3.5 w-3.5" />
                     Last 30 Days
@@ -278,7 +278,7 @@ export default function AdminDashboard() {
                     <TableHead>Type</TableHead>
                     <TableHead>Date Created</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="text-center">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -303,7 +303,7 @@ export default function AdminDashboard() {
                         Published
                       </span>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-center">
                       <Button variant="ghost" size="icon">
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -332,7 +332,7 @@ export default function AdminDashboard() {
                         Published
                       </span>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-center">
                       <Button variant="ghost" size="icon">
                         <Pencil className="h-4 w-4" />
                       </Button>
@@ -361,7 +361,7 @@ export default function AdminDashboard() {
                         Upcoming
                       </span>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-center">
                       <Button variant="ghost" size="icon">
                         <Pencil className="h-4 w-4" />
                       </Button>
