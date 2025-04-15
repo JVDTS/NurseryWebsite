@@ -17,69 +17,42 @@ export interface Review {
  */
 export async function fetchReviews(url: string): Promise<Review[]> {
   try {
-    // Fetch the HTML content from the URL
+    // Fetch HTML content
     const response = await fetch(url);
-    
     if (!response.ok) {
-      throw new Error(`Failed to fetch reviews. Status: ${response.status}`);
+      throw new Error(`Failed to fetch: ${response.statusText}`);
     }
-    
     const html = await response.text();
     
-    // Parse the HTML
+    // Parse HTML
     const root = parse(html);
-    
-    // Find the reviews container
-    const reviewsContainer = root.querySelectorAll('.review'); 
+    const reviewElements = root.querySelectorAll('.review');
+    const nurseryName = root.querySelector('.company-profile h1')?.textContent.trim() || 'Coat of Many Colours Nursery';
     
     // Extract review data
-    const reviews: Review[] = [];
-    
-    reviewsContainer.forEach((reviewElement, index) => {
-      // Extract review text
-      const textElement = reviewElement.querySelector('.review-text');
-      const text = textElement ? textElement.textContent.trim() : '';
+    const reviews: Review[] = reviewElements.map((el, index) => {
+      const text = el.querySelector('.review-content p')?.textContent.trim() || 
+                   el.querySelector('.review-text')?.textContent.trim() || '';
+      const authorEl = el.querySelector('.reviewer');
+      const author = authorEl ? authorEl.textContent.trim() : 'Parent';
+      const dateEl = el.querySelector('.date');
+      const date = dateEl ? dateEl.textContent.trim() : '';
+      const ratingEl = el.querySelector('.stars');
+      const rating = ratingEl ? (ratingEl.querySelectorAll('.fas.fa-star').length || 5) : 5;
       
-      // Extract author info
-      const authorElement = reviewElement.querySelector('.reviewer');
-      const author = authorElement ? authorElement.textContent.trim() : 'Anonymous';
-      
-      // Extract date
-      const dateElement = reviewElement.querySelector('.review-date');
-      const date = dateElement ? dateElement.textContent.trim() : '';
-      
-      // Extract rating
-      const ratingElement = reviewElement.querySelector('.rating');
-      // Count the number of filled stars
-      const filledStars = ratingElement ? ratingElement.querySelectorAll('.icon-star').length : 5;
-      
-      // Extract nursery name
-      const nurseryNameElement = root.querySelector('h1');
-      const nurseryName = nurseryNameElement ? nurseryNameElement.textContent.trim() : 'Coat of Many Colours Nursery School';
-      
-      reviews.push({
-        id: `review-${index}`,
-        text,
-        author,
-        date,
-        rating: filledStars,
+      return { 
+        id: `review-${index}`, 
+        text, 
+        author, 
+        date, 
+        rating,
         nurseryName
-      });
+      };
     });
     
     return reviews;
   } catch (error) {
-    console.error('Error fetching reviews:', error);
-    // Return fallback reviews if fetching fails
-    return [
-      {
-        id: 'fallback-1',
-        text: 'Unable to fetch live reviews. Please check back later.',
-        author: 'System',
-        date: new Date().toLocaleDateString(),
-        rating: 5,
-        nurseryName: 'Coat of Many Colours Nursery School'
-      }
-    ];
+    console.error("Error fetching reviews:", error);
+    throw error;
   }
 }

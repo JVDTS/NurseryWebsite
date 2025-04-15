@@ -1472,6 +1472,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // API endpoint to fetch reviews from daynurseries.co.uk
+  app.get("/api/reviews", async (req: Request, res: Response) => {
+    try {
+      const { parse } = await import('node-html-parser');
+      const url = "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COAA";
+      
+      // Fetch HTML content
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch: ${response.statusText}`);
+      }
+      const html = await response.text();
+      
+      // Parse HTML
+      const root = parse(html);
+      const reviewElements = root.querySelectorAll('.review');
+      
+      // Extract review data
+      const reviews = reviewElements.map((el, index) => {
+        const text = el.querySelector('.review-content p')?.textContent.trim() || 
+                     el.querySelector('.review-text')?.textContent.trim() || '';
+        const authorEl = el.querySelector('.reviewer');
+        const author = authorEl ? authorEl.textContent.trim() : 'Parent';
+        const dateEl = el.querySelector('.date');
+        const date = dateEl ? dateEl.textContent.trim() : '';
+        const ratingEl = el.querySelector('.stars');
+        const rating = ratingEl ? (ratingEl.querySelectorAll('.fas.fa-star').length || 5) : 5;
+        
+        return { id: `r-${index}`, text, author, date, rating };
+      });
+      
+      res.json({ success: true, reviews });
+    } catch (error) {
+      console.error("Error fetching reviews:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to fetch reviews" 
+      });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
