@@ -57,10 +57,21 @@ function Testimonial({ quote, author, role, image, date, rating = 5, delay }: Te
     triggerOnce: false,
     threshold: 0.1,
   });
+  
+  const [isExpanded, setIsExpanded] = useState(false);
+  const fullText = quote;
+  
+  // Create shortened version of the quote if it's longer than 120 characters
+  const shortenedText = fullText && fullText.length > 120 
+    ? `${fullText.substring(0, 120)}...` 
+    : fullText;
+  
+  const displayText = isExpanded ? fullText : shortenedText;
+  const needsReadMore = fullText && fullText.length > 120;
 
   return (
     <motion.div 
-      className="bg-white p-5 sm:p-8 rounded-xl shadow-md"
+      className="bg-white p-5 sm:p-8 rounded-xl shadow-md h-full flex flex-col"
       ref={ref}
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
@@ -78,10 +89,21 @@ function Testimonial({ quote, author, role, image, date, rating = 5, delay }: Te
           {date && <span className="ml-2 text-xs text-gray-500">{date}</span>}
         </div>
       </div>
-      <p className="text-gray-600 mb-4 sm:mb-6 italic text-sm sm:text-base">
-        "{quote}"
-      </p>
-      <div className="flex items-center">
+      <div className="mb-4 sm:mb-6 flex-grow">
+        <p className="text-gray-600 italic text-sm sm:text-base">
+          "{displayText}"
+        </p>
+        {needsReadMore && (
+          <button 
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="text-accent text-xs sm:text-sm font-medium mt-2 hover:underline focus:outline-none focus:ring-2 focus:ring-accent rounded"
+            aria-expanded={isExpanded}
+          >
+            {isExpanded ? 'Read less' : 'Read more'}
+          </button>
+        )}
+      </div>
+      <div className="flex items-center mt-auto">
         {image ? (
           <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-full overflow-hidden mr-3 sm:mr-4 shrink-0">
             <img 
@@ -238,7 +260,7 @@ export default function TestimonialsSection() {
           onTouchStart={() => setIsPaused(true)}
           onTouchEnd={() => setIsPaused(false)}
         >
-          <div className="h-[320px] sm:h-[300px] md:h-[280px] overflow-hidden relative">
+          <div className="min-h-[320px] sm:min-h-[300px] md:min-h-[280px] overflow-hidden relative">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentIndex}
@@ -246,7 +268,7 @@ export default function TestimonialsSection() {
                 animate="visible"
                 exit="exit"
                 variants={slideVariants}
-                className="absolute inset-0"
+                className="w-full"
               >
                 <Testimonial
                   quote={reviews[currentIndex].quote}
