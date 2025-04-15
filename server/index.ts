@@ -6,6 +6,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import session from "express-session";
 import { generateSecureToken } from "./security";
+import { initializeStorage } from "./storage";
 
 const app = express();
 app.use(express.json());
@@ -75,6 +76,15 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Initialize database and storage
+  try {
+    // This will attempt to connect to PostgreSQL and set up the database storage
+    // If it fails, it will fall back to in-memory storage
+    await initializeStorage();
+  } catch (error) {
+    console.error('Failed to initialize storage:', error);
+  }
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

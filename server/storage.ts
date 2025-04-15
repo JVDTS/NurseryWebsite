@@ -700,11 +700,31 @@ export class MemStorage implements IStorage {
   }
 }
 
-// Use database storage if PostgreSQL is configured, otherwise use in-memory storage
-let storage: IStorage;
-
-// For now, let's just use MemStorage until we can properly fix the ES modules issue
-console.log('Using in-memory storage for this session (temporary until DB implementation is fixed)');
-storage = new MemStorage();
+// We export a function to get the storage instance
+// This will be initialized at startup in index.ts
+let storage: IStorage = new MemStorage(); // Default to MemStorage initially
 
 export { storage };
+
+// This function will be called from index.ts to set up storage
+export async function initializeStorage(): Promise<IStorage> {
+  try {
+    // Try a dynamic import which is ESM compatible
+    const dbModule = await import('./setupDb');
+    
+    if (dbModule.initializeDatabase()) {
+      try {
+        // If the database connection was successful, use DbStorage
+        const dbStorage = dbModule.getStorage();
+        storage = dbStorage; // Replace the global instance
+        return dbStorage;
+      } catch (error) {
+        console.error('Error initializing database storage:', error);
+      }
+    }
+  } catch (error) {
+    console.error('Error importing setupDb:', error);
+  }
+  
+  return storage; // Return existing in-memory storage
+}
