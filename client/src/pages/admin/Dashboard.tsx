@@ -5,9 +5,10 @@ import DashboardLayout from '@/components/admin/DashboardLayout';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import UserManagement from '@/components/admin/UserManagement';
 import ActivityLogs from '@/components/admin/ActivityLogs';
+import ContactSubmissions from '@/components/admin/ContactSubmissions';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Newspaper, Image, Clock, UserCog, ActivityIcon } from 'lucide-react';
+import { Users, Newspaper, Image, Clock, UserCog, ActivityIcon, MessageSquare } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
 export default function AdminDashboard() {
@@ -154,7 +155,7 @@ export default function AdminDashboard() {
               <CardTitle>Quick Actions</CardTitle>
               <CardDescription>Common tasks you can perform</CardDescription>
             </CardHeader>
-            <CardContent className="grid gap-2 md:grid-cols-2">
+            <CardContent className="grid gap-2 md:grid-cols-3">
               <Link href={user?.role === 'super_admin' ? '/admin/gallery' : `/admin/nurseries/${user?.nurseryId}/gallery`}>
                 <a className="block">
                   <button className="p-4 border rounded-lg text-center hover:bg-gray-50 transition-colors w-full">
@@ -178,6 +179,19 @@ export default function AdminDashboard() {
                   </button>
                 </a>
               </Link>
+              
+              <a className="block" href="#contact-submissions" onClick={(e) => {
+                e.preventDefault();
+                document.querySelector('#contact-submissions')?.scrollIntoView({ behavior: 'smooth' });
+              }}>
+                <button className="p-4 border rounded-lg text-center hover:bg-gray-50 transition-colors w-full">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <MessageSquare className="h-5 w-5 text-primary" />
+                    <span className="font-medium">Contact Submissions</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">View messages from website visitors</p>
+                </button>
+              </a>
             </CardContent>
           </Card>
           
@@ -216,6 +230,19 @@ export default function AdminDashboard() {
               </CardHeader>
               <CardContent>
                 <ActivityLogs nurseryId={user.nurseryId} />
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* Contact Submissions - For both Super Admin and Nursery Admin */}
+          {(user?.role === 'super_admin' || user?.role === 'nursery_admin') && (
+            <Card>
+              <CardHeader className="text-center">
+                <CardTitle>Contact Submissions</CardTitle>
+                <CardDescription>View messages from the contact form</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ContactSubmissions />
               </CardContent>
             </Card>
           )}
