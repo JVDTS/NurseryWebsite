@@ -304,19 +304,15 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
       </Sheet>
 
       {/* Main Content */}
-      <div className="flex flex-col flex-1 overflow-y-auto md:pl-0">
-        <main className="flex-1">
-          <div className="py-6">
-            <div className="px-4 mx-auto max-w-7xl sm:px-6 md:px-8">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-4">
-                <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
-                {user?.role === 'super_admin' && <NurserySelector />}
-              </div>
+      <div className="flex flex-col flex-1 overflow-y-auto">
+        <main className="flex-1 flex flex-col items-center">
+          <div className="py-6 w-full max-w-3xl">
+            <div className="px-4 mx-auto text-center mb-6">
+              <h1 className="text-2xl font-semibold text-gray-900 mb-2">{title}</h1>
+              {user?.role === 'super_admin' && <div className="flex justify-center"><NurserySelector /></div>}
             </div>
-            <div className="px-4 mx-auto mt-4 w-full flex justify-center sm:px-6 md:px-8">
-              <div className="w-full max-w-3xl">
-                {children}
-              </div>
+            <div className="px-4 w-full">
+              {children}
             </div>
           </div>
         </main>

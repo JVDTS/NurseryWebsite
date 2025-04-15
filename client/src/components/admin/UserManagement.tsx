@@ -328,8 +328,8 @@ export default function UserManagement() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 w-full">
+      <div className="flex justify-center items-center mb-4">
         <h2 className="text-2xl font-bold">User Management</h2>
         
         {/* Create User Dialog */}
@@ -676,7 +676,7 @@ export default function UserManagement() {
           <Button onClick={() => setIsCreateModalOpen(true)} variant="outline">Create Your First User</Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mx-auto">
           {users.map(user => (
             <Card key={user.id} className="overflow-hidden">
               <CardHeader className="pb-2">

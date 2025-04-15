@@ -116,19 +116,21 @@ export default function ActivityLogs({ nurseryId }: ActivityLogsProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 w-full">
+      <div className="flex justify-center items-center mb-4">
         <h2 className="text-2xl font-bold">Activity Logs</h2>
       </div>
       
       <Tabs defaultValue="all" onValueChange={setActiveTab}>
-        <TabsList className="mb-4">
-          <TabsTrigger value="all">All Activities</TabsTrigger>
-          <TabsTrigger value="user">User Management</TabsTrigger>
-          <TabsTrigger value="event">Events</TabsTrigger>
-          <TabsTrigger value="gallery">Gallery</TabsTrigger>
-          <TabsTrigger value="newsletter">Newsletters</TabsTrigger>
-        </TabsList>
+        <div className="flex justify-center w-full mb-4">
+          <TabsList>
+            <TabsTrigger value="all">All Activities</TabsTrigger>
+            <TabsTrigger value="user">User Management</TabsTrigger>
+            <TabsTrigger value="event">Events</TabsTrigger>
+            <TabsTrigger value="gallery">Gallery</TabsTrigger>
+            <TabsTrigger value="newsletter">Newsletters</TabsTrigger>
+          </TabsList>
+        </div>
         
         <TabsContent value={activeTab} className="space-y-4">
           {loading ? (
