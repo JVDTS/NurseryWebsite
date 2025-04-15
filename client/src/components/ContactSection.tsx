@@ -11,9 +11,17 @@ import {
   FormField,
   FormItem,
   FormMessage,
+  FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 import { contactFormSchema } from "@shared/schema";
 
 const pageVariants = {
@@ -197,6 +205,33 @@ export default function ContactSection() {
                           className="rounded-md border border-gray-300 py-3 px-4"
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="nurseryLocation"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-600 font-medium">Nursery Location</FormLabel>
+                      <Select 
+                        onValueChange={field.onChange} 
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="rounded-md border border-gray-300 py-3 px-4">
+                            <SelectValue placeholder="Select a nursery location" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="hayes">Hayes</SelectItem>
+                          <SelectItem value="uxbridge">Uxbridge</SelectItem>
+                          <SelectItem value="hounslow">Hounslow</SelectItem>
+                          <SelectItem value="general">General Inquiry</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
