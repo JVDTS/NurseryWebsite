@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 
 interface ContactSubmission {
   id: number;
@@ -17,47 +20,72 @@ export default function ViewContactSubmissions() {
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchSubmissions = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('/api/contact-submissions');
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch contact submissions');
-        }
-        
-        const data = await response.json();
-        
-        if (data.success && Array.isArray(data.data)) {
-          setSubmissions(data.data);
-        } else {
-          throw new Error('Invalid response format');
-        }
-      } catch (err) {
-        console.error('Error fetching contact submissions:', err);
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
-        toast({
-          title: 'Error',
-          description: 'Failed to load contact submissions',
-          variant: 'destructive'
-        });
-      } finally {
-        setLoading(false);
+  const fetchSubmissions = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/contact-submissions');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch contact submissions');
       }
-    };
+      
+      const data = await response.json();
+      
+      if (data.success && Array.isArray(data.data)) {
+        // Sort submissions by date (newest first)
+        const sortedSubmissions = [...data.data].sort((a, b) => {
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+        setSubmissions(sortedSubmissions);
+        setLastRefreshed(new Date());
+        
+        // Show success toast on manual refresh
+        if (lastRefreshed !== null) {
+          toast({
+            title: 'Success',
+            description: `Loaded ${sortedSubmissions.length} submission${sortedSubmissions.length !== 1 ? 's' : ''}`,
+            variant: 'default'
+          });
+        }
+      } else {
+        throw new Error('Invalid response format');
+      }
+    } catch (err) {
+      console.error('Error fetching contact submissions:', err);
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      toast({
+        title: 'Error',
+        description: 'Failed to load contact submissions',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, [toast, lastRefreshed]);
 
+  useEffect(() => {
     fetchSubmissions();
-  }, [toast]);
+  }, [fetchSubmissions]);
 
-  // Format date to readable string
+  // Format date to readable string with proper timezone handling
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      return date.toLocaleString();
+      
+      // Format date with proper day/month/year and localized time
+      return new Intl.DateTimeFormat('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      }).format(date);
     } catch (err) {
+      console.error('Error formatting date:', err);
       return dateString;
     }
   };
@@ -113,11 +141,35 @@ export default function ViewContactSubmissions() {
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-500">{formatDate(submission.createdAt)}</td>
                       <td className="px-4 py-3 text-sm text-gray-600">
-                        <div className="max-w-xs truncate" title={submission.message}>
-                          {submission.message.length > 50 
-                            ? `${submission.message.substring(0, 50)}...` 
-                            : submission.message}
-                        </div>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <button className="text-left hover:text-primary hover:underline focus:outline-none">
+                              <div className="max-w-xs truncate">
+                                {submission.message.length > 50 
+                                  ? `${submission.message.substring(0, 50)}...` 
+                                  : submission.message}
+                              </div>
+                            </button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-md">
+                            <DialogHeader>
+                              <DialogTitle className="flex items-center gap-2">
+                                <span>Message from {submission.name}</span>
+                                <span className="text-sm font-normal text-gray-500">
+                                  ({formatDate(submission.createdAt)})
+                                </span>
+                              </DialogTitle>
+                            </DialogHeader>
+                            <div className="mt-4 p-4 bg-gray-50 rounded-md whitespace-pre-wrap">
+                              {submission.message}
+                            </div>
+                            <div className="mt-2 text-sm text-gray-500">
+                              <p><strong>Email:</strong> {submission.email}</p>
+                              <p><strong>Phone:</strong> {submission.phone || 'Not provided'}</p>
+                              <p><strong>Nursery:</strong> {submission.nurseryLocation.charAt(0).toUpperCase() + submission.nurseryLocation.slice(1)}</p>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
                       </td>
                     </tr>
                   ))}
