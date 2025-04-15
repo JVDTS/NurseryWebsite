@@ -202,12 +202,12 @@ export default function AdminDashboard() {
 
             {/* Recent Events */}
             <Card className="col-span-7 lg:col-span-3">
-              <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader className="text-center">
                 <div>
                   <CardTitle>Recent Events</CardTitle>
                   <CardDescription>Latest scheduled events</CardDescription>
                 </div>
-                <div className="flex space-x-2">
+                <div className="flex justify-center mt-2">
                   <Button variant="ghost" size="icon" className="h-7 w-7">
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
@@ -233,11 +233,11 @@ export default function AdminDashboard() {
                   )}
                 </div>
               </CardContent>
-              <CardFooter className="border-t px-6 py-3">
+              <CardFooter className="border-t px-6 py-3 flex justify-center">
                 <Link href={user?.role === 'super_admin' ? '/admin/events' : `/admin/nurseries/${user?.nurseryId}/events`}>
-                  <a className="text-sm text-primary font-medium flex items-center hover:underline w-full">
+                  <a className="text-sm text-primary font-medium flex items-center hover:underline">
                     View More
-                    <ArrowRight className="ml-auto h-4 w-4" />
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </a>
                 </Link>
               </CardFooter>
@@ -247,12 +247,12 @@ export default function AdminDashboard() {
           {/* Latest Content */}
           <Card>
             <CardHeader>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="flex flex-col items-center text-center gap-4">
                 <div>
                   <CardTitle>Latest Content</CardTitle>
                   <CardDescription>Recently added content items across all sections</CardDescription>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-wrap justify-center gap-2">
                   <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
                     <input 
@@ -373,8 +373,8 @@ export default function AdminDashboard() {
                 </TableBody>
               </Table>
             </CardContent>
-            <CardFooter className="flex items-center justify-between border-t px-6 py-4">
-              <div className="text-sm text-gray-500">
+            <CardFooter className="flex flex-col sm:flex-row items-center justify-center border-t px-6 py-4 gap-4">
+              <div className="text-sm text-gray-500 text-center">
                 Showing <span className="font-medium">3</span> of <span className="font-medium">{stats.events + stats.newsletters + stats.galleryImages}</span> items
               </div>
               <div className="flex items-center space-x-2">
