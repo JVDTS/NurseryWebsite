@@ -1,6 +1,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { eq, sql } from 'drizzle-orm';
 import session from 'express-session';
+import pgSessionStore from 'connect-pg-simple';
 import {
   users, User, InsertUser,
   nurseries, Nursery, InsertNursery,
@@ -15,7 +16,7 @@ import { hashPassword } from './security';
 import { db, pool } from './db'; // Import the existing db instance and pool
 
 // Create the Drizzle instance - use the shared db instance from db.ts
-const drizzleDb = db;
+const drizzleDb = db || null;
 
 export class DbStorage implements IStorage {
   // Session store for authentication
@@ -23,7 +24,7 @@ export class DbStorage implements IStorage {
 
   constructor() {
     // Initialize the session store using PostgreSQL
-    const PgSessionStore = require('connect-pg-simple')(session);
+    const PgSessionStore = pgSessionStore(session);
     // Use the imported pool from db.ts
     this.sessionStore = new PgSessionStore({
       pool, 

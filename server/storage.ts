@@ -64,32 +64,8 @@ export interface IStorage {
   getActivityLogsByNursery(nurseryId: number): Promise<ActivityLog[]>;
 }
 
-// Import DbStorage if PostgreSQL database is configured
-let DbStorageImplementation = null;
-
-// We'll initialize the storage instance at the module level but configure it after import resolution
-const initDbImplementation = async () => {
-  try {
-    // Check if DATABASE_URL is configured
-    if (process.env.DATABASE_URL) {
-      // Dynamic import using ES modules syntax
-      const dbStorageModule = await import('./dbStorage');
-      DbStorageImplementation = dbStorageModule.DbStorage;
-      console.log('DATABASE_URL found and database implementation loaded successfully');
-      
-      // Now we can initialize storage with the database
-      if (!storageInitialized) {
-        storage = new DbStorageImplementation();
-        storageInitialized = true;
-        console.log('Database storage initialized successfully');
-      }
-    } else {
-      console.log('DATABASE_URL environment variable not found');
-    }
-  } catch (e) {
-    console.error('Error loading PostgreSQL database implementation:', e);
-  }
-};
+// For ESM in TypeScript, we need to handle imports differently
+// We'll define a placeholder for DbStorage and try to set it later via dynamic import
 
 // In-memory storage implementation for development
 export class MemStorage implements IStorage {
@@ -727,21 +703,8 @@ export class MemStorage implements IStorage {
 // Use database storage if PostgreSQL is configured, otherwise use in-memory storage
 let storage: IStorage;
 
-if (process.env.DATABASE_URL && DbStorageImplementation) {
-  try {
-    console.log('Using PostgreSQL database storage with URL:', process.env.DATABASE_URL);
-    storage = new DbStorageImplementation();
-  } catch (error) {
-    console.error('Error initializing PostgreSQL storage:', error);
-    console.log('Falling back to in-memory storage due to error');
-    storage = new MemStorage();
-  }
-} else {
-  console.log('Using in-memory storage (DATABASE_URL availability: ' + 
-    (process.env.DATABASE_URL ? 'Yes' : 'No') + 
-    ', DbStorageImplementation: ' + 
-    (DbStorageImplementation ? 'Yes' : 'No') + ')');
-  storage = new MemStorage();
-}
+// For now, let's just use MemStorage until we can properly fix the ES modules issue
+console.log('Using in-memory storage for this session (temporary until DB implementation is fixed)');
+storage = new MemStorage();
 
 export { storage };
