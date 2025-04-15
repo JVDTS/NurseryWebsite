@@ -1,5 +1,6 @@
-import { Pool } from 'pg';
+import pg from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
+const { Pool } = pg;
 import session from 'express-session';
 import pgSessionStoreFactory from 'connect-pg-simple';
 import { 
@@ -46,8 +47,15 @@ export function initializeDatabase() {
       
       // Test the connection
       pool.query('SELECT 1')
-        .then(() => {
+        .then(async () => {
           console.log('PostgreSQL database connection successful!');
+          
+          // After successful connection, make sure tables exist
+          try {
+            await createTablesIfNotExist();
+          } catch (err) {
+            console.error('Error creating database tables:', err);
+          }
         })
         .catch((err) => {
           console.error('Error testing PostgreSQL connection:', err);
@@ -60,6 +68,153 @@ export function initializeDatabase() {
   } catch (error) {
     console.error('Failed to initialize PostgreSQL connection:', error);
     return false;
+  }
+}
+
+// Function to create tables if they don't exist
+async function createTablesIfNotExist() {
+  if (!pool) return;
+  
+  try {
+    // Create session table for connect-pg-simple if it doesn't exist
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS "session" (
+        "sid" VARCHAR NOT NULL,
+        "sess" JSON NOT NULL,
+        "expire" TIMESTAMP(6) NOT NULL,
+        CONSTRAINT "session_pkey" PRIMARY KEY ("sid")
+      )
+    `);
+    
+    // Check if users table exists
+    const result = await pool.query(`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'users'
+      );
+    `);
+    
+    // Only run migrations if tables don't exist
+    if (!result.rows[0].exists) {
+      console.log('Tables do not exist, running database migrations...');
+      
+      // Create users table
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS "users" (
+          "id" SERIAL PRIMARY KEY,
+          "username" VARCHAR(255) NOT NULL UNIQUE,
+          "password" VARCHAR(255) NOT NULL,
+          "first_name" VARCHAR(255) NOT NULL,
+          "last_name" VARCHAR(255) NOT NULL,
+          "email" VARCHAR(255) NOT NULL UNIQUE,
+          "role" VARCHAR(50) NOT NULL DEFAULT 'regular',
+          "nursery_id" INTEGER,
+          "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+          "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+        )
+      `);
+      
+      // Create nurseries table
+      await pool.query(`
+        CREATE TYPE nursery_location AS ENUM ('hayes', 'uxbridge', 'hounslow');
+        
+        CREATE TABLE IF NOT EXISTS "nurseries" (
+          "id" SERIAL PRIMARY KEY,
+          "name" VARCHAR(255) NOT NULL,
+          "location" nursery_location NOT NULL,
+          "address" TEXT NOT NULL,
+          "phone_number" VARCHAR(50) NOT NULL,
+          "email" VARCHAR(255) NOT NULL,
+          "description" TEXT NOT NULL,
+          "hero_image" TEXT,
+          "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+          "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+        )
+      `);
+      
+      // Create events table
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS "events" (
+          "id" SERIAL PRIMARY KEY,
+          "title" VARCHAR(255) NOT NULL,
+          "description" TEXT NOT NULL,
+          "start_date" TIMESTAMP WITH TIME ZONE NOT NULL,
+          "end_date" TIMESTAMP WITH TIME ZONE,
+          "location" VARCHAR(255),
+          "image_url" TEXT,
+          "nursery_id" INTEGER NOT NULL,
+          "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+          "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+          CONSTRAINT "events_nursery_id_fkey" FOREIGN KEY ("nursery_id") REFERENCES "nurseries" ("id")
+        )
+      `);
+      
+      // Create gallery_images table
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS "gallery_images" (
+          "id" SERIAL PRIMARY KEY,
+          "image_url" VARCHAR(255) NOT NULL,
+          "caption" TEXT,
+          "nursery_id" INTEGER NOT NULL,
+          "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+          CONSTRAINT "gallery_images_nursery_id_fkey" FOREIGN KEY ("nursery_id") REFERENCES "nurseries" ("id")
+        )
+      `);
+      
+      // Create newsletters table
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS "newsletters" (
+          "id" SERIAL PRIMARY KEY,
+          "title" VARCHAR(255) NOT NULL,
+          "description" TEXT NOT NULL,
+          "pdf_url" TEXT,
+          "publish_date" TIMESTAMP WITH TIME ZONE,
+          "tags" TEXT,
+          "nursery_id" INTEGER NOT NULL,
+          "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+          "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+          CONSTRAINT "newsletters_nursery_id_fkey" FOREIGN KEY ("nursery_id") REFERENCES "nurseries" ("id")
+        )
+      `);
+      
+      // Create contact_submissions table
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS "contact_submissions" (
+          "id" SERIAL PRIMARY KEY,
+          "name" VARCHAR(255) NOT NULL,
+          "email" VARCHAR(255) NOT NULL,
+          "phone" VARCHAR(50),
+          "nursery_location" nursery_location NOT NULL,
+          "message" TEXT NOT NULL,
+          "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+        )
+      `);
+      
+      // Create activity_logs table
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS "activity_logs" (
+          "id" SERIAL PRIMARY KEY,
+          "user_id" INTEGER NOT NULL,
+          "user_name" VARCHAR(255) NOT NULL,
+          "action" VARCHAR(255) NOT NULL,
+          "resource_type" VARCHAR(255) NOT NULL,
+          "resource_id" INTEGER,
+          "details" TEXT NOT NULL,
+          "nursery_id" INTEGER,
+          "nursery_name" VARCHAR(255),
+          "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+          CONSTRAINT "activity_logs_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users" ("id")
+        )
+      `);
+      
+      console.log('Database tables created successfully!');
+    } else {
+      console.log('Database tables already exist.');
+    }
+  } catch (error) {
+    console.error('Error creating database tables:', error);
+    throw error;
   }
 }
 
