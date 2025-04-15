@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
@@ -13,7 +13,7 @@ interface ContactSubmission {
   phone: string | null;
   nurseryLocation: string;
   message: string;
-  createdAt: string;
+  createdAt: string | null;
 }
 
 export default function ViewContactSubmissions() {
@@ -23,58 +23,72 @@ export default function ViewContactSubmissions() {
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const { toast } = useToast();
 
-  const fetchSubmissions = useCallback(async (isManualRefresh = false) => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/contact-submissions');
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch contact submissions');
-      }
-      
-      const data = await response.json();
-      
-      if (data.success && Array.isArray(data.data)) {
-        // Sort submissions by date (newest first) or by ID if dates are not available
-        const sortedSubmissions = [...data.data].sort((a, b) => {
-          // If either date is null, use ID for sorting
-          if (!a.createdAt || !b.createdAt) {
-            return b.id - a.id; // Higher ID is likely more recent
-          }
-          
-          // Otherwise sort by date
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        });
-        setSubmissions(sortedSubmissions);
-        setLastRefreshed(new Date());
-        
-        // Show success toast only on manual refresh
-        if (isManualRefresh) {
-          toast({
-            title: 'Success',
-            description: `Loaded ${sortedSubmissions.length} submission${sortedSubmissions.length !== 1 ? 's' : ''}`,
-            variant: 'default'
-          });
+  // Manual refresh handler to avoid dependency issues
+  const handleRefresh = (showToast = false) => {
+    setLoading(true);
+    
+    fetch('/api/contact-submissions')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch contact submissions');
         }
-      } else {
-        throw new Error('Invalid response format');
-      }
-    } catch (err) {
-      console.error('Error fetching contact submissions:', err);
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
-      toast({
-        title: 'Error',
-        description: 'Failed to load contact submissions',
-        variant: 'destructive'
+        return response.json();
+      })
+      .then(data => {
+        if (data.success && Array.isArray(data.data)) {
+          // Log what we're getting for debugging
+          console.log("API response data:", data.data);
+          
+          // Sort submissions by ID (always reliable)
+          const sortedSubmissions = [...data.data].sort((a, b) => b.id - a.id);
+          
+          // Map to ensure consistent field names (camelCase vs snake_case)
+          const formattedSubmissions = sortedSubmissions.map(item => ({
+            id: item.id,
+            name: item.name,
+            email: item.email,
+            phone: item.phone,
+            nurseryLocation: item.nurseryLocation || item.nursery_location,
+            message: item.message,
+            createdAt: item.createdAt || item.created_at
+          }));
+          
+          setSubmissions(formattedSubmissions);
+          
+          // Set last refreshed timestamp
+          const now = new Date();
+          setLastRefreshed(now);
+          
+          // Show success toast only if requested
+          if (showToast) {
+            toast({
+              title: 'Success',
+              description: `Loaded ${formattedSubmissions.length} submission${formattedSubmissions.length !== 1 ? 's' : ''}`,
+              variant: 'default'
+            });
+          }
+        } else {
+          throw new Error('Invalid response format');
+        }
+      })
+      .catch(err => {
+        console.error('Error fetching contact submissions:', err);
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        toast({
+          title: 'Error',
+          description: 'Failed to load contact submissions',
+          variant: 'destructive'
+        });
+      })
+      .finally(() => {
+        setLoading(false);
       });
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
+  };
 
+  // Initial data fetch
   useEffect(() => {
-    fetchSubmissions();
-  }, [fetchSubmissions]);
+    handleRefresh(false);
+  }, []);
 
   // Format date to readable string with proper timezone handling
   const formatDate = (dateString: string | null) => {
@@ -124,7 +138,7 @@ export default function ViewContactSubmissions() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => fetchSubmissions(true)}
+              onClick={() => handleRefresh(true)}
               disabled={loading}
               className="flex items-center gap-1"
             >
