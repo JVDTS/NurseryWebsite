@@ -1,8 +1,8 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import pg from 'pg';
 
-// Use ES module import instead of require
-const { Pool } = pg;
+// Use require for importing pg
+const pg = require('pg');
+const Pool = pg.Pool;
 
 // Create the database connection pool with error handling
 let pool;

@@ -64,8 +64,22 @@ export interface IStorage {
   getActivityLogsByNursery(nurseryId: number): Promise<ActivityLog[]>;
 }
 
-// For ESM in TypeScript, we need to handle imports differently
-// We'll define a placeholder for DbStorage and try to set it later via dynamic import
+// Import DbStorage if PostgreSQL database is configured
+let DbStorageImplementation;
+try {
+  // Check if DATABASE_URL is configured
+  if (process.env.DATABASE_URL) {
+    // Dynamic import to avoid breaking if PostgreSQL is not configured
+    DbStorageImplementation = require('./dbStorage').DbStorage;
+    console.log('DATABASE_URL found:', process.env.DATABASE_URL);
+  } else {
+    console.log('DATABASE_URL environment variable not found');
+    DbStorageImplementation = null;
+  }
+} catch (e) {
+  console.error('Error loading PostgreSQL database implementation:', e);
+  DbStorageImplementation = null;
+}
 
 // In-memory storage implementation for development
 export class MemStorage implements IStorage {
@@ -700,31 +714,24 @@ export class MemStorage implements IStorage {
   }
 }
 
-// We export a function to get the storage instance
-// This will be initialized at startup in index.ts
-let storage: IStorage = new MemStorage(); // Default to MemStorage initially
+// Use database storage if PostgreSQL is configured, otherwise use in-memory storage
+let storage: IStorage;
+
+if (process.env.DATABASE_URL && DbStorageImplementation) {
+  try {
+    console.log('Using PostgreSQL database storage with URL:', process.env.DATABASE_URL);
+    storage = new DbStorageImplementation();
+  } catch (error) {
+    console.error('Error initializing PostgreSQL storage:', error);
+    console.log('Falling back to in-memory storage due to error');
+    storage = new MemStorage();
+  }
+} else {
+  console.log('Using in-memory storage (DATABASE_URL availability: ' + 
+    (process.env.DATABASE_URL ? 'Yes' : 'No') + 
+    ', DbStorageImplementation: ' + 
+    (DbStorageImplementation ? 'Yes' : 'No') + ')');
+  storage = new MemStorage();
+}
 
 export { storage };
-
-// This function will be called from index.ts to set up storage
-export async function initializeStorage(): Promise<IStorage> {
-  try {
-    // Try a dynamic import which is ESM compatible
-    const dbModule = await import('./setupDb');
-    
-    if (dbModule.initializeDatabase()) {
-      try {
-        // If the database connection was successful, use DbStorage
-        const dbStorage = dbModule.getStorage();
-        storage = dbStorage; // Replace the global instance
-        return dbStorage;
-      } catch (error) {
-        console.error('Error initializing database storage:', error);
-      }
-    }
-  } catch (error) {
-    console.error('Error importing setupDb:', error);
-  }
-  
-  return storage; // Return existing in-memory storage
-}

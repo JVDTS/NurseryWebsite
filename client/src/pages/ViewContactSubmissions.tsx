@@ -2,9 +2,6 @@ import { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
 
 interface ContactSubmission {
   id: number;
@@ -13,65 +10,33 @@ interface ContactSubmission {
   phone: string | null;
   nurseryLocation: string;
   message: string;
-  createdAt: string | null;
+  createdAt: string;
 }
 
 export default function ViewContactSubmissions() {
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const { toast } = useToast();
 
-  // Manual refresh handler to avoid dependency issues
-  const handleRefresh = (showToast = false) => {
-    setLoading(true);
-    
-    fetch('/api/contact-submissions')
-      .then(response => {
+  useEffect(() => {
+    const fetchSubmissions = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/contact-submissions');
+        
         if (!response.ok) {
           throw new Error('Failed to fetch contact submissions');
         }
-        return response.json();
-      })
-      .then(data => {
+        
+        const data = await response.json();
+        
         if (data.success && Array.isArray(data.data)) {
-          // Log what we're getting for debugging
-          console.log("API response data:", data.data);
-          
-          // Sort submissions by ID (always reliable)
-          const sortedSubmissions = [...data.data].sort((a, b) => b.id - a.id);
-          
-          // Map to ensure consistent field names (camelCase vs snake_case)
-          const formattedSubmissions = sortedSubmissions.map(item => ({
-            id: item.id,
-            name: item.name,
-            email: item.email,
-            phone: item.phone,
-            nurseryLocation: item.nurseryLocation || item.nursery_location,
-            message: item.message,
-            createdAt: item.createdAt || item.created_at
-          }));
-          
-          setSubmissions(formattedSubmissions);
-          
-          // Set last refreshed timestamp
-          const now = new Date();
-          setLastRefreshed(now);
-          
-          // Show success toast only if requested
-          if (showToast) {
-            toast({
-              title: 'Success',
-              description: `Loaded ${formattedSubmissions.length} submission${formattedSubmissions.length !== 1 ? 's' : ''}`,
-              variant: 'default'
-            });
-          }
+          setSubmissions(data.data);
         } else {
           throw new Error('Invalid response format');
         }
-      })
-      .catch(err => {
+      } catch (err) {
         console.error('Error fetching contact submissions:', err);
         setError(err instanceof Error ? err.message : 'An unknown error occurred');
         toast({
@@ -79,43 +44,21 @@ export default function ViewContactSubmissions() {
           description: 'Failed to load contact submissions',
           variant: 'destructive'
         });
-      })
-      .finally(() => {
+      } finally {
         setLoading(false);
-      });
-  };
+      }
+    };
 
-  // Initial data fetch
-  useEffect(() => {
-    handleRefresh(false);
-  }, []);
+    fetchSubmissions();
+  }, [toast]);
 
-  // Format date to readable string with proper timezone handling
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) {
-      return 'Not available';
-    }
-    
+  // Format date to readable string
+  const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString);
-      
-      // Check if date is valid
-      if (isNaN(date.getTime())) {
-        return 'Invalid date';
-      }
-      
-      // Format date with proper day/month/year and localized time
-      return new Intl.DateTimeFormat('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      }).format(date);
+      return date.toLocaleString();
     } catch (err) {
-      console.error('Error formatting date:', err);
-      return 'Date error';
+      return dateString;
     }
   };
 
@@ -124,28 +67,7 @@ export default function ViewContactSubmissions() {
       <NavBar />
       <div className="container mx-auto px-4 py-28">
         <div className="bg-white rounded-xl shadow-md p-6">
-          <h1 className="text-3xl font-heading font-bold mb-4 text-center">Contact Form Submissions</h1>
-          
-          <div className="flex justify-between items-center mb-6">
-            <div className="text-sm text-gray-500">
-              {lastRefreshed && (
-                <span>
-                  Last updated: {formatDate(lastRefreshed.toISOString())} • 
-                  {submissions.length} submission{submissions.length !== 1 ? 's' : ''}
-                </span>
-              )}
-            </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => handleRefresh(true)}
-              disabled={loading}
-              className="flex items-center gap-1"
-            >
-              <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-              Refresh
-            </Button>
-          </div>
+          <h1 className="text-3xl font-heading font-bold mb-8 text-center">Contact Form Submissions</h1>
           
           {loading ? (
             <div className="flex justify-center items-center h-64">
@@ -191,35 +113,11 @@ export default function ViewContactSubmissions() {
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-500">{formatDate(submission.createdAt)}</td>
                       <td className="px-4 py-3 text-sm text-gray-600">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <button className="text-left hover:text-primary hover:underline focus:outline-none">
-                              <div className="max-w-xs truncate">
-                                {submission.message.length > 50 
-                                  ? `${submission.message.substring(0, 50)}...` 
-                                  : submission.message}
-                              </div>
-                            </button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-md">
-                            <DialogHeader>
-                              <DialogTitle className="flex items-center gap-2">
-                                <span>Message from {submission.name}</span>
-                                <span className="text-sm font-normal text-gray-500">
-                                  ({formatDate(submission.createdAt)})
-                                </span>
-                              </DialogTitle>
-                            </DialogHeader>
-                            <div className="mt-4 p-4 bg-gray-50 rounded-md whitespace-pre-wrap">
-                              {submission.message}
-                            </div>
-                            <div className="mt-2 text-sm text-gray-500">
-                              <p><strong>Email:</strong> {submission.email}</p>
-                              <p><strong>Phone:</strong> {submission.phone || 'Not provided'}</p>
-                              <p><strong>Nursery:</strong> {submission.nurseryLocation.charAt(0).toUpperCase() + submission.nurseryLocation.slice(1)}</p>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
+                        <div className="max-w-xs truncate" title={submission.message}>
+                          {submission.message.length > 50 
+                            ? `${submission.message.substring(0, 50)}...` 
+                            : submission.message}
+                        </div>
                       </td>
                     </tr>
                   ))}

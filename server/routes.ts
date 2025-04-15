@@ -1465,19 +1465,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/contact-submissions", async (req: Request, res: Response) => {
     try {
       const contactSubmissions = await storage.getContactSubmissions();
-      
-      // Ensure consistent camelCase fields for frontend
-      const formattedSubmissions = contactSubmissions.map(submission => {
-        return {
-          ...submission,
-          // Add createdAt if it doesn't exist (using created_at)
-          createdAt: submission.createdAt || submission.created_at,
-          // Add nurseryLocation if it doesn't exist (using nursery_location)
-          nurseryLocation: submission.nurseryLocation || submission.nursery_location
-        };
-      });
-      
-      res.json({ success: true, data: formattedSubmissions });
+      res.json({ success: true, data: contactSubmissions });
     } catch (error) {
       console.error("Error fetching contact submissions:", error);
       res.status(500).json({ success: false, message: "Failed to fetch contact submissions" });

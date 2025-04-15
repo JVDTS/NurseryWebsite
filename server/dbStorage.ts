@@ -1,22 +1,20 @@
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { eq, sql } from 'drizzle-orm';
 import session from 'express-session';
-import pgSessionStore from 'connect-pg-simple';
 import {
   users, User, InsertUser,
   nurseries, Nursery, InsertNursery,
   events, Event, InsertEvent,
   galleryImages, GalleryImage, InsertGalleryImage,
   newsletters, Newsletter, InsertNewsletter,
-  contactSubmissions, ContactSubmission, InsertContact,
-  activityLogs, ActivityLog, InsertActivityLog
+  contactSubmissions, ContactSubmission, InsertContact
 } from '../shared/schema';
 import { IStorage } from './storage';
 import { hashPassword } from './security';
 import { db, pool } from './db'; // Import the existing db instance and pool
 
 // Create the Drizzle instance - use the shared db instance from db.ts
-const drizzleDb = db || null;
+const drizzleDb = db;
 
 export class DbStorage implements IStorage {
   // Session store for authentication
@@ -24,7 +22,7 @@ export class DbStorage implements IStorage {
 
   constructor() {
     // Initialize the session store using PostgreSQL
-    const PgSessionStore = pgSessionStore(session);
+    const PgSessionStore = require('connect-pg-simple')(session);
     // Use the imported pool from db.ts
     this.sessionStore = new PgSessionStore({
       pool, 
@@ -262,42 +260,5 @@ export class DbStorage implements IStorage {
 
   async getContactSubmissions(): Promise<ContactSubmission[]> {
     return await drizzleDb.select().from(contactSubmissions);
-  }
-
-  // Get all users for admin user management
-  async getAllUsers(): Promise<User[]> {
-    return await drizzleDb.select().from(users);
-  }
-  
-  // Activity log methods
-  async logActivity(activity: InsertActivityLog): Promise<ActivityLog> {
-    const result = await drizzleDb.insert(activityLogs)
-      .values({
-        ...activity,
-        resourceId: activity.resourceId || null,
-        nurseryId: activity.nurseryId || null,
-        nurseryName: activity.nurseryName || null,
-        createdAt: new Date()
-      })
-      .returning();
-      
-    return result[0];
-  }
-  
-  async getActivityLogs(): Promise<ActivityLog[]> {
-    return await drizzleDb.select().from(activityLogs)
-      .orderBy(sql`${activityLogs.createdAt} DESC`);
-  }
-  
-  async getActivityLogsByUser(userId: number): Promise<ActivityLog[]> {
-    return await drizzleDb.select().from(activityLogs)
-      .where(eq(activityLogs.userId, userId))
-      .orderBy(sql`${activityLogs.createdAt} DESC`);
-  }
-  
-  async getActivityLogsByNursery(nurseryId: number): Promise<ActivityLog[]> {
-    return await drizzleDb.select().from(activityLogs)
-      .where(eq(activityLogs.nurseryId, nurseryId))
-      .orderBy(sql`${activityLogs.createdAt} DESC`);
   }
 }
