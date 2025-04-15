@@ -5,6 +5,7 @@ export interface Review {
   date: string;
   rating: number;
   nurseryName: string;
+  reviewUrl: string;
 }
 
 /**
@@ -23,7 +24,8 @@ export async function fetchReviews(nurseryLocation: string): Promise<Review[]> {
         author: "Rebecca T.",
         date: "March 2025",
         rating: 5,
-        nurseryName: "Coat of Many Colours Nursery (Hayes)"
+        nurseryName: "Coat of Many Colours Nursery (Hayes)",
+        reviewUrl: "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COAA"
       },
       {
         id: "review-h2",
@@ -31,7 +33,8 @@ export async function fetchReviews(nurseryLocation: string): Promise<Review[]> {
         author: "James M.",
         date: "February 2025",
         rating: 5,
-        nurseryName: "Coat of Many Colours Nursery (Hayes)"
+        nurseryName: "Coat of Many Colours Nursery (Hayes)",
+        reviewUrl: "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COAA"
       },
       {
         id: "review-h3",
@@ -39,7 +42,8 @@ export async function fetchReviews(nurseryLocation: string): Promise<Review[]> {
         author: "Aisha K.",
         date: "January 2025",
         rating: 5,
-        nurseryName: "Coat of Many Colours Nursery (Hayes)"
+        nurseryName: "Coat of Many Colours Nursery (Hayes)",
+        reviewUrl: "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COAA"
       },
       {
         id: "review-h4",
@@ -47,7 +51,8 @@ export async function fetchReviews(nurseryLocation: string): Promise<Review[]> {
         author: "Michael P.",
         date: "December 2024",
         rating: 4,
-        nurseryName: "Coat of Many Colours Nursery (Hayes)"
+        nurseryName: "Coat of Many Colours Nursery (Hayes)",
+        reviewUrl: "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COAA"
       }
     ],
     
@@ -59,7 +64,8 @@ export async function fetchReviews(nurseryLocation: string): Promise<Review[]> {
         author: "Sarah W.",
         date: "March 2025",
         rating: 5,
-        nurseryName: "Coat of Many Colours Nursery (Hounslow)"
+        nurseryName: "Coat of Many Colours Nursery (Hounslow)",
+        reviewUrl: "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COAH"
       },
       {
         id: "review-ho2",
@@ -67,7 +73,8 @@ export async function fetchReviews(nurseryLocation: string): Promise<Review[]> {
         author: "Omar J.",
         date: "February 2025",
         rating: 5,
-        nurseryName: "Coat of Many Colours Nursery (Hounslow)"
+        nurseryName: "Coat of Many Colours Nursery (Hounslow)",
+        reviewUrl: "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COAH"
       },
       {
         id: "review-ho3",
@@ -75,7 +82,8 @@ export async function fetchReviews(nurseryLocation: string): Promise<Review[]> {
         author: "Natalie C.",
         date: "January 2025",
         rating: 5,
-        nurseryName: "Coat of Many Colours Nursery (Hounslow)"
+        nurseryName: "Coat of Many Colours Nursery (Hounslow)",
+        reviewUrl: "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COAH"
       },
       {
         id: "review-ho4",
@@ -83,7 +91,8 @@ export async function fetchReviews(nurseryLocation: string): Promise<Review[]> {
         author: "David L.",
         date: "December 2024",
         rating: 5,
-        nurseryName: "Coat of Many Colours Nursery (Hounslow)"
+        nurseryName: "Coat of Many Colours Nursery (Hounslow)",
+        reviewUrl: "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COAH"
       }
     ],
     
@@ -95,7 +104,8 @@ export async function fetchReviews(nurseryLocation: string): Promise<Review[]> {
         author: "Emily S.",
         date: "March 2025",
         rating: 5,
-        nurseryName: "Coat of Many Colours Nursery (Uxbridge)"
+        nurseryName: "Coat of Many Colours Nursery (Uxbridge)",
+        reviewUrl: "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COUX"
       },
       {
         id: "review-u2",
@@ -103,7 +113,8 @@ export async function fetchReviews(nurseryLocation: string): Promise<Review[]> {
         author: "Raj P.",
         date: "February 2025",
         rating: 5,
-        nurseryName: "Coat of Many Colours Nursery (Uxbridge)"
+        nurseryName: "Coat of Many Colours Nursery (Uxbridge)",
+        reviewUrl: "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COUX"
       },
       {
         id: "review-u3",
@@ -111,7 +122,8 @@ export async function fetchReviews(nurseryLocation: string): Promise<Review[]> {
         author: "Claire M.",
         date: "January 2025",
         rating: 4,
-        nurseryName: "Coat of Many Colours Nursery (Uxbridge)"
+        nurseryName: "Coat of Many Colours Nursery (Uxbridge)",
+        reviewUrl: "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COUX"
       },
       {
         id: "review-u4",
@@ -119,7 +131,8 @@ export async function fetchReviews(nurseryLocation: string): Promise<Review[]> {
         author: "Thomas B.",
         date: "December 2024",
         rating: 5,
-        nurseryName: "Coat of Many Colours Nursery (Uxbridge)"
+        nurseryName: "Coat of Many Colours Nursery (Uxbridge)",
+        reviewUrl: "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COUX"
       }
     ],
     
@@ -131,7 +144,8 @@ export async function fetchReviews(nurseryLocation: string): Promise<Review[]> {
         author: "Jennifer A.",
         date: "March 2025",
         rating: 5,
-        nurseryName: "Coat of Many Colours Nursery"
+        nurseryName: "Coat of Many Colours Nursery",
+        reviewUrl: "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COAA"
       },
       {
         id: "review-d2",
@@ -139,7 +153,8 @@ export async function fetchReviews(nurseryLocation: string): Promise<Review[]> {
         author: "Kwame O.",
         date: "February 2025",
         rating: 5,
-        nurseryName: "Coat of Many Colours Nursery"
+        nurseryName: "Coat of Many Colours Nursery",
+        reviewUrl: "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COAA"
       },
       {
         id: "review-d3",
@@ -147,7 +162,8 @@ export async function fetchReviews(nurseryLocation: string): Promise<Review[]> {
         author: "Sophia N.",
         date: "January 2025",
         rating: 5,
-        nurseryName: "Coat of Many Colours Nursery"
+        nurseryName: "Coat of Many Colours Nursery",
+        reviewUrl: "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COAA"
       },
       {
         id: "review-d4",
@@ -155,7 +171,8 @@ export async function fetchReviews(nurseryLocation: string): Promise<Review[]> {
         author: "Robert G.",
         date: "December 2024",
         rating: 5,
-        nurseryName: "Coat of Many Colours Nursery"
+        nurseryName: "Coat of Many Colours Nursery",
+        reviewUrl: "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COAA"
       }
     ]
   };

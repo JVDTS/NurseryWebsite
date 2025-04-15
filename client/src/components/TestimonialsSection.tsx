@@ -12,6 +12,7 @@ interface DaynurseriesReview {
   date: string;
   rating: number;
   nurseryName: string;
+  reviewUrl: string;
 }
 
 interface TestimonialProps {
@@ -22,6 +23,7 @@ interface TestimonialProps {
   date?: string;
   rating?: number;
   delay: number;
+  reviewUrl?: string;
 }
 
 // Fallback testimonials in case API fails
@@ -52,22 +54,19 @@ const fallbackTestimonials: TestimonialProps[] = [
   }
 ];
 
-function Testimonial({ quote, author, role, image, date, rating = 5, delay }: TestimonialProps) {
+function Testimonial({ quote, author, role, image, date, rating = 5, delay, reviewUrl }: TestimonialProps) {
   const [ref, inView] = useInView({
     triggerOnce: false,
     threshold: 0.1,
   });
   
-  const [isExpanded, setIsExpanded] = useState(false);
-  const fullText = quote;
-  
   // Create shortened version of the quote if it's longer than 120 characters
-  const shortenedText = fullText && fullText.length > 120 
-    ? `${fullText.substring(0, 120)}...` 
-    : fullText;
+  const shortenedText = quote && quote.length > 120 
+    ? `${quote.substring(0, 120)}...` 
+    : quote;
   
-  const displayText = isExpanded ? fullText : shortenedText;
-  const needsReadMore = fullText && fullText.length > 120;
+  // Default URL if none provided
+  const defaultReviewUrl = "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COAA";
 
   return (
     <motion.div 
@@ -91,17 +90,19 @@ function Testimonial({ quote, author, role, image, date, rating = 5, delay }: Te
       </div>
       <div className="mb-4 sm:mb-6 flex-grow">
         <p className="text-gray-600 italic text-sm sm:text-base">
-          "{displayText}"
+          "{shortenedText}"
         </p>
-        {needsReadMore && (
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="text-accent text-xs sm:text-sm font-medium mt-2 hover:underline focus:outline-none focus:ring-2 focus:ring-accent rounded"
-            aria-expanded={isExpanded}
-          >
-            {isExpanded ? 'Read less' : 'Read more'}
-          </button>
-        )}
+        <a 
+          href={reviewUrl || defaultReviewUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-accent text-xs sm:text-sm font-medium mt-2 inline-flex items-center hover:underline focus:outline-none focus:ring-2 focus:ring-accent rounded"
+        >
+          Read more reviews
+          <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
       </div>
       <div className="flex items-center mt-auto">
         {image ? (
@@ -152,6 +153,7 @@ export default function TestimonialsSection() {
         rating: review.rating,
         role: undefined,
         image: undefined,
+        reviewUrl: review.reviewUrl,
         delay: index * 0.1
       }))
     : fallbackTestimonials;
