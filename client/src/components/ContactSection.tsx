@@ -47,11 +47,12 @@ export default function ContactSection() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<typeof contactFormSchema._type>({
-    resolver: zodResolver(contactFormSchema.omit({ nurseryLocation: true })),
+    resolver: zodResolver(contactFormSchema),
     defaultValues: {
       name: "",
       email: "",
       phone: "",
+      nurseryLocation: "general",
       message: ""
     }
   });
@@ -59,13 +60,7 @@ export default function ContactSection() {
   const onSubmit = async (data: typeof contactFormSchema._type) => {
     setIsSubmitting(true);
     try {
-      // Modified to submit without nurseryLocation since it's not in the new design
-      const formData = {
-        ...data,
-        nurseryLocation: "general" // Default value for backend compatibility
-      };
-      
-      const response = await apiRequest("POST", "/api/contact", formData);
+      const response = await apiRequest("POST", "/api/contact", data);
       
       if (response.emailSent) {
         toast({

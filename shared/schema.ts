@@ -23,7 +23,7 @@ export const users = pgTable("users", {
 });
 
 // Nursery locations enum
-export const nurseryLocationsEnum = pgEnum('nursery_location', ['hayes', 'uxbridge', 'hounslow']);
+export const nurseryLocationsEnum = pgEnum('nursery_location', ['hayes', 'uxbridge', 'hounslow', 'general']);
 
 // Nursery schema for locations
 export const nurseries = pgTable("nurseries", {
@@ -116,9 +116,9 @@ export const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
   phone: z.string().optional(),
-  nurseryLocation: z.enum(['hayes', 'uxbridge', 'hounslow'], { 
+  nurseryLocation: z.enum(['hayes', 'uxbridge', 'hounslow', 'general'], { 
     required_error: "Please select a nursery location" 
-  }),
+  }).default('general'),
   message: z.string().min(10, { message: "Message must be at least 10 characters" })
 });
 
