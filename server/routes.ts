@@ -1262,8 +1262,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // API endpoint to view all contact form submissions
-  app.get("/api/contact-submissions", async (req: Request, res: Response) => {
+  // API endpoint to view all contact form submissions (protected)
+  app.get("/api/contact-submissions", authenticateUser, async (req: Request, res: Response) => {
     try {
       const contactSubmissions = await storage.getContactSubmissions();
       res.json({ success: true, data: contactSubmissions });
