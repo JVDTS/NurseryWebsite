@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   LayoutDashboard, LogOut, Users, Newspaper, Image, 
   Settings, ChevronDown, Menu, X, 
-  Home as HomeIcon
+  Home as HomeIcon, Mail, Calendar
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -111,6 +111,22 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
         : `/admin/nurseries/${user?.nurseryId}/newsletters`,
       icon: Newspaper,
       active: location.includes('/newsletters'),
+      show: true,
+    },
+    {
+      name: 'Events',
+      href: user?.role === 'super_admin' 
+        ? '/admin/events' 
+        : `/admin/nurseries/${user?.nurseryId}/events`,
+      icon: Calendar,
+      active: location.includes('/events'),
+      show: true,
+    },
+    {
+      name: 'Contact Messages',
+      href: '/admin/contact-submissions',
+      icon: Mail,
+      active: location.includes('/contact-submissions'),
       show: true,
     },
     {
