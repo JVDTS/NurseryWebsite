@@ -108,7 +108,7 @@ export default function ContactSection() {
           >
             <div className="relative z-10">
               <img 
-                src="/uploads/child-with-megaphone.png" 
+                src="/uploads/child-with-megaphone-transparent.png" 
                 alt="Child with megaphone" 
                 className="max-w-full"
               />
