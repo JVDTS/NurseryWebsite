@@ -5,6 +5,7 @@ import MissionSection from "@/components/MissionSection";
 import NurseriesSection from "@/components/NurseriesSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import GallerySection from "@/components/GallerySection";
+import ParallaxSection from "@/components/ParallaxSection";
 import FAQSection from "@/components/FAQSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
@@ -16,6 +17,7 @@ export default function Home() {
       <HeroSection />
       <AboutSection />
       <MissionSection />
+      <ParallaxSection />
       <NurseriesSection />
       <TestimonialsSection />
       <GallerySection />
