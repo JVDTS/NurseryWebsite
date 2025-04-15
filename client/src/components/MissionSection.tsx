@@ -2,14 +2,89 @@ import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { 
   Brain, 
-  Heart, 
-  Star,
-  Users,
-  Clock,
-  Award, 
-  CheckCircle
+  Leaf, 
+  BookOpen, 
+  Users, 
+  TrendingUp, 
+  Clock, 
+  Users2, 
+  Award 
 } from "lucide-react";
-import { fadeUp, fadeLeft, fadeRight } from "@/lib/animations";
+import { fadeUp } from "@/lib/animations";
+
+interface FeatureCardProps {
+  icon: React.ReactNode;
+  color: string;
+  colorLight: string;
+  title: string;
+  description: string;
+  delay: number;
+}
+
+function FeatureCard({ icon, color, colorLight, title, description, delay }: FeatureCardProps) {
+  const [ref, inView] = useInView({
+    triggerOnce: false,
+    threshold: 0.1,
+  });
+
+  return (
+    <motion.div 
+      className="bg-white rounded-xl shadow-md p-6 card-hover"
+      ref={ref}
+      initial="hidden"
+      animate={inView ? "visible" : "hidden"}
+      variants={fadeUp}
+      custom={delay}
+    >
+      <div className={`w-16 h-16 ${colorLight} rounded-full flex items-center justify-center mb-6`}>
+        <div className={color}>{icon}</div>
+      </div>
+      <h3 className="font-heading font-bold text-xl mb-3">{title}</h3>
+      <p className="text-gray-600">
+        {description}
+      </p>
+      <motion.a 
+        href="#" 
+        className={`inline-block mt-4 font-heading font-semibold ${color} flex items-center`}
+        whileHover={{ x: 5 }}
+      >
+        Learn more
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+        </svg>
+      </motion.a>
+    </motion.div>
+  );
+}
+
+interface StatCardProps {
+  color: string;
+  colorLight: string;
+  value: string;
+  label: string;
+  delay: number;
+}
+
+function StatCard({ color, colorLight, value, label, delay }: StatCardProps) {
+  const [ref, inView] = useInView({
+    triggerOnce: false,
+    threshold: 0.1,
+  });
+
+  return (
+    <motion.div 
+      className={`${colorLight} rounded-xl p-6 text-center`}
+      ref={ref}
+      initial="hidden"
+      animate={inView ? "visible" : "hidden"}
+      variants={fadeUp}
+      custom={delay}
+    >
+      <h4 className="font-heading font-bold text-4xl text-gray-900 mb-2">{value}</h4>
+      <p className="font-heading font-medium">{label}</p>
+    </motion.div>
+  );
+}
 
 export default function MissionSection() {
   const [ref, inView] = useInView({
@@ -17,161 +92,121 @@ export default function MissionSection() {
     threshold: 0.1,
   });
 
-  const values = [
+  const features = [
     {
-      title: "Creativity",
-      description: "We encourage children to explore, experiment, and express themselves through art, music, and play.",
-      icon: <Star className="h-6 w-6" />,
-      color: "#FFBD59",
+      icon: <Brain className="text-3xl" />,
+      color: "text-primary",
+      colorLight: "bg-primary bg-opacity-20",
+      title: "Emotional Intelligence",
+      description: "We nurture children's emotional growth, helping them understand and express feelings in healthy ways.",
       delay: 0.1
     },
     {
-      title: "Compassion",
-      description: "We foster empathy and kindness, teaching children to care for themselves, others, and the world around them.",
-      icon: <Heart className="h-6 w-6" />,
-      color: "#FF7D30",
+      icon: <Leaf className="text-3xl" />,
+      color: "text-secondary",
+      colorLight: "bg-secondary bg-opacity-20",
+      title: "Nature Connection",
+      description: "Our outdoor curriculum gives children daily opportunities to explore and connect with the natural world.",
       delay: 0.2
     },
     {
-      title: "Curiosity",
-      description: "We nurture inquisitive minds by creating an environment that promotes discovery and a love of learning.",
-      icon: <Brain className="h-6 w-6" />,
-      color: "#4AADA5",
+      icon: <BookOpen className="text-3xl" />,
+      color: "text-accent",
+      colorLight: "bg-accent bg-opacity-20",
+      title: "Personalized Learning",
+      description: "We tailor activities to each child's interests, learning style and developmental needs.",
       delay: 0.3
     },
     {
-      title: "Community",
-      description: "We build strong relationships between children, families, educators, and our local community.",
-      icon: <Users className="h-6 w-6" />,
-      color: "#FF5757",
+      icon: <Users className="text-3xl" />,
+      color: "text-purple-800",
+      colorLight: "bg-purple-800 bg-opacity-20",
+      title: "Community Focus",
+      description: "We believe in partnership with families and our local community to provide the best care possible.",
       delay: 0.4
     }
   ];
 
   const stats = [
     {
+      color: "text-primary",
+      colorLight: "bg-primary bg-opacity-10",
       value: "96%",
       label: "Parent Satisfaction",
-      icon: <CheckCircle />,
-      color: "#FF7D30"
+      delay: 0.1
     },
     {
+      color: "text-secondary",
+      colorLight: "bg-secondary bg-opacity-10",
       value: "15+",
       label: "Years Experience",
-      icon: <Clock />,
-      color: "#4AADA5"
+      delay: 0.2
     },
     {
+      color: "text-accent",
+      colorLight: "bg-accent bg-opacity-10",
       value: "3:1",
       label: "Child-Teacher Ratio",
-      icon: <Users />,
-      color: "#FFBD59"
+      delay: 0.3
     },
     {
+      color: "text-purple-800",
+      colorLight: "bg-purple-800 bg-opacity-10",
       value: "250+",
       label: "Happy Children",
-      icon: <Award />,
-      color: "#FF5757"
+      delay: 0.4
     }
   ];
 
   return (
-    <section id="mission" className="py-24 bg-[#FFF6E9] relative">
-      {/* Decorative Elements */}
-      <div className="absolute top-20 left-10 w-16 h-16 bg-[#FF5757] rounded-full opacity-10 animate-float-slow"></div>
-      <div className="absolute bottom-40 right-20 w-20 h-20 bg-[#FFBD59] rounded-full opacity-10 animate-float"></div>
-      
+    <section id="mission" className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col lg:flex-row items-center gap-16">
-          {/* Left Column - Mission Statement */}
-          <motion.div 
-            className="lg:w-1/2"
-            initial="hidden"
-            animate={inView ? "visible" : "hidden"}
-            variants={fadeLeft}
-            ref={ref}
-          >
-            <span className="inline-block px-4 py-1 bg-[#FFBD59] text-[#B25F00] font-medium text-sm rounded-full mb-4">Our Mission</span>
-            
-            <h2 className="font-heading font-bold text-3xl md:text-4xl lg:text-5xl mb-6 leading-tight">
-              Nurturing <span className="text-[#FF7D30]">Happy</span>, <span className="text-[#4AADA5]">Healthy</span> & <span className="text-[#FF5757]">Curious</span> Children
-            </h2>
-            
-            <p className="text-gray-700 mb-8 text-lg">
-              At Coat of Many Colours Nursery, our mission is to provide a safe, nurturing environment where children can develop emotionally, socially, and intellectually. We believe every child is unique and deserves an individualized approach to learning.
-            </p>
-            
-            <p className="text-gray-700 mb-8 text-lg">
-              Through play-based learning, creative expression, and meaningful relationships, we help children build a strong foundation for lifelong learning and wellbeing.
-            </p>
-            
-            <div className="grid grid-cols-2 gap-6">
-              {stats.map((stat, index) => (
-                <motion.div 
-                  key={index}
-                  className="flex items-center gap-4"
-                  initial="hidden"
-                  animate={inView ? "visible" : "hidden"}
-                  variants={fadeUp}
-                  custom={index * 0.1}
-                >
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{backgroundColor: `${stat.color}20`}}>
-                    <div className="text-lg" style={{color: stat.color}}>{stat.icon}</div>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-2xl" style={{color: stat.color}}>{stat.value}</h4>
-                    <p className="text-sm text-gray-600">{stat.label}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+        <motion.div 
+          className="max-w-4xl mx-auto text-center mb-16"
+          ref={ref}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+          variants={fadeUp}
+        >
+          <div className="mb-4">
+            <span className="inline-block px-4 py-1 bg-primary bg-opacity-20 text-primary font-heading font-semibold text-sm uppercase rounded-full">Our Mission</span>
+          </div>
           
-          {/* Right Column - Values */}
-          <motion.div 
-            className="lg:w-1/2"
-            initial="hidden"
-            animate={inView ? "visible" : "hidden"}
-            variants={fadeRight}
-          >
-            <div className="relative w-full p-8 rounded-3xl bg-white shadow-xl">
-              <span className="inline-block px-4 py-1 bg-[#93E2D0] text-[#4AADA5] font-medium text-sm rounded-full mb-4">Our Core Values</span>
-              
-              <div className="space-y-6">
-                {values.map((value, index) => (
-                  <motion.div 
-                    key={index} 
-                    className="flex gap-4 p-4 rounded-xl transition-all"
-                    initial="hidden"
-                    animate={inView ? "visible" : "hidden"}
-                    variants={fadeUp}
-                    custom={value.delay}
-                    whileHover={{backgroundColor: `${value.color}10`}}
-                  >
-                    <div className="w-12 h-12 shrink-0 rounded-full flex items-center justify-center" style={{backgroundColor: `${value.color}20`}}>
-                      <div style={{color: value.color}}>{value.icon}</div>
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-xl mb-2" style={{color: value.color}}>{value.title}</h3>
-                      <p className="text-gray-600">{value.description}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-              
-              {/* Decorative Element */}
-              <div className="absolute -top-6 -right-6 w-16 h-16 bg-[#FF7D30] rounded-full opacity-20"></div>
-              <div className="absolute -bottom-6 -left-6 w-16 h-16 bg-[#4AADA5] rounded-full opacity-20"></div>
-            </div>
-          </motion.div>
+          <h2 className="font-heading font-bold text-3xl md:text-4xl lg:text-5xl mb-6 leading-tight">
+            We focus on children's mental and physical health in the early years
+          </h2>
+          
+          <p className="text-gray-600 text-lg">
+            Four key factors set us apart from other nurseries. Our holistic approach ensures children thrive in all aspects of development.
+          </p>
+        </motion.div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {features.map((feature, index) => (
+            <FeatureCard
+              key={index}
+              icon={feature.icon}
+              color={feature.color}
+              colorLight={feature.colorLight}
+              title={feature.title}
+              description={feature.description}
+              delay={feature.delay}
+            />
+          ))}
         </div>
-      </div>
-      
-      {/* Wave Separator */}
-      <div className="absolute bottom-0 left-0 w-full overflow-hidden">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="w-full h-auto">
-          <path fill="#FFFFFF" fillOpacity="1" d="M0,160L48,170.7C96,181,192,203,288,202.7C384,203,480,181,576,181.3C672,181,768,203,864,218.7C960,235,1056,245,1152,229.3C1248,213,1344,171,1392,149.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-        </svg>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat, index) => (
+            <StatCard
+              key={index}
+              color={stat.color}
+              colorLight={stat.colorLight}
+              value={stat.value}
+              label={stat.label}
+              delay={stat.delay}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
