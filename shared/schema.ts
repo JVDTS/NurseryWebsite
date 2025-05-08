@@ -113,13 +113,33 @@ export type Newsletter = typeof newsletters.$inferSelect;
 
 // Contact form schema
 export const contactFormSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters" }),
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  phone: z.string().optional(),
+  name: z.string()
+    .min(2, { message: "Name must be at least 2 characters" })
+    .max(100, { message: "Name must be less than 100 characters" })
+    .regex(/^[a-zA-Z\s'-]+$/, { message: "Name can only contain letters, spaces, apostrophes, and hyphens" }),
+  
+  email: z.string()
+    .email({ message: "Please enter a valid email address" })
+    .min(5, { message: "Email must be at least 5 characters" })
+    .max(100, { message: "Email must be less than 100 characters" }),
+  
+  phone: z.string()
+    .regex(/^(\+\d{1,3})?[\s.-]?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/, { 
+      message: "Please enter a valid phone number" 
+    })
+    .optional()
+    .or(z.literal('')),
+  
   nurseryLocation: z.enum(['hayes', 'uxbridge', 'hounslow'], { 
     required_error: "Please select a nursery location" 
   }),
-  message: z.string().min(10, { message: "Message must be at least 10 characters" })
+  
+  message: z.string()
+    .min(10, { message: "Message must be at least 10 characters" })
+    .max(1000, { message: "Message must be less than 1000 characters" })
+    .refine(msg => !msg.includes("<script>"), {
+      message: "Message cannot contain script tags"
+    })
 });
 
 export const contactSubmissions = pgTable("contact_submissions", {
