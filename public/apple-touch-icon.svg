@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="180px" height="180px" viewBox="0 0 180 180" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <title>Little Blossoms Nursery</title>
+  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <rect fill="#FF9090" x="0" y="0" width="180" height="180" rx="45"></rect>
+    <circle fill="#FFFFFF" cx="90" cy="90" r="50"></circle>
+    <circle fill="#FF5252" cx="90" cy="90" r="25"></circle>
+    <circle fill="#FFEA00" cx="57" cy="57" r="18"></circle>
+    <circle fill="#FFEA00" cx="123" cy="57" r="18"></circle>
+    <circle fill="#FFEA00" cx="57" cy="123" r="18"></circle>
+    <circle fill="#FFEA00" cx="123" cy="123" r="18"></circle>
+    <circle fill="#FFEA00" cx="40" cy="90" r="18"></circle>
+    <circle fill="#FFEA00" cx="140" cy="90" r="18"></circle>
+  </g>
+</svg>
