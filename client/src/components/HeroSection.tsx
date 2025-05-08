@@ -10,16 +10,22 @@ export default function HeroSection() {
   });
 
   return (
-    <section id="home" className="pt-24 pb-16 min-h-screen flex flex-col justify-center relative overflow-hidden">
+    <section 
+      id="home" 
+      className="pt-24 pb-16 min-h-screen flex flex-col justify-center relative overflow-hidden"
+      aria-labelledby="hero-heading"
+    >
       {/* Video Background */}
       <div className="absolute inset-0 w-full h-full overflow-hidden z-0">
-        <div className="absolute inset-0 bg-black opacity-40 z-10"></div> {/* Overlay to darken video and improve text visibility */}
+        <div className="absolute inset-0 bg-black opacity-40 z-10" aria-hidden="true"></div> {/* Overlay to darken video and improve text visibility */}
         <video 
           autoPlay 
           loop 
           muted 
           playsInline
           className="absolute w-full h-full object-cover"
+          aria-hidden="true"
+          poster="/videos/nursery-poster.jpg"
         >
           <source src="/videos/nursery-background.mp4" type="video/mp4" />
           Your browser does not support the video tag.
@@ -35,11 +41,14 @@ export default function HeroSection() {
             animate={inView ? "visible" : "hidden"}
             variants={fadeUp}
           >
-            <h1 className="font-heading font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-6 leading-tight text-white">
+            <h1 
+              id="hero-heading" 
+              className="font-heading font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-6 leading-tight text-white"
+            >
               Welcome to 
-              <div className="mt-2 bg-clip-text text-transparent bg-gradient-to-r from-rainbow-red via-rainbow-yellow to-rainbow-violet">
-                Coat of Many Colours Nursery
-              </div>
+              <span className="block mt-2 bg-clip-text text-transparent bg-gradient-to-r from-rainbow-red via-rainbow-yellow to-rainbow-violet">
+                Little Blossoms Nursery
+              </span>
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-white mb-8 max-w-2xl">
               A vibrant place for children to learn, explore, and grow in a nurturing environment.
@@ -50,6 +59,7 @@ export default function HeroSection() {
                 variant="primary"
                 size="lg" 
                 className="text-sm sm:text-base py-2 px-4 sm:py-3 sm:px-6 bg-gradient-to-r from-rainbow-blue to-rainbow-indigo text-white hover:shadow-lg transition-all"
+                aria-label="Learn more about our nursery"
               >
                 Discover More
               </AnimatedButton>
@@ -58,6 +68,7 @@ export default function HeroSection() {
                 variant="outline" 
                 size="lg" 
                 className="text-sm sm:text-base py-2 px-4 sm:py-3 sm:px-6 border-rainbow-pink text-rainbow-pink hover:bg-rainbow-pink/10"
+                aria-label="Book a visit to our nursery"
               >
                 Book a Visit
               </AnimatedButton>
