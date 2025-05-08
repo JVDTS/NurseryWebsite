@@ -207,8 +207,8 @@ export class MemStorage implements IStorage {
   private initializeAdminUsers() {
     // Super admin
     const superAdmin: InsertUser = {
-      username: "superadmin",
-      password: "superadmin123", // In a real app, this would be hashed
+      username: "admin",
+      password: "admin123", // In a real app, this would be hashed
       firstName: "Super",
       lastName: "Admin",
       email: "admin@cmcnursery.co.uk",
@@ -218,8 +218,8 @@ export class MemStorage implements IStorage {
     
     // Nursery admins - one for each location
     const hayesAdmin: InsertUser = {
-      username: "hayesadmin",
-      password: "hayesadmin123", // In a real app, this would be hashed
+      username: "hayes_admin",
+      password: "password123", // In a real app, this would be hashed
       firstName: "Hayes",
       lastName: "Manager",
       email: "hayes.manager@cmcnursery.co.uk",
@@ -228,8 +228,8 @@ export class MemStorage implements IStorage {
     };
     
     const uxbridgeAdmin: InsertUser = {
-      username: "uxbridgeadmin",
-      password: "uxbridgeadmin123", // In a real app, this would be hashed
+      username: "uxbridge_admin",
+      password: "password123", // In a real app, this would be hashed
       firstName: "Uxbridge",
       lastName: "Manager",
       email: "uxbridge.manager@cmcnursery.co.uk",
@@ -238,8 +238,8 @@ export class MemStorage implements IStorage {
     };
     
     const hounslowAdmin: InsertUser = {
-      username: "hounslowadmin",
-      password: "hounslowadmin123", // In a real app, this would be hashed
+      username: "hounslow_admin",
+      password: "password123", // In a real app, this would be hashed
       firstName: "Hounslow",
       lastName: "Manager",
       email: "hounslow.manager@cmcnursery.co.uk",

@@ -204,24 +204,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Login route
   app.post("/api/admin/login", async (req: Request, res: Response) => {
     try {
+      // Log the request for debugging purposes
+      console.log("Login attempt for username:", req.body.username);
+      
       const { username, password } = loginSchema.parse(req.body);
       
       const user = await storage.getUserByUsername(username);
       if (!user) {
+        console.log(`Login failed: User not found - ${username}`);
         return res.status(401).json({
           success: false,
           message: "Invalid username or password"
         });
       }
       
+      console.log(`User found: ${user.username}, attempting password comparison`);
+      
       // Use bcrypt to compare passwords
       const passwordMatch = await comparePassword(password, user.password);
       if (!passwordMatch) {
+        console.log(`Login failed: Password mismatch for user ${username}`);
         return res.status(401).json({
           success: false,
           message: "Invalid username or password"
         });
       }
+      
+      console.log(`Password match successful for ${username}`);
       
       // Set user session
       req.session.userId = user.id;
@@ -230,6 +239,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Return user info (without password)
       const { password: _, ...userWithoutPassword } = user;
+      
+      console.log(`Login successful for ${username}, role: ${user.role}`);
+      
       res.status(200).json({
         success: true,
         message: "Login successful",
@@ -239,6 +251,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       if (error instanceof ZodError) {
         const validationError = fromZodError(error);
+        console.log("Validation error during login:", validationError.message);
         res.status(400).json({
           success: false,
           message: "Validation error",
