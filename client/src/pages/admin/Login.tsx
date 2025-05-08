@@ -189,9 +189,11 @@ export default function AdminLogin() {
           
           <CardFooter className="text-center text-sm text-gray-600">
             <div className="w-full">
-              <p>Test accounts:</p>
-              <p>Super Admin: superadmin / superadmin123</p>
-              <p>Hayes Admin: hayesadmin / hayesadmin123</p>
+              <p>Admin accounts:</p>
+              <p>Super Admin: admin / admin123</p>
+              <p>Hayes Admin: hayes_admin / password123</p>
+              <p>Uxbridge Admin: uxbridge_admin / password123</p>
+              <p>Hounslow Admin: hounslow_admin / password123</p>
             </div>
           </CardFooter>
         </Card>

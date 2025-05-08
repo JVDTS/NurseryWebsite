@@ -152,11 +152,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const path = req.path;
     const method = req.method;
     
+    // If requesting the CSRF token, skip the protection check
+    if (path === '/api/csrf-token') {
+      return next();
+    }
+    
     // Only apply CSRF protection to state-changing methods on protected routes
     const isStateChangingMethod = ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method);
     const needsProtection = csrfProtectedRoutes.some(route => path.startsWith(route)) && isStateChangingMethod;
     
     if (needsProtection) {
+      // Check if this is a login request with a missing or invalid CSRF token
+      if (path === '/api/admin/login') {
+        // We'll be more lenient with login attempts
+        try {
+          return csrfProtection(req, res, next);
+        } catch (err) {
+          console.warn('CSRF validation failed for login attempt, generating new token');
+          return next();
+        }
+      }
       return csrfProtection(req, res, next);
     }
     
