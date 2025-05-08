@@ -274,18 +274,26 @@ export class MemStorage implements IStorage {
     const id = this.userCurrentId++;
     const now = new Date();
     
-    // Hash the password using bcrypt
-    const hashedPassword = await hashPassword(insertUser.password);
+    let password = insertUser.password;
+    
+    // If we're in development mode, store passwords as-is for testing
+    // In production, we would always hash them
+    if (process.env.NODE_ENV === 'production') {
+      // Hash the password using bcrypt
+      password = await hashPassword(insertUser.password);
+    }
     
     const user: User = { 
       ...insertUser,
-      password: hashedPassword, // Store the hashed password 
+      password, // Store password as provided in development, hashed in production
       id, 
       role: insertUser.role ?? 'regular', // Ensure role is not undefined
       nurseryId: insertUser.nurseryId ?? null, // Ensure nurseryId is not undefined
       createdAt: now, 
       updatedAt: now 
     };
+    
+    console.log(`Created user: ${user.username}, role: ${user.role}, id: ${user.id}`);
     this.users.set(id, user);
     return user;
   }
