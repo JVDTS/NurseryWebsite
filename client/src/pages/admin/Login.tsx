@@ -90,13 +90,9 @@ export default function AdminLogin() {
       
       // Use the token for login (or a dummy if none available)
       console.log('Attempting login with username:', data.username);
-      const success = await login(data.username, data.password, token);
       
-      if (success) {
-        console.log('Login successful, redirecting to dashboard');
-        // Use router's setLocation for proper redirect
-        setLocation('/admin/dashboard');
-      }
+      // The login function will handle redirection
+      await login(data.username, data.password, token);
     } catch (error) {
       console.error('Login error:', error);
       toast({
