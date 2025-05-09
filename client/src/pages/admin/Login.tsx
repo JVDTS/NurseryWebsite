@@ -24,7 +24,7 @@ export default function AdminLogin() {
   const { login, isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [csrfToken, setCsrfToken] = useState<string | null>(null);
+  const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
   const [tokenLoading, setTokenLoading] = useState(true);
   const { toast } = useToast();
 
@@ -94,7 +94,8 @@ export default function AdminLogin() {
       
       if (success) {
         console.log('Login successful, redirecting to dashboard');
-        setLocation('/admin/dashboard');
+        // Force a hard redirect instead of using the router
+        window.location.href = '/admin/dashboard';
       }
     } catch (error) {
       console.error('Login error:', error);

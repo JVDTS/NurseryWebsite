@@ -137,7 +137,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           // Import dynamically to avoid circular dependencies
           const { fetchCsrfToken } = await import('@/lib/csrf');
-          tokenToUse = await fetchCsrfToken();
+          const token = await fetchCsrfToken();
+          tokenToUse = token || undefined; // Convert null to undefined
         } catch (tokenError) {
           console.error('Failed to fetch CSRF token for logout:', tokenError);
         }
