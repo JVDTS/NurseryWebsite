@@ -108,6 +108,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
         
         console.log('Login succeeded! User:', data.user);
+        
+        // Immediately redirect to dashboard
+        window.location.href = '/admin/dashboard';
         return true;
       } else {
         // Clear the user
