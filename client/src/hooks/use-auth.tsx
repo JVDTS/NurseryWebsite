@@ -97,20 +97,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       const data = await response.json();
       
-      if (data.success && data.user) {
+      if (response.ok && data.success && data.user) {
+        // Set the user in state
         setUser(data.user);
+        
+        // Display a success message
         toast({
           title: 'Login Successful',
-          description: `Welcome back, ${data.user.firstName}!`,
+          description: `Welcome back, ${data.user.firstName || data.user.username}!`,
         });
+        
+        console.log('Login succeeded! User:', data.user);
         return true;
       } else {
+        // Clear the user
         setUser(null);
+        
+        // Display an error message
         toast({
           title: 'Login Failed',
           description: data.message || 'Invalid username or password',
           variant: 'destructive',
         });
+        
+        console.error('Login failed:', data);
         return false;
       }
     } catch (error) {
