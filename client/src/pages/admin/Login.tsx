@@ -94,21 +94,8 @@ export default function AdminLogin() {
       
       if (success) {
         console.log('Login successful, redirecting to dashboard');
-        // Try multiple ways to redirect to the dashboard
-        try {
-          // Method 1: Force a complete page reload and replace
-          window.location.replace('/admin/dashboard');
-          
-          // Method 2: After a small delay, try another approach as backup
-          setTimeout(() => {
-            console.log('Fallback redirect attempt');
-            window.location.href = '/admin/dashboard';
-          }, 500);
-        } catch (redirectError) {
-          console.error('Redirect error:', redirectError);
-          // Method 3: Last resort
-          window.location.pathname = '/admin/dashboard';
-        }
+        // Use router's setLocation for proper redirect
+        setLocation('/admin/dashboard');
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -200,34 +187,12 @@ export default function AdminLogin() {
           </CardContent>
           
           <CardFooter className="text-center text-sm text-gray-600">
-            <div className="w-full space-y-2">
-              <div>
-                <p>Admin accounts:</p>
-                <p>Super Admin: admin / admin123</p>
-                <p>Hayes Admin: hayes_admin / password123</p>
-                <p>Uxbridge Admin: uxbridge_admin / password123</p>
-                <p>Hounslow Admin: hounslow_admin / password123</p>
-              </div>
-              
-              <div className="pt-2 border-t border-gray-200">
-                <p className="font-medium">If login redirect doesn't work:</p>
-                <a 
-                  href="/admin/dashboard" 
-                  className="text-primary hover:underline"
-                  onClick={(e) => {
-                    if (!isAuthenticated) {
-                      e.preventDefault();
-                      toast({
-                        title: "Authentication Required",
-                        description: "Please log in first",
-                        variant: "destructive"
-                      });
-                    }
-                  }}
-                >
-                  Click here to go to dashboard
-                </a>
-              </div>
+            <div className="w-full">
+              <p>Admin accounts:</p>
+              <p>Super Admin: admin / admin123</p>
+              <p>Hayes Admin: hayes_admin / password123</p>
+              <p>Uxbridge Admin: uxbridge_admin / password123</p>
+              <p>Hounslow Admin: hounslow_admin / password123</p>
             </div>
           </CardFooter>
         </Card>

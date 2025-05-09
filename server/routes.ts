@@ -23,12 +23,22 @@ declare module 'express-session' {
 
 // Authentication middleware
 const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
+  console.log('Authentication check - Session info:', {
+    sessionID: req.sessionID,
+    userId: req.session.userId,
+    userRole: req.session.userRole,
+    nurseryId: req.session.nurseryId
+  });
+  
   if (!req.session.userId) {
+    console.log('Authentication failed - No userId in session');
     return res.status(401).json({ 
       success: false, 
       message: "Authentication required" 
     });
   }
+  
+  console.log('Authentication successful for user:', req.session.userId);
   next();
 };
 
@@ -203,15 +213,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.session.userRole = user.role;
       req.session.nurseryId = user.nurseryId;
       
-      // Return user info (without password)
-      const { password: _, ...userWithoutPassword } = user;
-      
-      console.log(`Login successful for ${username}, role: ${user.role}`);
-      
-      res.status(200).json({
-        success: true,
-        message: "Login successful",
-        user: userWithoutPassword
+      // Save the session before proceeding
+      req.session.save(err => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).json({
+            success: false,
+            message: "Failed to create session"
+          });
+        }
+        
+        // Return user info (without password)
+        const { password: _, ...userWithoutPassword } = user;
+        
+        console.log(`Login successful for ${username}, role: ${user.role}, session saved`);
+        
+        res.status(200).json({
+          success: true,
+          message: "Login successful",
+          user: userWithoutPassword
+        });
       });
       
     } catch (error) {
