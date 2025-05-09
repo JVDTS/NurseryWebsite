@@ -1,7 +1,7 @@
 // CSRF token management utility
 
 // Function to fetch a CSRF token from the server
-export async function fetchCsrfToken(): Promise<string> {
+export async function fetchCsrfToken(): Promise<string | null> {
   try {
     // Add a cache-busting parameter to prevent caching
     const timestamp = Date.now();
@@ -15,19 +15,24 @@ export async function fetchCsrfToken(): Promise<string> {
     });
     
     if (!response.ok) {
-      throw new Error(`Failed to fetch CSRF token: ${response.statusText}`);
+      console.warn(`Failed to fetch CSRF token: ${response.statusText}`);
+      // Return null instead of throwing
+      return null;
     }
     
     const data = await response.json();
     if (!data.csrfToken) {
-      throw new Error('CSRF token not found in response');
+      console.warn('CSRF token not found in response');
+      // Return null instead of throwing
+      return null;
     }
     
     console.log('Fresh CSRF token fetched successfully');
     return data.csrfToken;
   } catch (error) {
     console.error('Error fetching CSRF token:', error);
-    throw error;
+    // Return null instead of throwing
+    return null;
   }
 }
 
