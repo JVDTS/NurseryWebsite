@@ -23,22 +23,12 @@ declare module 'express-session' {
 
 // Authentication middleware
 const authenticateUser = (req: Request, res: Response, next: NextFunction) => {
-  console.log('Authentication check - Session info:', {
-    sessionID: req.sessionID,
-    userId: req.session.userId,
-    userRole: req.session.userRole,
-    nurseryId: req.session.nurseryId
-  });
-  
   if (!req.session.userId) {
-    console.log('Authentication failed - No userId in session');
     return res.status(401).json({ 
       success: false, 
       message: "Authentication required" 
     });
   }
-  
-  console.log('Authentication successful for user:', req.session.userId);
   next();
 };
 
@@ -142,11 +132,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up session store for storage
   storage.sessionStore = sessionSettings.store;
   
-  // CSRF protection is temporarily disabled to resolve login issues
-  console.log('CSRF protection is disabled to fix login issues');
+  // Setup CSRF protection
+  const csrfProtection = csrf({ cookie: false });
   
-  // Add a dummy CSRF token endpoint to avoid client-side errors
-  app.get('/api/csrf-token', (req, res) => {
+  // Apply CSRF protection to state-changing routes
+  // Create a list of routes that should be protected by CSRF
+  const csrfProtectedRoutes = [
+    '/api/admin/login',
+    '/api/admin/logout',
+    '/api/admin/nurseries',
+    '/api/admin/events',
+    '/api/admin/gallery',
+    '/api/admin/newsletters',
+    '/api/contact'
+  ];
+  
+  // Apply CSRF middleware to routes that modify state
+  app.use((req, res, next) => {
+    const path = req.path;
+    const method = req.method;
+    
+    // Only apply CSRF protection to state-changing methods on protected routes
+    const isStateChangingMethod = ['POST', 'PUT', 'DELETE', 'PATCH'].includes(method);
+    const needsProtection = csrfProtectedRoutes.some(route => path.startsWith(route)) && isStateChangingMethod;
+    
+    if (needsProtection) {
+      return csrfProtection(req, res, next);
+    }
+    
+    next();
+  });
+  
+  // Add a route to get a CSRF token
+  app.get('/api/csrf-token', csrfProtection, (req, res) => {
     // Set cache control headers to prevent caching
     res.set({
       'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -155,9 +173,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       'Surrogate-Control': 'no-store'
     });
     
-    // Return a dummy token
-    console.log('Returning dummy CSRF token (CSRF protection disabled)');
-    res.json({ csrfToken: 'dummy-token-csrf-disabled' });
+    // Generate a fresh token
+    const token = req.csrfToken();
+    console.log('Generated new CSRF token');
+    
+    res.json({ csrfToken: token });
   });
   
   // Auth login schema
@@ -169,76 +189,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Login route
   app.post("/api/admin/login", async (req: Request, res: Response) => {
     try {
-      // Log the request for debugging purposes
-      console.log("Login attempt for username:", req.body.username);
-      
       const { username, password } = loginSchema.parse(req.body);
       
       const user = await storage.getUserByUsername(username);
       if (!user) {
-        console.log(`Login failed: User not found - ${username}`);
         return res.status(401).json({
           success: false,
           message: "Invalid username or password"
         });
       }
       
-      console.log(`User found: ${user.username}, attempting password comparison`);
-      
-      let passwordMatch = false;
-      
-      // In development mode, we'll do a direct comparison for testing purposes
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('Development mode: direct password comparison');
-        // In development, direct comparison for easier testing
-        passwordMatch = (password === user.password);
-        console.log(`Direct password comparison result: ${passwordMatch}`);
-      } else {
-        // In production, use bcrypt
-        passwordMatch = await comparePassword(password, user.password);
-      }
-      
+      // Use bcrypt to compare passwords
+      const passwordMatch = await comparePassword(password, user.password);
       if (!passwordMatch) {
-        console.log(`Login failed: Password mismatch for user ${username}`);
         return res.status(401).json({
           success: false,
           message: "Invalid username or password"
         });
       }
-      
-      console.log(`Password match successful for ${username}`);
       
       // Set user session
       req.session.userId = user.id;
       req.session.userRole = user.role;
       req.session.nurseryId = user.nurseryId;
       
-      // Save the session before proceeding
-      req.session.save(err => {
-        if (err) {
-          console.error('Session save error:', err);
-          return res.status(500).json({
-            success: false,
-            message: "Failed to create session"
-          });
-        }
-        
-        // Return user info (without password)
-        const { password: _, ...userWithoutPassword } = user;
-        
-        console.log(`Login successful for ${username}, role: ${user.role}, session saved`);
-        
-        res.status(200).json({
-          success: true,
-          message: "Login successful",
-          user: userWithoutPassword
-        });
+      // Return user info (without password)
+      const { password: _, ...userWithoutPassword } = user;
+      res.status(200).json({
+        success: true,
+        message: "Login successful",
+        user: userWithoutPassword
       });
       
     } catch (error) {
       if (error instanceof ZodError) {
         const validationError = fromZodError(error);
-        console.log("Validation error during login:", validationError.message);
         res.status(400).json({
           success: false,
           message: "Validation error",

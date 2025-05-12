@@ -207,8 +207,8 @@ export class MemStorage implements IStorage {
   private initializeAdminUsers() {
     // Super admin
     const superAdmin: InsertUser = {
-      username: "admin",
-      password: "admin123", // In a real app, this would be hashed
+      username: "superadmin",
+      password: "superadmin123", // In a real app, this would be hashed
       firstName: "Super",
       lastName: "Admin",
       email: "admin@cmcnursery.co.uk",
@@ -218,8 +218,8 @@ export class MemStorage implements IStorage {
     
     // Nursery admins - one for each location
     const hayesAdmin: InsertUser = {
-      username: "hayes_admin",
-      password: "password123", // In a real app, this would be hashed
+      username: "hayesadmin",
+      password: "hayesadmin123", // In a real app, this would be hashed
       firstName: "Hayes",
       lastName: "Manager",
       email: "hayes.manager@cmcnursery.co.uk",
@@ -228,8 +228,8 @@ export class MemStorage implements IStorage {
     };
     
     const uxbridgeAdmin: InsertUser = {
-      username: "uxbridge_admin",
-      password: "password123", // In a real app, this would be hashed
+      username: "uxbridgeadmin",
+      password: "uxbridgeadmin123", // In a real app, this would be hashed
       firstName: "Uxbridge",
       lastName: "Manager",
       email: "uxbridge.manager@cmcnursery.co.uk",
@@ -238,8 +238,8 @@ export class MemStorage implements IStorage {
     };
     
     const hounslowAdmin: InsertUser = {
-      username: "hounslow_admin",
-      password: "password123", // In a real app, this would be hashed
+      username: "hounslowadmin",
+      password: "hounslowadmin123", // In a real app, this would be hashed
       firstName: "Hounslow",
       lastName: "Manager",
       email: "hounslow.manager@cmcnursery.co.uk",
@@ -274,26 +274,18 @@ export class MemStorage implements IStorage {
     const id = this.userCurrentId++;
     const now = new Date();
     
-    let password = insertUser.password;
-    
-    // If we're in development mode, store passwords as-is for testing
-    // In production, we would always hash them
-    if (process.env.NODE_ENV === 'production') {
-      // Hash the password using bcrypt
-      password = await hashPassword(insertUser.password);
-    }
+    // Hash the password using bcrypt
+    const hashedPassword = await hashPassword(insertUser.password);
     
     const user: User = { 
       ...insertUser,
-      password, // Store password as provided in development, hashed in production
+      password: hashedPassword, // Store the hashed password 
       id, 
       role: insertUser.role ?? 'regular', // Ensure role is not undefined
       nurseryId: insertUser.nurseryId ?? null, // Ensure nurseryId is not undefined
       createdAt: now, 
       updatedAt: now 
     };
-    
-    console.log(`Created user: ${user.username}, role: ${user.role}, id: ${user.id}`);
     this.users.set(id, user);
     return user;
   }
