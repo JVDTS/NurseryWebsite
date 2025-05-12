@@ -4,7 +4,8 @@ import {
   nurseries, type Nursery, type InsertNursery,
   events, type Event, type InsertEvent,
   galleryImages, type GalleryImage, type InsertGalleryImage,
-  newsletters, type Newsletter, type InsertNewsletter
+  newsletters, type Newsletter, type InsertNewsletter,
+  adminActivities, type AdminActivity, type InsertActivity
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -54,6 +55,13 @@ export interface IStorage {
   // Contact methods
   createContactSubmission(contact: InsertContact): Promise<ContactSubmission>;
   getContactSubmissions(): Promise<ContactSubmission[]>;
+  
+  // Admin Activity methods
+  logActivity(activity: InsertActivity): Promise<AdminActivity>;
+  getActivitiesByUser(userId: number): Promise<AdminActivity[]>;
+  getActivitiesByNursery(nurseryId: number): Promise<AdminActivity[]>;
+  getRecentActivities(limit?: number): Promise<AdminActivity[]>;
+  getAllStaff(): Promise<User[]>;
 }
 
 // Import DbStorage if PostgreSQL database is configured
@@ -81,6 +89,7 @@ export class MemStorage implements IStorage {
   private galleryImages: Map<number, GalleryImage>;
   private newsletters: Map<number, Newsletter>;
   private contacts: Map<number, ContactSubmission>;
+  private activities: Map<number, AdminActivity>;
   
   private userCurrentId: number;
   private nurseryCurrentId: number;
@@ -88,6 +97,7 @@ export class MemStorage implements IStorage {
   private galleryImageCurrentId: number;
   private newsletterCurrentId: number;
   private contactCurrentId: number;
+  private activityCurrentId: number;
   
   // Add session store for authentication
   public sessionStore: any; // Using any type to avoid express-session typing issues
@@ -99,6 +109,7 @@ export class MemStorage implements IStorage {
     this.galleryImages = new Map();
     this.newsletters = new Map();
     this.contacts = new Map();
+    this.activities = new Map();
     
     this.userCurrentId = 1;
     this.nurseryCurrentId = 1;
@@ -106,6 +117,7 @@ export class MemStorage implements IStorage {
     this.galleryImageCurrentId = 1;
     this.newsletterCurrentId = 1;
     this.contactCurrentId = 1;
+    this.activityCurrentId = 1;
     
     // Initialize the session store
     const MemoryStore = createMemoryStore(session);
@@ -481,9 +493,13 @@ export class MemStorage implements IStorage {
   async createContactSubmission(contact: InsertContact): Promise<ContactSubmission> {
     const id = this.contactCurrentId++;
     const newContact: ContactSubmission = { 
-      ...contact, 
       id,
-      phone: contact.phone ?? null  // Ensure phone is not undefined
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone ?? null,
+      nurseryLocation: contact.nurseryLocation,
+      message: contact.message,
+      createdAt: new Date()
     };
     this.contacts.set(id, newContact);
     return newContact;
@@ -491,6 +507,42 @@ export class MemStorage implements IStorage {
 
   async getContactSubmissions(): Promise<ContactSubmission[]> {
     return Array.from(this.contacts.values());
+  }
+  
+  // Admin Activity methods
+  async logActivity(activity: InsertActivity): Promise<AdminActivity> {
+    const id = this.activityCurrentId++;
+    const newActivity: AdminActivity = {
+      id,
+      ...activity,
+      timestamp: new Date(),
+      ipAddress: activity.ipAddress || null
+    };
+    this.activities.set(id, newActivity);
+    return newActivity;
+  }
+  
+  async getActivitiesByUser(userId: number): Promise<AdminActivity[]> {
+    return Array.from(this.activities.values())
+      .filter(activity => activity.userId === userId)
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  }
+  
+  async getActivitiesByNursery(nurseryId: number): Promise<AdminActivity[]> {
+    return Array.from(this.activities.values())
+      .filter(activity => activity.nurseryId === nurseryId)
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  }
+  
+  async getRecentActivities(limit: number = 10): Promise<AdminActivity[]> {
+    return Array.from(this.activities.values())
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .slice(0, limit);
+  }
+  
+  async getAllStaff(): Promise<User[]> {
+    return Array.from(this.users.values())
+      .filter(user => user.role === 'super_admin' || user.role === 'nursery_admin' || user.role === 'staff');
   }
 
   // Initialize sample newsletters
