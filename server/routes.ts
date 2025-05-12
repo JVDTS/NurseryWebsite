@@ -198,7 +198,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add URLs to newsletters
       const newslettersWithUrls = newsletters.map(newsletter => ({
         ...newsletter,
-        url: getFileUrl(newsletter.filename)
+        url: getFileUrl(newsletter.pdfUrl || '')
       }));
       
       res.json({ success: true, newsletters: newslettersWithUrls });
@@ -218,7 +218,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Add URLs to newsletters
       const newslettersWithUrls = newsletters.map(newsletter => ({
         ...newsletter,
-        url: getFileUrl(newsletter.filename)
+        url: getFileUrl(newsletter.pdfUrl || '')
       }));
       
       res.json({ success: true, newsletters: newslettersWithUrls });
