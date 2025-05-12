@@ -7,7 +7,6 @@ import NurseryGallery from "@/components/nursery/NurseryGallery";
 import UpcomingEvents from "@/components/nursery/UpcomingEvents";
 import Newsletter from "@/components/nursery/Newsletter";
 import AnimatedElements from "@/components/nursery/AnimatedElements";
-import useSmoothScroll from "@/hooks/use-smooth-scroll";
 import { 
   Brain, 
   BookOpen, 
@@ -22,9 +21,6 @@ import { useQuery } from "@tanstack/react-query";
 
 export default function UxbridgeNursery() {
   const [events, setEvents] = useState<any[]>([]);
-  
-  // Apply smooth scrolling with different parameters for this theme
-  useSmoothScroll({ speed: 8, threshold: 80 });
   
   // Fetch events from the API
   const { data: eventsData, isLoading: eventsLoading } = useQuery({
