@@ -213,6 +213,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       req.session.userRole = user.role;
       req.session.nurseryId = user.nurseryId;
       
+      // Log login activity
+      await storage.logActivity({
+        userId: user.id,
+        nurseryId: user.nurseryId,
+        activityType: 'login',
+        description: `${user.firstName} ${user.lastName} logged in`,
+        ipAddress: req.ip
+      });
+      
       // Return user info (without password)
       const { password: _, ...userWithoutPassword } = user;
       res.status(200).json({
@@ -240,7 +249,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Logout route
-  app.post("/api/admin/logout", (req: Request, res: Response) => {
+  app.post("/api/admin/logout", async (req: Request, res: Response) => {
+    // Log logout activity before destroying session
+    if (req.session.userId) {
+      try {
+        const user = await storage.getUser(req.session.userId);
+        if (user) {
+          await storage.logActivity({
+            userId: user.id,
+            nurseryId: user.nurseryId,
+            activityType: 'logout',
+            description: `${user.firstName} ${user.lastName} logged out`,
+            ipAddress: req.ip
+          });
+        }
+      } catch (error) {
+        console.error("Error logging logout activity:", error);
+      }
+    }
+    
     req.session.destroy((err) => {
       if (err) {
         return res.status(500).json({

@@ -126,6 +126,16 @@ export default function AdminDashboard() {
   return (
     <ProtectedRoute>
       <DashboardLayout title="Dashboard">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold mb-2">
+            {getWelcomeMessage()}, {user?.firstName}
+          </h1>
+          <p className="text-gray-500">
+            {user?.role === 'super_admin' 
+              ? 'You have access to all nurseries' 
+              : `Managing ${getNurseryName()} Nursery`}
+          </p>
+        </div>
         <div className="grid gap-6 max-w-6xl mx-auto">
           {/* Stats Grid */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
