@@ -51,32 +51,38 @@ export default function HayesNursery() {
     {
       icon: <Palette className="text-primary w-6 h-6" />,
       title: "Creative Arts Studio",
-      description: "A bright, engaging space where children can explore various art media and express themselves creatively."
+      description: "A bright, engaging space where children can explore various art media and express themselves creatively.",
+      image: "https://images.unsplash.com/photo-1560419015-7c427e8ae5ba?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     },
     {
       icon: <BookOpen className="text-primary w-6 h-6" />,
       title: "Reading Corner",
-      description: "A cozy, well-stocked reading area that encourages early literacy and a love of books."
+      description: "A cozy, well-stocked reading area that encourages early literacy and a love of books.",
+      image: "https://images.unsplash.com/photo-1524069290683-0457abfe42c3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     },
     {
       icon: <Music className="text-primary w-6 h-6" />,
       title: "Music & Movement",
-      description: "Dedicated space for music activities, singing, dancing and developing rhythm skills."
+      description: "Dedicated space for music activities, singing, dancing and developing rhythm skills.",
+      image: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     },
     {
       icon: <Trees className="text-primary w-6 h-6" />,
       title: "Outdoor Play Area",
-      description: "Large, safely enclosed outdoor space with age-appropriate play equipment and natural elements."
+      description: "Large, safely enclosed outdoor space with age-appropriate play equipment and natural elements.",
+      image: "https://images.unsplash.com/photo-1566140967404-b8b3932483f5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     },
     {
       icon: <Utensils className="text-primary w-6 h-6" />,
       title: "Healthy Meals",
-      description: "Nutritious, freshly prepared meals and snacks catering to dietary requirements and preferences."
+      description: "Nutritious, freshly prepared meals and snacks catering to dietary requirements and preferences.",
+      image: "https://images.unsplash.com/photo-1494859802809-d069c3b71a8a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     },
     {
       icon: <ShieldCheck className="text-primary w-6 h-6" />,
       title: "Secure Environment",
-      description: "State-of-the-art security systems and protocols to ensure children's safety at all times."
+      description: "State-of-the-art security systems and protocols to ensure children's safety at all times.",
+      image: "https://images.unsplash.com/photo-1584650589329-a9e8d9d04e3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     }
   ];
 
