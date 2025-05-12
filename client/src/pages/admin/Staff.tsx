@@ -1,0 +1,379 @@
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/hooks/useAuth';
+import DashboardLayout from '@/components/admin/DashboardLayout';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useToast } from '@/hooks/use-toast';
+import { Search, Plus, Edit, Trash2, UserPlus, RefreshCcw, AtSign, Briefcase, Building } from 'lucide-react';
+
+// Form schema for adding/editing staff
+const staffFormSchema = z.object({
+  firstName: z.string().min(2, { message: "First name must be at least 2 characters." }),
+  lastName: z.string().min(2, { message: "Last name must be at least 2 characters." }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  role: z.enum(["super_admin", "nursery_admin", "staff"], {
+    required_error: "Please select a role.",
+  }),
+  nurseryId: z.number().optional(),
+});
+
+export default function StaffManagement() {
+  const { user } = useAuth();
+  const isSuperAdmin = user?.role === 'super_admin';
+  const [isAddStaffOpen, setIsAddStaffOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const { toast } = useToast();
+  
+  // For filtering by nursery (super admin only)
+  const [selectedNurseryId, setSelectedNurseryId] = useState<number | null>(null);
+  
+  // Form for adding/editing staff
+  const staffForm = useForm<z.infer<typeof staffFormSchema>>({
+    resolver: zodResolver(staffFormSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      role: "staff",
+    },
+  });
+  
+  // Fetch all staff (with optional nursery filter)
+  const staffQuery = useQuery({
+    queryKey: selectedNurseryId 
+      ? ['/api/admin/staff/nursery', selectedNurseryId] 
+      : ['/api/admin/staff'],
+    enabled: !!user,
+  });
+  
+  // Fetch nurseries for dropdown (super admin only)
+  const nurseriesQuery = useQuery({
+    queryKey: ['/api/nurseries'],
+    enabled: !!user && isSuperAdmin,
+  });
+  
+  const staffData = staffQuery.data?.data || [];
+  const nurseries = nurseriesQuery.data?.data || [];
+  
+  // Filter staff based on search query
+  const filteredStaff = staffData.filter((staffMember: any) => {
+    const fullName = `${staffMember.firstName} ${staffMember.lastName}`.toLowerCase();
+    const email = staffMember.email.toLowerCase();
+    const query = searchQuery.toLowerCase();
+    
+    return fullName.includes(query) || email.includes(query);
+  });
+  
+  // Handle form submission for adding staff
+  function onSubmitStaffForm(data: z.infer<typeof staffFormSchema>) {
+    // In a real app, this would call an API to create the user
+    console.log("Staff form data:", data);
+    
+    toast({
+      title: "Staff member added",
+      description: `${data.firstName} ${data.lastName} has been added as ${data.role}.`,
+    });
+    
+    staffForm.reset();
+    setIsAddStaffOpen(false);
+  }
+  
+  // Role display names for readability
+  const roleDisplayNames = {
+    super_admin: "Super Admin",
+    nursery_admin: "Nursery Admin",
+    staff: "Staff Member",
+    regular: "Regular User",
+  };
+  
+  // Get nursery name by ID
+  function getNurseryNameById(id: number): string {
+    const nursery = nurseries.find((n: any) => n.id === id);
+    return nursery ? nursery.name : "Unknown Nursery";
+  }
+  
+  // Loading state
+  if (staffQuery.isLoading) {
+    return (
+      <ProtectedRoute>
+        <DashboardLayout title="Staff Management">
+          <div className="container mx-auto py-6">
+            <div className="flex justify-center items-center h-64">
+              <RefreshCcw className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          </div>
+        </DashboardLayout>
+      </ProtectedRoute>
+    );
+  }
+
+  return (
+    <ProtectedRoute>
+      <DashboardLayout title="Staff Management">
+        <div className="container mx-auto py-6">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold">Staff Management</h1>
+            
+            {isSuperAdmin && (
+              <Dialog open={isAddStaffOpen} onOpenChange={setIsAddStaffOpen}>
+                <DialogTrigger asChild>
+                  <Button className="flex items-center">
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    Add Staff Member
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add New Staff Member</DialogTitle>
+                    <DialogDescription>
+                      Create a new staff account. They'll receive an email with login instructions.
+                    </DialogDescription>
+                  </DialogHeader>
+                  
+                  <Form {...staffForm}>
+                    <form onSubmit={staffForm.handleSubmit(onSubmitStaffForm)} className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                          control={staffForm.control}
+                          name="firstName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>First Name</FormLabel>
+                              <FormControl>
+                                <Input placeholder="First name" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        
+                        <FormField
+                          control={staffForm.control}
+                          name="lastName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Last Name</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Last name" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      
+                      <FormField
+                        control={staffForm.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Email address" type="email" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={staffForm.control}
+                        name="role"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Role</FormLabel>
+                            <Select 
+                              onValueChange={field.onChange} 
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a role" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {isSuperAdmin && (
+                                  <SelectItem value="super_admin">Super Admin</SelectItem>
+                                )}
+                                <SelectItem value="nursery_admin">Nursery Admin</SelectItem>
+                                <SelectItem value="staff">Staff Member</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormDescription>
+                              This determines their permissions within the system.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      {isSuperAdmin && (
+                        <FormField
+                          control={staffForm.control}
+                          name="nurseryId"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Assigned Nursery</FormLabel>
+                              <Select 
+                                onValueChange={(value) => field.onChange(parseInt(value))} 
+                                defaultValue={field.value?.toString()}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a nursery" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {nurseries.map((nursery: any) => (
+                                    <SelectItem 
+                                      key={nursery.id} 
+                                      value={nursery.id.toString()}
+                                    >
+                                      {nursery.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormDescription>
+                                The nursery this staff member will be associated with.
+                              </FormDescription>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+                      
+                      <DialogFooter className="mt-6">
+                        <Button type="submit">Add Staff Member</Button>
+                      </DialogFooter>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            )}
+          </div>
+          
+          <div className="grid gap-6">
+            {/* Filters and search */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Staff Directory</CardTitle>
+                <CardDescription>
+                  Manage staff accounts and permissions
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col md:flex-row gap-4 mb-6">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                    <Input
+                      placeholder="Search by name or email..."
+                      className="pl-8"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </div>
+                  
+                  {isSuperAdmin && (
+                    <div className="w-full md:w-1/3">
+                      <Select 
+                        onValueChange={(value) => setSelectedNurseryId(value === 'all' ? null : parseInt(value))}
+                        defaultValue="all"
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Filter by nursery" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Nurseries</SelectItem>
+                          {nurseries.map((nursery: any) => (
+                            <SelectItem key={nursery.id} value={nursery.id.toString()}>
+                              {nursery.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+                
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Role</TableHead>
+                        {isSuperAdmin && <TableHead>Nursery</TableHead>}
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredStaff.length > 0 ? (
+                        filteredStaff.map((staffMember: any) => (
+                          <TableRow key={staffMember.id}>
+                            <TableCell className="font-medium">
+                              {staffMember.firstName} {staffMember.lastName}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center">
+                                <AtSign className="mr-1 h-3.5 w-3.5 text-gray-500" />
+                                {staffMember.email}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center">
+                                <Briefcase className="mr-1 h-3.5 w-3.5 text-gray-500" />
+                                {roleDisplayNames[staffMember.role as keyof typeof roleDisplayNames]}
+                              </div>
+                            </TableCell>
+                            {isSuperAdmin && (
+                              <TableCell>
+                                {staffMember.nurseryId && (
+                                  <div className="flex items-center">
+                                    <Building className="mr-1 h-3.5 w-3.5 text-gray-500" />
+                                    {getNurseryNameById(staffMember.nurseryId)}
+                                  </div>
+                                )}
+                              </TableCell>
+                            )}
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="icon" className="mr-1">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="text-destructive">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={isSuperAdmin ? 5 : 4} className="text-center py-6">
+                            {searchQuery 
+                              ? "No staff members matching your search criteria" 
+                              : "No staff members found"}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </DashboardLayout>
+    </ProtectedRoute>
+  );
+}

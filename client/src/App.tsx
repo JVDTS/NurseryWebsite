@@ -33,6 +33,8 @@ import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminEvents from "@/pages/admin/Events";
 import AdminGallery from "@/pages/admin/Gallery";
 import AdminNewsletters from "@/pages/admin/Newsletters";
+import AdminSettings from "@/pages/admin/Settings";
+import AdminStaff from "@/pages/admin/Staff";
 
 function Router() {
   return (
@@ -64,6 +66,8 @@ function Router() {
       <Route path="/admin/events" component={AdminEvents} />
       <Route path="/admin/gallery" component={AdminGallery} />
       <Route path="/admin/newsletters" component={AdminNewsletters} />
+      <Route path="/admin/settings" component={AdminSettings} />
+      <Route path="/admin/staff" component={AdminStaff} />
       
       {/* Admin nursery-specific routes */}
       <Route path="/admin/nurseries/:nurseryId/events" component={AdminEvents} />
