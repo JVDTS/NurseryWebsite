@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
+import { useNurserySelector, ALL_NURSERIES } from '@/hooks/use-nursery-selector';
 import DashboardLayout from '@/components/admin/DashboardLayout';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -8,7 +9,7 @@ import {
   Users, Newspaper, Image, Calendar, Clock, Pencil, Search,
   BarChart3, ArrowRight, ArrowUp, FileText, Settings, Plus, MoreHorizontal
 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import ActivitiesSection from '@/components/admin/ActivitiesSection';
@@ -17,7 +18,8 @@ import StaffSection from '@/components/admin/StaffSection';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
-  const [selectedNurseryId, setSelectedNurseryId] = useState<number | null>(null);
+  const queryClient = useQueryClient();
+  const { selectedNurseryId, setSelectedNurseryId, nurseryName } = useNurserySelector();
   const [stats, setStats] = useState({
     newsletters: 0,
     events: 0,
@@ -70,7 +72,13 @@ export default function AdminDashboard() {
   // Handle nursery selection change
   const handleNurseryChange = (nurseryId: number | null) => {
     console.log("Dashboard: Nursery changed to:", nurseryId);
+    // Use the global nursery selector context to update the nursery ID
     setSelectedNurseryId(nurseryId);
+    
+    // Invalidate and refetch all data when nursery changes
+    queryClient.invalidateQueries({ queryKey: ['gallery'] });
+    queryClient.invalidateQueries({ queryKey: ['newsletters'] });
+    queryClient.invalidateQueries({ queryKey: ['events'] });
   };
   
   // Update stats with actual data when available
