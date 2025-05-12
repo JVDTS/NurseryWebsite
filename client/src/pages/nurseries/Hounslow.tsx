@@ -51,32 +51,38 @@ export default function HounslowNursery() {
     {
       icon: <Trees className="text-hounslow w-6 h-6" />,
       title: "Forest School Area",
-      description: "Dedicated outdoor learning environment where children connect with nature and develop confidence through hands-on activities."
+      description: "Dedicated outdoor learning environment where children connect with nature and develop confidence through hands-on activities.",
+      image: "https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     },
     {
       icon: <Leaf className="text-hounslow w-6 h-6" />,
       title: "Community Garden",
-      description: "Child-friendly gardening spaces where children learn about growing plants, sustainability, and healthy eating."
+      description: "Child-friendly gardening spaces where children learn about growing plants, sustainability, and healthy eating.",
+      image: "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     },
     {
       icon: <CloudSun className="text-hounslow w-6 h-6" />,
       title: "All-Weather Play Zone",
-      description: "Specially designed outdoor area for play in all weather conditions, encouraging year-round outdoor learning."
+      description: "Specially designed outdoor area for play in all weather conditions, encouraging year-round outdoor learning.",
+      image: "https://images.unsplash.com/photo-1551655510-555dc3be8633?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     },
     {
       icon: <BookOpen className="text-hounslow w-6 h-6" />,
       title: "Nature Library",
-      description: "Collection of nature-focused books and resources to deepen children's understanding of the natural world."
+      description: "Collection of nature-focused books and resources to deepen children's understanding of the natural world.",
+      image: "https://images.unsplash.com/photo-1533166057714-91bca6202ffd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     },
     {
       icon: <PawPrint className="text-hounslow w-6 h-6" />,
       title: "Wildlife Observation Area",
-      description: "Safe spaces where children can observe local wildlife, building respect and appreciation for animals."
+      description: "Safe spaces where children can observe local wildlife, building respect and appreciation for animals.",
+      image: "https://images.unsplash.com/photo-1591561463965-b4ae0b7d5f12?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     },
     {
       icon: <HeartHandshake className="text-hounslow w-6 h-6" />,
       title: "Community Connection",
-      description: "Regular engagement with the local community through visits, partnerships and joint environmental projects."
+      description: "Regular engagement with the local community through visits, partnerships and joint environmental projects.",
+      image: "https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     }
   ];
 

@@ -51,32 +51,38 @@ export default function UxbridgeNursery() {
     {
       icon: <Brain className="text-uxbridge w-6 h-6" />,
       title: "Sensory Room",
-      description: "A dedicated sensory room designed to stimulate children's senses and support their cognitive development."
+      description: "A dedicated sensory room designed to stimulate children's senses and support their cognitive development.",
+      image: "https://images.unsplash.com/photo-1607453998774-d533f65dac99?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     },
     {
       icon: <BookOpen className="text-uxbridge w-6 h-6" />,
       title: "Learning Laboratory",
-      description: "Interactive space with educational materials to encourage exploration and discovery."
+      description: "Interactive space with educational materials to encourage exploration and discovery.",
+      image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     },
     {
       icon: <Puzzle className="text-uxbridge w-6 h-6" />,
       title: "STEM Discovery Zone",
-      description: "Area equipped with age-appropriate science and math materials to foster early STEM skills."
+      description: "Area equipped with age-appropriate science and math materials to foster early STEM skills.",
+      image: "https://images.unsplash.com/photo-1537655780520-1e392ead81f2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     },
     {
       icon: <Trees className="text-uxbridge w-6 h-6" />,
       title: "Nature Garden",
-      description: "Carefully designed outdoor space with plants, small wildlife habitats, and natural play elements."
+      description: "Carefully designed outdoor space with plants, small wildlife habitats, and natural play elements.",
+      image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     },
     {
       icon: <HeartPulse className="text-uxbridge w-6 h-6" />,
       title: "Physical Development Area",
-      description: "Space dedicated to developing gross motor skills, balance, and coordination through active play."
+      description: "Space dedicated to developing gross motor skills, balance, and coordination through active play.",
+      image: "https://images.unsplash.com/photo-1596460107916-430662021049?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     },
     {
       icon: <ShieldCheck className="text-uxbridge w-6 h-6" />,
       title: "Secure Environment",
-      description: "State-of-the-art security systems and protocols to ensure children's safety at all times."
+      description: "State-of-the-art security systems and protocols to ensure children's safety at all times.",
+      image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     }
   ];
 
