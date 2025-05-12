@@ -87,13 +87,7 @@ export default function AdminDashboard() {
   // Get nursery name for display
   const getNurseryName = () => {
     if (!user?.nurseryId) return '';
-    
-    switch(user.nurseryId) {
-      case 1: return 'Hayes';
-      case 2: return 'Uxbridge';
-      case 3: return 'Hounslow';
-      default: return '';
-    }
+    return getNurseryNameById(user.nurseryId);
   };
 
   // Format date for display
