@@ -2,205 +2,161 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { 
   Card, 
-  CardHeader, 
-  CardTitle, 
+  CardContent, 
   CardDescription, 
-  CardContent,
-  CardFooter
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
 } from '@/components/ui/card';
-import { 
-  Users, 
-  RefreshCcw,
-  User,
-  Shield,
-  Home,
-  ArrowRight,
-  Plus
-} from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { 
+  Users,
+  User,
+  UserPlus,
+  ArrowRight
+} from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { Link } from 'wouter';
-import { useAuth } from '@/hooks/useAuth';
 
-// Role badge colors
-const roleBadgeColors = {
-  super_admin: 'bg-red-100 text-red-800',
-  nursery_admin: 'bg-blue-100 text-blue-800',
-  staff: 'bg-green-100 text-green-800',
-  regular: 'bg-gray-100 text-gray-800'
-};
-
-// Get role display name
-const getRoleName = (role: string) => {
-  switch (role) {
-    case 'super_admin':
-      return 'Super Admin';
-    case 'nursery_admin':
-      return 'Nursery Admin';
-    case 'staff':
-      return 'Staff';
-    default:
-      return 'Regular User';
-  }
-};
-
-// Get initials for avatar
-const getInitials = (firstName: string, lastName: string) => {
-  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-};
+interface StaffMember {
+  id: number;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  nurseryId: number | null;
+  profileImageUrl?: string;
+}
 
 interface StaffSectionProps {
   nurseryId?: number;
   limit?: number;
 }
 
-export const StaffSection: React.FC<StaffSectionProps> = ({ nurseryId, limit = 5 }) => {
-  const { user } = useAuth();
-  const isSuperAdmin = user?.role === 'super_admin';
-  
-  // Fetch staff based on nursery selection or all staff for super admin
-  const { data: response, isLoading, error } = useQuery({
-    queryKey: nurseryId 
-      ? ['/api/admin/staff/nursery', nurseryId]
-      : ['/api/admin/staff'],
-    enabled: !!user && isSuperAdmin
+export default function StaffSection({
+  nurseryId,
+  limit = 5
+}: StaffSectionProps) {
+  // Get the API endpoint based on the nurseryId
+  const getEndpoint = () => {
+    if (nurseryId) {
+      return `/api/admin/staff/nursery/${nurseryId}`;
+    } else {
+      return '/api/admin/staff';
+    }
+  };
+
+  // Fetch staff data
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['staff', nurseryId],
+    queryFn: async () => {
+      const endpoint = getEndpoint();
+      console.log("Fetching staff from:", endpoint);
+      const response = await fetch(endpoint);
+      if (!response.ok) throw new Error('Failed to fetch staff data');
+      return response.json();
+    },
   });
-  
-  // Extract staff data from response
-  const staffData = response?.success ? response.data : [];
 
-  if (isLoading) {
-    return (
-      <Card className="overflow-hidden">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-slate-100">
-          <CardTitle className="text-sm font-medium">
-            Staff
-          </CardTitle>
-          <div className="rounded-md bg-indigo-500 p-2">
-            <Users className="h-4 w-4 text-white" />
-          </div>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="flex justify-center items-center h-40">
-            <RefreshCcw className="h-6 w-6 animate-spin text-primary" />
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Maps for role names with friendly display
+  const roleNames = {
+    super_admin: 'Super Admin',
+    nursery_admin: 'Nursery Admin',
+    staff: 'Staff Member',
+    regular: 'Regular User'
+  };
 
-  if (error || !staffData) {
-    return (
-      <Card className="overflow-hidden">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-slate-100">
-          <CardTitle className="text-sm font-medium">
-            Staff
-          </CardTitle>
-          <div className="rounded-md bg-indigo-500 p-2">
-            <Users className="h-4 w-4 text-white" />
-          </div>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="text-center text-gray-500">
-            {isSuperAdmin ? 
-              "There was an error loading staff data. Please try again later." :
-              "Staff management is only available for Super Admins."}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Get initials for avatar fallback
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
+  };
 
-  // If not super admin, show message about staff management
-  if (!isSuperAdmin) {
-    return (
-      <Card className="overflow-hidden">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-slate-100">
-          <CardTitle className="text-sm font-medium">
-            Staff
-          </CardTitle>
-          <div className="rounded-md bg-indigo-500 p-2">
-            <Users className="h-4 w-4 text-white" />
-          </div>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="text-center text-gray-500">
-            Staff management is only available for Super Admins.
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Get role badge variant
+  const getRoleBadgeVariant = (role: string) => {
+    switch (role) {
+      case 'super_admin':
+        return 'destructive';
+      case 'nursery_admin':
+        return 'default';
+      case 'staff':
+        return 'secondary';
+      default:
+        return 'outline';
+    }
+  };
 
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="text-center">
-        <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle>Staff Management</CardTitle>
-          <Button size="sm" variant="outline" className="h-8">
-            <Plus className="mr-2 h-3.5 w-3.5" />
-            Add Staff
-          </Button>
+    <Card>
+      <CardHeader>
+        <div className="flex flex-col items-center text-center">
+          <CardTitle>Staff Members</CardTitle>
+          <CardDescription>
+            {nurseryId
+              ? 'Staff assigned to this nursery'
+              : 'Staff across all nurseries'
+            }
+          </CardDescription>
         </div>
-        <CardDescription>
-          {nurseryId 
-            ? 'Staff assigned to this nursery' 
-            : 'All staff across nurseries'}
-        </CardDescription>
       </CardHeader>
-      <CardContent className="p-6">
-        <div className="space-y-4">
-          {staffData?.length > 0 ? (
-            staffData.slice(0, limit).map((staffMember) => (
-              <div key={staffMember.id} className="flex items-center">
-                <Avatar className="h-10 w-10 mr-3">
+      <CardContent className="px-2">
+        <div className="space-y-3">
+          {isLoading ? (
+            // Loading skeletons
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 p-2 rounded-lg">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-3 w-1/2" />
+                </div>
+                <Skeleton className="h-6 w-16 rounded-full" />
+              </div>
+            ))
+          ) : isError ? (
+            <div className="text-center text-red-500 py-4">
+              Failed to load staff information
+            </div>
+          ) : data?.staff?.length > 0 ? (
+            // Render staff list
+            data.staff.slice(0, limit).map((staffMember) => (
+              <div 
+                key={staffMember.id} 
+                className="flex items-center gap-4 p-2 hover:bg-gray-50 rounded-lg transition-colors"
+              >
+                <Avatar>
                   <AvatarImage src={staffMember.profileImageUrl} alt={`${staffMember.firstName} ${staffMember.lastName}`} />
                   <AvatarFallback>{getInitials(staffMember.firstName, staffMember.lastName)}</AvatarFallback>
                 </Avatar>
-                <div className="flex-1">
-                  <div className="flex items-center">
-                    <h4 className="text-sm font-medium">
-                      {staffMember.firstName} {staffMember.lastName}
-                    </h4>
-                    <Badge className={`ml-2 ${roleBadgeColors[staffMember.role] || 'bg-gray-100 text-gray-800'}`}>
-                      {getRoleName(staffMember.role)}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center text-xs text-gray-500">
-                    {staffMember.nurseryName && (
-                      <>
-                        <Home className="h-3 w-3 mr-1" />
-                        <span>{staffMember.nurseryName}</span>
-                      </>
-                    )}
-                  </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">
+                    {staffMember.firstName} {staffMember.lastName}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">{staffMember.email}</p>
                 </div>
-                <Button variant="ghost" size="sm" className="ml-auto" asChild>
-                  <Link href={`/admin/staff/${staffMember.id}`}>
-                    <User className="h-4 w-4 mr-1" />
-                    <span>View</span>
-                  </Link>
-                </Button>
+                <Badge variant={getRoleBadgeVariant(staffMember.role)}>
+                  {roleNames[staffMember.role]}
+                </Badge>
               </div>
             ))
           ) : (
-            <div className="text-center text-gray-500">
+            <div className="text-center text-gray-500 py-4 w-full">
               No staff members found
             </div>
           )}
         </div>
       </CardContent>
-      <CardFooter className="border-t px-6 py-3 flex justify-center">
-        <Link href="/admin/staff">
-          <a className="text-sm text-primary font-medium flex items-center hover:underline">
-            Manage All Staff
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </a>
-        </Link>
+      <CardFooter className="flex justify-center pt-2 border-t">
+        <div className="flex gap-2">
+          <Button variant="link" size="sm">
+            View all staff <ArrowRight className="h-4 w-4 ml-1" />
+          </Button>
+          <Button variant="outline" size="sm">
+            <UserPlus className="h-4 w-4 mr-1" /> Add Staff
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );
-};
-
-export default StaffSection;
+}

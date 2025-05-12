@@ -1,6 +1,9 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 
+// This constant is used to represent "All Nurseries" selection
+export const ALL_NURSERIES = -1;
+
 interface NurserySelectorContextType {
   selectedNurseryId: number | null;
   setSelectedNurseryId: (id: number | null) => void;
