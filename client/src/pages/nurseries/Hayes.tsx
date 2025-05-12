@@ -6,6 +6,7 @@ import NurseryLocation from "@/components/nursery/NurseryLocation";
 import NurseryGallery from "@/components/nursery/NurseryGallery";
 import UpcomingEvents from "@/components/nursery/UpcomingEvents";
 import Newsletter from "@/components/nursery/Newsletter";
+import AnimatedElements from "@/components/nursery/AnimatedElements";
 import { 
   Palette, 
   BookOpen, 
@@ -101,6 +102,7 @@ export default function HayesNursery() {
       heroImage="https://images.unsplash.com/photo-1565538810643-b5bdb714032a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
       themeColor="hayes"
     >
+      <AnimatedElements theme="hayes" />
       <NurseryDescription 
         description="Welcome to our Hayes nursery, a bright, spacious facility with a beautiful garden, located in the heart of Hayes. Our purpose-built environment provides children aged 0-5 with rich, varied learning experiences that encourage exploration, creativity, and growth. We focus on creating a warm, nurturing atmosphere where each child feels secure and valued, enabling them to build confidence and develop a lifelong love of learning."
         imageSrc="https://images.unsplash.com/photo-1570913187788-2aa6bd2054e0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"

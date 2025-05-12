@@ -6,6 +6,7 @@ import NurseryLocation from "@/components/nursery/NurseryLocation";
 import NurseryGallery from "@/components/nursery/NurseryGallery";
 import UpcomingEvents from "@/components/nursery/UpcomingEvents";
 import Newsletter from "@/components/nursery/Newsletter";
+import AnimatedElements from "@/components/nursery/AnimatedElements";
 import { 
   Brain, 
   BookOpen, 
@@ -101,6 +102,7 @@ export default function UxbridgeNursery() {
       heroImage="https://images.unsplash.com/photo-1544487660-b86394cba400?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
       themeColor="uxbridge"
     >
+      <AnimatedElements theme="uxbridge" />
       <NurseryDescription 
         description="Our Uxbridge nursery is a cozy, innovative environment with state-of-the-art learning facilities and a dedicated sensory room. We cater to children aged 2-5, providing a nurturing space where curious minds flourish. Our approach focuses on hands-on learning experiences that develop cognitive, social, and emotional skills while celebrating each child's unique personality and learning style."
         imageSrc="https://images.unsplash.com/photo-1527490087278-9c75be0b8052?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
