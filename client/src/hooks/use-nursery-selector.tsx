@@ -1,63 +1,62 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import { useAuth } from '@/hooks/use-auth';
 
-// Special value to indicate "all nurseries"
-export const ALL_NURSERIES = -1;
-
-interface NurseryContextProps {
+interface NurserySelectorContextType {
   selectedNurseryId: number | null;
   setSelectedNurseryId: (id: number | null) => void;
-  isAllNurseries: boolean;
+  nurseryName: string;
 }
 
-const NurseryContext = createContext<NurseryContextProps | undefined>(undefined);
+const NurserySelectorContext = createContext<NurserySelectorContextType | undefined>(undefined);
 
-export function NurserySelectorProvider({ children }: { children: React.ReactNode }) {
+interface NurserySelectorProviderProps {
+  children: ReactNode;
+}
+
+export const NurserySelectorProvider: React.FC<NurserySelectorProviderProps> = ({ children }) => {
+  const { user } = useAuth();
   const [selectedNurseryId, setSelectedNurseryId] = useState<number | null>(null);
+  const [nurseryName, setNurseryName] = useState<string>('');
+  
+  // Initialize nursery selection based on user role
+  useEffect(() => {
+    if (user && user.role !== 'super_admin' && user.nurseryId) {
+      setSelectedNurseryId(user.nurseryId);
+    }
+  }, [user]);
+  
+  // Update nursery name when selection changes
+  useEffect(() => {
+    if (selectedNurseryId) {
+      setNurseryName(getNurseryNameById(selectedNurseryId));
+    } else if (user && user.role === 'super_admin') {
+      setNurseryName('All Nurseries');
+    } else {
+      setNurseryName('');
+    }
+  }, [selectedNurseryId, user]);
+  
+  // Helper function to get nursery name by ID
+  function getNurseryNameById(id: number): string {
+    switch(id) {
+      case 1: return 'Hayes Nursery';
+      case 2: return 'Uxbridge Nursery';
+      case 3: return 'Hounslow Nursery';
+      default: return 'Unknown Nursery';
+    }
+  }
+  
+  return (
+    <NurserySelectorContext.Provider value={{ selectedNurseryId, setSelectedNurseryId, nurseryName }}>
+      {children}
+    </NurserySelectorContext.Provider>
+  );
+};
 
-  const value = {
-    selectedNurseryId,
-    setSelectedNurseryId,
-    isAllNurseries: selectedNurseryId === ALL_NURSERIES
-  };
-
-  return <NurseryContext.Provider value={value}>{children}</NurseryContext.Provider>;
-}
-
-export function useNurserySelector() {
-  const context = useContext(NurseryContext);
-  if (!context) {
+export const useNurserySelector = (): NurserySelectorContextType => {
+  const context = useContext(NurserySelectorContext);
+  if (context === undefined) {
     throw new Error('useNurserySelector must be used within a NurserySelectorProvider');
   }
   return context;
-}
-
-// Utility functions to work with nurseries
-export function getNurseryName(nurseryId: number | null): string {
-  if (nurseryId === null) return 'No Nursery Selected';
-  if (nurseryId === ALL_NURSERIES) return 'All Nurseries';
-  
-  switch(nurseryId) {
-    case 1: return 'Hayes';
-    case 2: return 'Uxbridge';
-    case 3: return 'Hounslow';
-    default: return 'Unknown Nursery';
-  }
-}
-
-export function getNurseryColor(nurseryId: number | null): string {
-  if (nurseryId === null) return 'gray';
-  if (nurseryId === ALL_NURSERIES) return 'purple';
-  
-  switch(nurseryId) {
-    case 1: return 'red';
-    case 2: return 'blue';
-    case 3: return 'green';
-    default: return 'gray';
-  }
-}
-
-export const nurseryOptions = [
-  { id: 1, name: 'Hayes', color: 'red' },
-  { id: 2, name: 'Uxbridge', color: 'blue' },
-  { id: 3, name: 'Hounslow', color: 'green' },
-];
+};

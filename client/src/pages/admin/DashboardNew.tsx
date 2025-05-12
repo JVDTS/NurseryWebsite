@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import DashboardLayout from '@/components/admin/DashboardLayout';
@@ -8,7 +8,7 @@ import {
   Users, Newspaper, Image, Calendar, Clock, Pencil, Search,
   BarChart3, ArrowRight, ArrowUp, FileText, Settings, Plus, MoreHorizontal
 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import ActivitiesSection from '@/components/admin/ActivitiesSection';
@@ -17,6 +17,7 @@ import StaffSection from '@/components/admin/StaffSection';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [selectedNurseryId, setSelectedNurseryId] = useState<number | null>(null);
   const [stats, setStats] = useState({
     newsletters: 0,
@@ -25,45 +26,54 @@ export default function AdminDashboard() {
     staff: 0
   });
 
-  // Construct query keys based on selected nursery
-  const galleryQueryKey = selectedNurseryId 
-    ? [`/api/admin/nurseries/${selectedNurseryId}/gallery`]
-    : (user?.role === 'super_admin' 
-      ? ['/api/admin/gallery'] 
-      : [`/api/admin/nurseries/${user?.nurseryId}/gallery`]
-    );
-    
-  const newslettersQueryKey = selectedNurseryId 
-    ? [`/api/admin/nurseries/${selectedNurseryId}/newsletters`]
-    : (user?.role === 'super_admin' 
-      ? ['/api/admin/newsletters'] 
-      : [`/api/admin/nurseries/${user?.nurseryId}/newsletters`]
-    );
-    
-  const eventsQueryKey = selectedNurseryId 
-    ? [`/api/admin/nurseries/${selectedNurseryId}/events`]
-    : (user?.role === 'super_admin' 
-      ? ['/api/admin/events'] 
-      : [`/api/admin/nurseries/${user?.nurseryId}/events`]
-    );
-    
-  console.log("Query keys:", { galleryQueryKey, newslettersQueryKey, eventsQueryKey });
-      
-  // Fetch actual gallery images count based on selected nursery
+  // Function to get API endpoint based on selected nursery
+  const getEndpoint = (baseEndpoint: string, nurseryId: number | null = null) => {
+    if (nurseryId) {
+      return `/api/admin/nurseries/${nurseryId}/${baseEndpoint}`;
+    } else if (user?.role === 'super_admin') {
+      return `/api/admin/${baseEndpoint}`;
+    } else if (user?.nurseryId) {
+      return `/api/admin/nurseries/${user.nurseryId}/${baseEndpoint}`;
+    }
+    return `/api/admin/${baseEndpoint}`;
+  };
+
+  // Fetch gallery images for the selected nursery
   const { data: galleryData } = useQuery<{ images: any[] }>({
-    queryKey: galleryQueryKey,
+    queryKey: ['gallery', selectedNurseryId],
+    queryFn: async () => {
+      const endpoint = getEndpoint('gallery', selectedNurseryId);
+      console.log("Fetching gallery from:", endpoint);
+      const response = await fetch(endpoint);
+      if (!response.ok) throw new Error('Failed to fetch gallery data');
+      return response.json();
+    },
     enabled: !!user,
   });
   
-  // Fetch actual newsletters count based on selected nursery
+  // Fetch newsletters for the selected nursery
   const { data: newslettersData } = useQuery<{ newsletters: any[] }>({
-    queryKey: newslettersQueryKey,
+    queryKey: ['newsletters', selectedNurseryId],
+    queryFn: async () => {
+      const endpoint = getEndpoint('newsletters', selectedNurseryId);
+      console.log("Fetching newsletters from:", endpoint);
+      const response = await fetch(endpoint);
+      if (!response.ok) throw new Error('Failed to fetch newsletter data');
+      return response.json();
+    },
     enabled: !!user,
   });
 
-  // Fetch events based on selected nursery
+  // Fetch events for the selected nursery
   const { data: eventsData } = useQuery<{ events: any[] }>({
-    queryKey: eventsQueryKey,
+    queryKey: ['events', selectedNurseryId],
+    queryFn: async () => {
+      const endpoint = getEndpoint('events', selectedNurseryId);
+      console.log("Fetching events from:", endpoint);
+      const response = await fetch(endpoint);
+      if (!response.ok) throw new Error('Failed to fetch event data');
+      return response.json();
+    },
     enabled: !!user,
   });
   
@@ -71,11 +81,16 @@ export default function AdminDashboard() {
   const handleNurseryChange = (nurseryId: number | null) => {
     console.log("Dashboard: Nursery changed to:", nurseryId);
     setSelectedNurseryId(nurseryId);
+    
+    // Invalidate and refetch all data
+    queryClient.invalidateQueries({ queryKey: ['gallery'] });
+    queryClient.invalidateQueries({ queryKey: ['newsletters'] });
+    queryClient.invalidateQueries({ queryKey: ['events'] });
   };
   
   // Update stats with actual data when available
   useEffect(() => {
-    console.log("Dashboard: Data or selectedNurseryId changed", {
+    console.log("Dashboard: Data updated", {
       selectedNurseryId,
       galleryImages: galleryData?.images?.length || 0,
       newsletters: newslettersData?.newsletters?.length || 0,
