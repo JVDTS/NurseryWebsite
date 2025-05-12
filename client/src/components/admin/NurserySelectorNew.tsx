@@ -111,7 +111,7 @@ export default function NurserySelector({ selectedNurseryId, onChange }: Nursery
           Select Nursery
         </CardTitle>
         <div className="rounded-md bg-purple-500 p-2">
-          <BuildingLibrary className="h-4 w-4 text-white" />
+          <Building2 className="h-4 w-4 text-white" />
         </div>
       </CardHeader>
       <CardContent className="pt-6">
