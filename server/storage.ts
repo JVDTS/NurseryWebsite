@@ -139,6 +139,87 @@ export class MemStorage implements IStorage {
     
     // Initialize sample contact submissions
     this.initializeSampleContactSubmissions();
+    
+    // Initialize sample admin activities
+    this.initializeSampleAdminActivities();
+  }
+  
+  private initializeSampleAdminActivities() {
+    // For super admin
+    this.logActivity({
+      userId: 1, // super admin
+      nurseryId: null,
+      activityType: 'login',
+      description: 'Super Admin logged in',
+      ipAddress: '192.168.1.1',
+      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // 7 days ago
+    });
+    
+    this.logActivity({
+      userId: 1, // super admin
+      nurseryId: null,
+      activityType: 'update_nursery',
+      description: 'Updated nursery information for Hayes Nursery',
+      ipAddress: '192.168.1.1',
+      createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000) // 6 days ago
+    });
+    
+    // For Hayes admin
+    this.logActivity({
+      userId: 2, // Hayes admin
+      nurseryId: 1,
+      activityType: 'login',
+      description: 'Hayes Admin logged in',
+      ipAddress: '192.168.1.2',
+      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) // 5 days ago
+    });
+    
+    this.logActivity({
+      userId: 2, // Hayes admin
+      nurseryId: 1,
+      activityType: 'create_event',
+      description: 'Created new event: Summer Fair',
+      ipAddress: '192.168.1.2',
+      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) // 5 days ago
+    });
+    
+    // For Uxbridge admin
+    this.logActivity({
+      userId: 3, // Uxbridge admin
+      nurseryId: 2,
+      activityType: 'login',
+      description: 'Uxbridge Admin logged in',
+      ipAddress: '192.168.1.3',
+      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) // 3 days ago
+    });
+    
+    this.logActivity({
+      userId: 3, // Uxbridge admin
+      nurseryId: 2,
+      activityType: 'upload_gallery',
+      description: 'Uploaded new gallery images',
+      ipAddress: '192.168.1.3',
+      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) // 3 days ago
+    });
+    
+    // For Hounslow admin
+    this.logActivity({
+      userId: 4, // Hounslow admin
+      nurseryId: 3,
+      activityType: 'login',
+      description: 'Hounslow Admin logged in',
+      ipAddress: '192.168.1.4',
+      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) // 1 day ago
+    });
+    
+    this.logActivity({
+      userId: 4, // Hounslow admin
+      nurseryId: 3,
+      activityType: 'create_newsletter',
+      description: 'Created March newsletter',
+      ipAddress: '192.168.1.4',
+      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) // 1 day ago
+    });
   }
   
   private initializeSampleContactSubmissions() {
