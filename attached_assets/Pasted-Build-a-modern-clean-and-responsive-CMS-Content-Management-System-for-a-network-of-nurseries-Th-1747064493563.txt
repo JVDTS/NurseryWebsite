@@ -1,0 +1,128 @@
+Build a modern, clean, and responsive CMS (Content Management System) for a network of nurseries. The CMS must include user role management, content scheduling, file uploads, and live synchronization with the frontend website. The design should follow the style of modern dashboards like the one in the attached image — minimal, intuitive, and analytics-driven.
+
+🎯 CORE FEATURES
+1. User Authentication & Roles
+Secure login using email + password (JWT or OAuth).
+
+Three user roles only:
+
+👑 Superadmin
+
+Full control over the entire system
+
+Can create/edit/delete all users
+
+Assign Admins/Editors to specific nurseries
+
+Full access to all nurseries and CMS settings
+
+Access to full audit logs
+
+🧑‍💼 Admin
+
+Can manage content and users only in their assigned nursery
+
+Can invite Editors under their nursery
+
+Can view activity logs and update nursery profile info
+
+✍️ Editor
+
+Can create/edit content (posts, newsletters, events)
+
+Cannot delete users or publish without admin approval (optional)
+
+Restricted to their assigned nursery
+
+Use role-based permissions on every route and action.
+
+Log every user activity for transparency.
+
+2. Dashboard Design (Modern UI)
+Inspired by popular CMS dashboards (as per image):
+
+Overview cards: Total posts, upcoming events, newsletters sent
+
+Visuals: Charts (Recharts/Chart.js), calendars, activity feed
+
+Search & filters for quick navigation
+
+Sidebar nav: Dashboard | Posts | Newsletters | Events | Nurseries | Users | Logs | Settings
+
+3. Nursery Management
+Create/edit/delete nursery profiles
+
+Assign Admins and Editors to nurseries
+
+Each nursery has:
+
+Name, address, image gallery, description, opening hours
+
+Events, posts, and newsletter data
+
+4. Content Modules
+Posts: Rich-text blog system with image/video embedding
+
+Newsletters:
+
+Upload PDF or use editor
+
+Schedule newsletter or send immediately
+
+Event Scheduler:
+
+Title, date, description, and assigned nursery
+
+Display on website calendar
+
+All content changes auto-sync with the public website via live API/webhooks
+
+5. Activity Logs
+Track all user actions:
+
+Logins, post updates, user edits, event changes
+
+Filter by date, user, action type
+
+Only Superadmin sees full system logs; Admins see nursery-level logs
+
+💻 Technical Stack Suggestion
+Frontend (CMS):
+
+React or Next.js (App Router)
+
+Tailwind CSS + ShadCN/UI + Framer Motion
+
+Protected routes with role-based guards
+
+Backend:
+
+Node.js with Express or Next.js API
+
+PostgreSQL with Prisma or Drizzle ORM
+
+Auth: NextAuth.js or JWT
+
+File Uploads: Cloudinary / AWS S3
+
+Realtime Sync: REST API or Webhooks
+
+🔄 Website Sync
+CMS and website must share data via:
+
+REST API or GraphQL
+
+Webhook trigger for real-time updates
+
+Website auto-updates when CMS content is published/edited
+
+🔒 Security & Access
+All data access is permission-based:
+
+Editors → only create/edit for assigned nursery
+
+Admins → manage assigned nursery only
+
+Superadmin → full access
+
+Use role-based middleware and guards on backend and frontend.
