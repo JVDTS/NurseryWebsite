@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, pgEnum, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -129,10 +129,47 @@ export const contactSubmissions = pgTable("contact_submissions", {
   phone: text("phone"),
   nurseryLocation: text("nursery_location").notNull(),
   message: text("message").notNull(),
-  createdAt: text("created_at").notNull()
+  createdAt: timestamp("created_at").defaultNow().notNull()
 });
 
 export const insertContactSchema = createInsertSchema(contactSubmissions);
 
 export type InsertContact = z.infer<typeof insertContactSchema>;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
+
+// Activity type enum (types of actions an admin can perform)
+export const activityTypeEnum = pgEnum('activity_type', [
+  'login', 
+  'logout',
+  'create_event', 
+  'update_event', 
+  'delete_event',
+  'upload_gallery',
+  'delete_gallery',
+  'create_newsletter',
+  'update_newsletter',
+  'delete_newsletter',
+  'create_user',
+  'update_user',
+  'update_nursery'
+]);
+
+// Admin activities tracking
+export const adminActivities = pgTable("admin_activities", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  activityType: activityTypeEnum("activity_type").notNull(),
+  description: text("description").notNull(),
+  details: jsonb("details"),
+  nurseryId: integer("nursery_id"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+  ipAddress: text("ip_address"),
+});
+
+export const insertActivitySchema = createInsertSchema(adminActivities).omit({ 
+  id: true, 
+  timestamp: true 
+});
+
+export type InsertActivity = z.infer<typeof insertActivitySchema>;
+export type AdminActivity = typeof adminActivities.$inferSelect;

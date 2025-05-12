@@ -142,12 +142,9 @@ export class DbStorage implements IStorage {
   }
 
   async createEvent(insertEvent: InsertEvent): Promise<Event> {
-    const now = new Date();
     const result = await drizzleDb.insert(events)
       .values({
-        ...insertEvent,
-        createdAt: now,
-        updatedAt: now
+        ...insertEvent
       })
       .returning();
       
@@ -157,8 +154,7 @@ export class DbStorage implements IStorage {
   async updateEvent(id: number, eventData: Partial<InsertEvent>): Promise<Event | undefined> {
     const result = await drizzleDb.update(events)
       .set({
-        ...eventData,
-        updatedAt: new Date()
+        ...eventData
       })
       .where(eq(events.id, id))
       .returning();
@@ -185,8 +181,7 @@ export class DbStorage implements IStorage {
     const result = await drizzleDb.insert(galleryImages)
       .values({
         ...insertImage,
-        caption: insertImage.caption ?? null,
-        createdAt: new Date()
+        caption: insertImage.caption ?? null
       })
       .returning();
       
