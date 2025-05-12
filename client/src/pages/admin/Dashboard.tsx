@@ -11,14 +11,18 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import ActivitiesSection from '@/components/admin/ActivitiesSection';
+import NurserySelector from '@/components/admin/NurserySelector';
+import StaffSection from '@/components/admin/StaffSection';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
+  const [selectedNurseryId, setSelectedNurseryId] = useState<number | null>(null);
   const [stats, setStats] = useState({
-    newsletters: 5,
-    events: 8,
-    galleryImages: 18,
-    staff: 4
+    newsletters: 0,
+    events: 0,
+    galleryImages: 0,
+    staff: 0
   });
 
   // Fetch actual gallery images count

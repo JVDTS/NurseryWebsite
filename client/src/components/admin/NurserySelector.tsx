@@ -1,70 +1,126 @@
-import { useAuth } from '@/hooks/use-auth';
-import { 
-  useNurserySelector, 
-  getNurseryName, 
-  nurseryOptions, 
-  ALL_NURSERIES 
-} from '@/hooks/use-nursery-selector';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { useAuth } from '@/hooks/useAuth';
+import { Home, RefreshCcw } from 'lucide-react';
 
-export default function NurserySelector() {
+interface NurserySelectorProps {
+  onChange: (nurseryId: number | null) => void;
+  selectedNurseryId: number | null;
+}
+
+export const NurserySelector: React.FC<NurserySelectorProps> = ({ 
+  onChange, 
+  selectedNurseryId 
+}) => {
   const { user } = useAuth();
-  const { selectedNurseryId, setSelectedNurseryId } = useNurserySelector();
-
-  // Auto-select the nursery based on user role when the component mounts
+  const isSuperAdmin = user?.role === 'super_admin';
+  
+  // Fetch all nurseries (only for super admin)
+  const { data: nurseriesData, isLoading } = useQuery({
+    queryKey: ['/api/nurseries'],
+    enabled: !!user && isSuperAdmin,
+  });
+  
+  // Set initial nursery based on user's role
   useEffect(() => {
-    // For nursery admins, always use their assigned nursery
-    if (user?.role === 'nursery_admin' && user?.nurseryId) {
-      setSelectedNurseryId(user.nurseryId);
-    } 
-    // For super admins, select the "All Nurseries" option by default
-    else if (user?.role === 'super_admin' && selectedNurseryId === null) {
-      setSelectedNurseryId(ALL_NURSERIES);
+    if (user && !isSuperAdmin && user.nurseryId) {
+      onChange(user.nurseryId);
     }
-  }, [user, selectedNurseryId, setSelectedNurseryId]);
+  }, [user, isSuperAdmin, onChange]);
 
-  // If the user is a nursery admin, they can only see their own nursery
-  if (user?.role === 'nursery_admin') {
+  // For super admin, handle nursery selection change
+  const handleNurseryChange = (value: string) => {
+    if (value === 'all') {
+      onChange(null);
+    } else {
+      onChange(parseInt(value));
+    }
+  };
+
+  if (isLoading) {
     return (
-      <div className="flex items-center space-x-2">
-        <span className="text-sm text-muted-foreground">Managing:</span>
-        <Badge variant="outline">{getNurseryName(user.nurseryId)}</Badge>
-      </div>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-slate-100">
+          <CardTitle className="text-sm font-medium">
+            Nursery
+          </CardTitle>
+          <div className="rounded-md bg-primary p-2">
+            <Home className="h-4 w-4 text-white" />
+          </div>
+        </CardHeader>
+        <CardContent className="pt-6 flex justify-center items-center">
+          <RefreshCcw className="h-5 w-5 animate-spin text-primary" />
+        </CardContent>
+      </Card>
     );
   }
 
-  // Super admin can select any nursery or all nurseries
+  // If user is not super admin, show their assigned nursery
+  if (!isSuperAdmin && user) {
+    return (
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-slate-100">
+          <CardTitle className="text-sm font-medium">
+            Nursery
+          </CardTitle>
+          <div className="rounded-md bg-primary p-2">
+            <Home className="h-4 w-4 text-white" />
+          </div>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="text-xl font-bold capitalize">
+            {user.nurseryLocation || "Your Nursery"}
+          </div>
+          <CardDescription className="text-xs text-gray-500 mt-1">
+            Dashboard view for your nursery
+          </CardDescription>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // For super admin, show dropdown to select nursery
   return (
-    <div className="flex items-center space-x-2">
-      <span className="text-sm text-muted-foreground">Select Nursery:</span>
-      <Select
-        value={selectedNurseryId?.toString() || ''}
-        onValueChange={(value) => {
-          setSelectedNurseryId(parseInt(value));
-        }}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Select a nursery" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={ALL_NURSERIES.toString()}>
-            All Nurseries
-          </SelectItem>
-          {nurseryOptions.map((nursery) => (
-            <SelectItem key={nursery.id} value={nursery.id.toString()}>
-              {nursery.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-slate-100">
+        <CardTitle className="text-sm font-medium">
+          Select Nursery
+        </CardTitle>
+        <div className="rounded-md bg-primary p-2">
+          <Home className="h-4 w-4 text-white" />
+        </div>
+      </CardHeader>
+      <CardContent className="pt-6">
+        <Select 
+          value={selectedNurseryId ? selectedNurseryId.toString() : 'all'} 
+          onValueChange={handleNurseryChange}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select a nursery" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Nurseries</SelectItem>
+            {nurseriesData?.map((nursery) => (
+              <SelectItem key={nursery.id} value={nursery.id.toString()}>
+                {nursery.name} ({nursery.location})
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <CardDescription className="text-xs text-gray-500 mt-2">
+          View data for a specific nursery or all nurseries
+        </CardDescription>
+      </CardContent>
+    </Card>
   );
-}
+};
+
+export default NurserySelector;
