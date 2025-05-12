@@ -24,7 +24,7 @@ export default function AdminLogin() {
   const { login, isAuthenticated, isLoading } = useAuth();
   const [, setLocation] = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [csrfToken, setCsrfToken] = useState<string | undefined>(undefined);
+  const [csrfToken, setCsrfToken] = useState<string | null>(null);
   const [tokenLoading, setTokenLoading] = useState(true);
   const { toast } = useToast();
 
@@ -77,22 +77,27 @@ export default function AdminLogin() {
     try {
       setIsSubmitting(true);
       
-      // Attempt to get a token but continue even if it fails
-      let token = 'dummy-token';
-      try {
-        // Get a token, but don't fail the login if we can't get one
-        token = await fetchCsrfToken() || 'dummy-token';
-        setCsrfToken(token);
-        console.log('Using token for login:', token ? 'token available' : 'no token available');
-      } catch (tokenError) {
-        console.warn('Failed to fetch CSRF token, using dummy token instead:', tokenError);
+      // Get a fresh CSRF token right before login attempt
+      const freshToken = await fetchCsrfToken();
+      
+      if (!freshToken) {
+        toast({
+          title: 'Authentication Error',
+          description: 'Security token missing. Please refresh the page.',
+          variant: 'destructive',
+        });
+        return;
       }
       
-      // Use the token for login (or a dummy if none available)
-      console.log('Attempting login with username:', data.username);
+      // Update the token state
+      setCsrfToken(freshToken);
       
-      // The login function will handle redirection
-      await login(data.username, data.password, token);
+      // Use the fresh token for login
+      const success = await login(data.username, data.password, freshToken);
+      
+      if (success) {
+        setLocation('/admin/dashboard');
+      }
     } catch (error) {
       console.error('Login error:', error);
       toast({
@@ -184,11 +189,9 @@ export default function AdminLogin() {
           
           <CardFooter className="text-center text-sm text-gray-600">
             <div className="w-full">
-              <p>Admin accounts:</p>
-              <p>Super Admin: admin / admin123</p>
-              <p>Hayes Admin: hayes_admin / password123</p>
-              <p>Uxbridge Admin: uxbridge_admin / password123</p>
-              <p>Hounslow Admin: hounslow_admin / password123</p>
+              <p>Test accounts:</p>
+              <p>Super Admin: superadmin / superadmin123</p>
+              <p>Hayes Admin: hayesadmin / hayesadmin123</p>
             </div>
           </CardFooter>
         </Card>

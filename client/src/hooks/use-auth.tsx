@@ -60,26 +60,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Login function
-  const login = async (username: string, password: string, csrfToken: string = 'dummy-token'): Promise<boolean> => {
+  const login = async (username: string, password: string, csrfToken: string): Promise<boolean> => {
     try {
       setIsLoading(true);
       
-      console.log('Attempting login with username:', username);
+      console.log('Attempting login with token:', csrfToken ? 'Token received' : 'No token');
       
-      // Use the token if provided, but don't require it
-      const headers: HeadersInit = { 
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache',
-      };
-      
-      // Add CSRF token if available
-      if (csrfToken) {
-        headers['X-CSRF-Token'] = csrfToken;
+      if (!csrfToken) {
+        toast({
+          title: 'Security Error',
+          description: 'Missing security token. Please refresh and try again.',
+          variant: 'destructive',
+        });
+        return false;
       }
       
       const response = await fetch('/api/admin/login', {
         method: 'POST',
-        headers,
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken,
+          'Cache-Control': 'no-cache',
+        },
         body: JSON.stringify({ username, password }),
         credentials: 'include'
       });
@@ -97,33 +99,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       const data = await response.json();
       
-      if (response.ok && data.success && data.user) {
-        // Set the user in state
+      if (data.success && data.user) {
         setUser(data.user);
-        
-        // Display a success message
         toast({
           title: 'Login Successful',
-          description: `Welcome back, ${data.user.firstName || data.user.username}!`,
+          description: `Welcome back, ${data.user.firstName}!`,
         });
-        
-        console.log('Login succeeded! User:', data.user);
-        
-        // Immediately redirect to dashboard
-        window.location.href = '/admin/dashboard';
         return true;
       } else {
-        // Clear the user
         setUser(null);
-        
-        // Display an error message
         toast({
           title: 'Login Failed',
           description: data.message || 'Invalid username or password',
           variant: 'destructive',
         });
-        
-        console.error('Login failed:', data);
         return false;
       }
     } catch (error) {
@@ -150,8 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           // Import dynamically to avoid circular dependencies
           const { fetchCsrfToken } = await import('@/lib/csrf');
-          const token = await fetchCsrfToken();
-          tokenToUse = token || undefined; // Convert null to undefined
+          tokenToUse = await fetchCsrfToken();
         } catch (tokenError) {
           console.error('Failed to fetch CSRF token for logout:', tokenError);
         }
