@@ -21,7 +21,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import NurserySelector from './NurserySelector';
+import NurserySelector from './NurserySelectorNew';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -321,7 +321,10 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
             </div>
             {user?.role === 'super_admin' && (
               <div className="ml-6">
-                <NurserySelector />
+                <NurserySelector 
+                  onChange={(id) => console.log("Selected nursery:", id)}
+                  selectedNurseryId={null}
+                />
               </div>
             )}
           </div>

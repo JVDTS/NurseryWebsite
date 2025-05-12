@@ -12,7 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import ActivitiesSection from '@/components/admin/ActivitiesSection';
-import NurserySelector from '@/components/admin/NurserySelector';
+import NurserySelector from '@/components/admin/NurserySelectorNew';
 import StaffSection from '@/components/admin/StaffSection';
 
 export default function AdminDashboard() {
