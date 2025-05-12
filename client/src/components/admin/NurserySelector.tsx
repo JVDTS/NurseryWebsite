@@ -11,6 +11,19 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { Home, RefreshCcw } from 'lucide-react';
 
+interface Nursery {
+  id: number;
+  name: string;
+  location: string;
+  address: string;
+  phoneNumber: string;
+  email: string;
+  description: string;
+  heroImage: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface NurserySelectorProps {
   onChange: (nurseryId: number | null) => void;
   selectedNurseryId: number | null;
@@ -23,14 +36,20 @@ export const NurserySelector: React.FC<NurserySelectorProps> = ({
   const { user } = useAuth();
   const isSuperAdmin = user?.role === 'super_admin';
   
+  // Define the API response type
+  interface NurseriesResponse {
+    success: boolean;
+    nurseries: Nursery[];
+  }
+  
   // Fetch all nurseries (only for super admin)
-  const { data: response, isLoading } = useQuery({
+  const { data: response, isLoading } = useQuery<NurseriesResponse, Error>({
     queryKey: ['/api/nurseries'],
     enabled: !!user && isSuperAdmin,
   });
   
   // Extract nurseries data from response
-  const nurseriesData = response?.data || [];
+  const nurseriesData: Nursery[] = response?.nurseries || [];
   
   // Set initial nursery based on user's role
   useEffect(() => {
@@ -111,7 +130,7 @@ export const NurserySelector: React.FC<NurserySelectorProps> = ({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Nurseries</SelectItem>
-            {nurseriesData?.map((nursery) => (
+            {nurseriesData?.map((nursery: Nursery) => (
               <SelectItem key={nursery.id} value={nursery.id.toString()}>
                 {nursery.name} ({nursery.location})
               </SelectItem>
