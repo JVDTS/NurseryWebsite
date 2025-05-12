@@ -24,10 +24,13 @@ export const NurserySelector: React.FC<NurserySelectorProps> = ({
   const isSuperAdmin = user?.role === 'super_admin';
   
   // Fetch all nurseries (only for super admin)
-  const { data: nurseriesData, isLoading } = useQuery({
+  const { data: response, isLoading } = useQuery({
     queryKey: ['/api/nurseries'],
     enabled: !!user && isSuperAdmin,
   });
+  
+  // Extract nurseries data from response
+  const nurseriesData = response || [];
   
   // Set initial nursery based on user's role
   useEffect(() => {

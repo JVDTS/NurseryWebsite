@@ -76,12 +76,15 @@ export const ActivitiesSection: React.FC<ActivitiesSectionProps> = ({ nurseryId,
   const { user } = useAuth();
   
   // Fetch admin activities based on nursery selection
-  const { data: activities, isLoading, error } = useQuery({
+  const { data: response, isLoading, error } = useQuery({
     queryKey: nurseryId 
       ? ['/api/admin/activities/nursery', nurseryId]
       : ['/api/admin/activities/recent'],
     enabled: !!user
   });
+  
+  // Extract activities from response
+  const activities = response?.success ? response.data : [];
 
   if (isLoading) {
     return (
