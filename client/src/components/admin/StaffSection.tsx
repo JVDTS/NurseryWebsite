@@ -60,12 +60,15 @@ export const StaffSection: React.FC<StaffSectionProps> = ({ nurseryId, limit = 5
   const isSuperAdmin = user?.role === 'super_admin';
   
   // Fetch staff based on nursery selection or all staff for super admin
-  const { data: staffData, isLoading, error } = useQuery({
+  const { data: response, isLoading, error } = useQuery({
     queryKey: nurseryId 
       ? ['/api/admin/staff/nursery', nurseryId]
       : ['/api/admin/staff'],
     enabled: !!user && isSuperAdmin
   });
+  
+  // Extract staff data from response
+  const staffData = response?.success ? response.data : [];
 
   if (isLoading) {
     return (

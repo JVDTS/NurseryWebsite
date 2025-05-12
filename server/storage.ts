@@ -514,7 +514,11 @@ export class MemStorage implements IStorage {
     const id = this.activityCurrentId++;
     const newActivity: AdminActivity = {
       id,
-      ...activity,
+      userId: activity.userId,
+      nurseryId: activity.nurseryId || null,
+      description: activity.description,
+      activityType: activity.activityType,
+      details: activity.details || null,
       timestamp: new Date(),
       ipAddress: activity.ipAddress || null
     };
