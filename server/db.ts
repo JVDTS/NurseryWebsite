@@ -1,49 +1,38 @@
-import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import ws from 'ws';
+import * as schema from '../shared/schema';
 
-// Use require for importing pg
-const pg = require('pg');
-const Pool = pg.Pool;
+// Required for Neon serverless
+neonConfig.webSocketConstructor = ws;
 
-// Create the database connection pool with error handling
-let pool;
-let db;
-
-try {
-  const connectionString = process.env.DATABASE_URL;
-  
-  if (!connectionString) {
-    console.error('DATABASE_URL is not defined. PostgreSQL database will not be available.');
-  } else {
-    console.log('Connecting to PostgreSQL database...');
-    
-    // Create the connection pool
-    pool = new Pool({
-      connectionString,
-      ssl: {
-        rejectUnauthorized: false // Required for some cloud PostgreSQL providers like Neon
-      }
-    });
-    
-    // Set up error handling for the pool
-    pool.on('error', (err) => {
-      console.error('Unexpected error on idle client', err);
-    });
-    
-    // Test the connection
-    pool.query('SELECT 1')
-      .then(() => {
-        console.log('PostgreSQL database connection successful!');
-      })
-      .catch((err) => {
-        console.error('Error testing PostgreSQL connection:', err);
-      });
-      
-    // Create the Drizzle instance
-    db = drizzle(pool);
-  }
-} catch (error) {
-  console.error('Failed to initialize PostgreSQL connection:', error);
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is required');
 }
 
-// Export the pool and db instances
-export { pool, db };
+// Create a connection pool
+export const pool = new Pool({ 
+  connectionString: process.env.DATABASE_URL 
+});
+
+// Create drizzle instance
+export const db = drizzle(pool);
+
+// Handle pool errors
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle PostgreSQL client', err);
+  process.exit(-1);
+});
+
+// Handle termination signals to close the pool
+process.on('SIGINT', () => {
+  pool.end()
+    .then(() => {
+      console.log('Database pool has ended');
+      process.exit(0);
+    })
+    .catch((err) => {
+      console.error('Error closing the database pool', err);
+      process.exit(-1);
+    });
+});

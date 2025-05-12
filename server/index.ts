@@ -4,8 +4,8 @@ import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import session from "express-session";
 import { generateSecureToken } from "./security";
+import fs from "fs";
 
 const app = express();
 app.use(express.json());
@@ -43,11 +43,23 @@ const apiLimiter = rateLimit({
 // Apply rate limiting to API routes
 app.use("/api/", apiLimiter);
 
+// Ensure uploads directory exists
+const uploadsDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 // Serve uploaded files statically
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+app.use('/uploads', express.static(uploadsDir));
+
+// Ensure public directory exists
+const publicDir = path.join(process.cwd(), 'public');
+if (!fs.existsSync(publicDir)) {
+  fs.mkdirSync(publicDir, { recursive: true });
+}
 
 // Serve public files (PDFs, etc.) statically
-app.use(express.static(path.join(process.cwd(), 'public')));
+app.use(express.static(publicDir));
 
 // API request logger middleware
 app.use((req, res, next) => {

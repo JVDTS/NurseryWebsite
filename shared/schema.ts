@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, pgEnum, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, varchar, timestamp, pgEnum, jsonb, integer, boolean, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -6,118 +6,203 @@ import { z } from "zod";
 export { z };
 
 // User role enum
-export const roleEnum = pgEnum('role', ['super_admin', 'nursery_admin', 'staff', 'regular']);
+export const roleEnum = pgEnum('role', ['super_admin', 'admin', 'editor']);
 
 // User schema
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-  firstName: text("first_name").notNull(),
-  lastName: text("last_name").notNull(),
-  email: text("email").notNull().unique(),
-  role: roleEnum("role").notNull().default('regular'),
+  email: varchar("email").notNull().unique(),
+  password: varchar("password").notNull(),
+  firstName: varchar("first_name").notNull(),
+  lastName: varchar("last_name").notNull(),
+  role: roleEnum("role").notNull().default('editor'),
   nurseryId: integer("nursery_id"),
+  profileImageUrl: varchar("profile_image_url"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Nursery locations enum
-export const nurseryLocationsEnum = pgEnum('nursery_location', ['hayes', 'uxbridge', 'hounslow']);
+export type User = typeof users.$inferSelect;
+export const insertUserSchema = createInsertSchema(users, {
+  email: z.string().email("Please enter a valid email"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
+}).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertUser = z.infer<typeof insertUserSchema>;
 
-// Nursery schema for locations
+// Nursery schema
 export const nurseries = pgTable("nurseries", {
   id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  location: nurseryLocationsEnum("location").notNull(),
-  address: text("address").notNull(),
-  phoneNumber: text("phone_number").notNull(),
-  email: text("email").notNull(),
+  name: varchar("name").notNull(),
+  location: varchar("location").notNull().unique(),
+  address: varchar("address").notNull(),
+  phoneNumber: varchar("phone_number").notNull(),
+  email: varchar("email").notNull(),
   description: text("description").notNull(),
-  heroImage: text("hero_image").notNull(),
+  openingHours: jsonb("opening_hours").notNull(),
+  heroImage: varchar("hero_image"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Event schema for upcoming events
+export type Nursery = typeof nurseries.$inferSelect;
+export const insertNurserySchema = createInsertSchema(nurseries, {
+  name: z.string().min(2, "Nursery name is required"),
+  location: z.string().min(2, "Location is required"),
+  address: z.string().min(5, "Address is required"),
+  phoneNumber: z.string().min(10, "Valid phone number is required"),
+  email: z.string().email("Valid email is required"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  openingHours: z.record(z.string(), z.string()),
+}).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertNursery = z.infer<typeof insertNurserySchema>;
+
+// Posts schema
+export const posts = pgTable("posts", {
+  id: serial("id").primaryKey(),
+  title: varchar("title").notNull(),
+  slug: varchar("slug").notNull().unique(),
+  content: text("content").notNull(),
+  excerpt: text("excerpt"),
+  featuredImage: varchar("featured_image"),
+  nurseryId: integer("nursery_id").notNull(),
+  authorId: integer("author_id").notNull(),
+  status: varchar("status").notNull().default("draft"), // draft, published
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type Post = typeof posts.$inferSelect;
+export const insertPostSchema = createInsertSchema(posts, {
+  title: z.string().min(5, "Title must be at least 5 characters"),
+  content: z.string().min(10, "Content must be at least 10 characters"),
+  nurseryId: z.number().int().positive("Nursery must be selected"),
+}).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPost = z.infer<typeof insertPostSchema>;
+
+// Newsletters schema
+export const newsletters = pgTable("newsletters", {
+  id: serial("id").primaryKey(),
+  title: varchar("title").notNull(),
+  description: text("description"),
+  pdfUrl: varchar("pdf_url"),
+  htmlContent: text("html_content"),
+  nurseryId: integer("nursery_id").notNull(),
+  authorId: integer("author_id").notNull(),
+  status: varchar("status").notNull().default("draft"), // draft, published, sent
+  scheduledFor: timestamp("scheduled_for"),
+  sentAt: timestamp("sent_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type Newsletter = typeof newsletters.$inferSelect;
+export const insertNewsletterSchema = createInsertSchema(newsletters, {
+  title: z.string().min(5, "Title must be at least 5 characters"),
+  nurseryId: z.number().int().positive("Nursery must be selected"),
+}).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertNewsletter = z.infer<typeof insertNewsletterSchema>;
+
+// Events schema
 export const events = pgTable("events", {
   id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  date: text("date").notNull(),
-  time: text("time").notNull(),
-  location: text("location").notNull(),
+  title: varchar("title").notNull(),
   description: text("description").notNull(),
+  location: varchar("location").notNull(),
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  allDay: boolean("all_day").default(false),
   nurseryId: integer("nursery_id").notNull(),
   createdBy: integer("created_by").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Gallery images schema
-export const galleryImages = pgTable("gallery_images", {
+export type Event = typeof events.$inferSelect;
+export const insertEventSchema = createInsertSchema(events, {
+  title: z.string().min(5, "Title must be at least 5 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  location: z.string().min(3, "Location is required"),
+  startDate: z.date(),
+  endDate: z.date(),
+  nurseryId: z.number().int().positive("Nursery must be selected"),
+}).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertEvent = z.infer<typeof insertEventSchema>;
+
+// Media Library schema
+export const mediaLibrary = pgTable("media_library", {
   id: serial("id").primaryKey(),
-  imageUrl: text("image_url").notNull(),
-  caption: text("caption"),
+  fileName: varchar("file_name").notNull(),
+  fileUrl: varchar("file_url").notNull(),
+  fileType: varchar("file_type").notNull(), // image, document, video
+  fileSize: integer("file_size").notNull(),
   nurseryId: integer("nursery_id").notNull(),
   uploadedBy: integer("uploaded_by").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Newsletter schema
-export const newsletters = pgTable("newsletters", {
+export type MediaItem = typeof mediaLibrary.$inferSelect;
+export const insertMediaItemSchema = createInsertSchema(mediaLibrary, {
+  fileName: z.string().min(1, "File name is required"),
+  fileUrl: z.string().url("Valid URL is required"),
+  fileType: z.string().min(1, "File type is required"),
+  fileSize: z.number().int().positive("File size must be positive"),
+  nurseryId: z.number().int().positive("Nursery must be selected"),
+}).omit({ id: true, createdAt: true });
+export type InsertMediaItem = z.infer<typeof insertMediaItemSchema>;
+
+// Activity logs schema
+export const activityLogs = pgTable("activity_logs", {
   id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  content: text("content").notNull(),
-  pdfUrl: text("pdf_url"),
-  nurseryId: integer("nursery_id").notNull(),
-  publishedBy: integer("published_by").notNull(),
-  publishDate: timestamp("publish_date").defaultNow().notNull(),
-  tags: text("tags"), // Optional tags field for categorizing newsletters
+  userId: integer("user_id").notNull(),
+  action: varchar("action").notNull(), // login, create_post, update_user, etc.
+  entityType: varchar("entity_type"), // user, post, newsletter, etc.
+  entityId: integer("entity_id"),
+  details: jsonb("details"),
+  ipAddress: varchar("ip_address"),
+  nurseryId: integer("nursery_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// User input schema
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-  firstName: true,
-  lastName: true,
-  email: true,
-  role: true,
-  nurseryId: true,
+export type ActivityLog = typeof activityLogs.$inferSelect;
+export const insertActivityLogSchema = createInsertSchema(activityLogs, {
+  userId: z.number().int().positive("User ID is required"),
+  action: z.string().min(1, "Action is required"),
+}).omit({ id: true, createdAt: true });
+export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
+
+// User invitations schema
+export const invitations = pgTable("invitations", {
+  id: serial("id").primaryKey(),
+  email: varchar("email").notNull(),
+  role: roleEnum("role").notNull(),
+  nurseryId: integer("nursery_id"),
+  token: varchar("token").notNull().unique(),
+  invitedBy: integer("invited_by").notNull(),
+  accepted: boolean("accepted").default(false),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
-
-// Nursery input schema
-export const insertNurserySchema = createInsertSchema(nurseries);
-export type InsertNursery = z.infer<typeof insertNurserySchema>;
-export type Nursery = typeof nurseries.$inferSelect;
-
-// Event input schema
-export const insertEventSchema = createInsertSchema(events);
-export type InsertEvent = z.infer<typeof insertEventSchema>;
-export type Event = typeof events.$inferSelect;
-
-// Gallery image input schema
-export const insertGalleryImageSchema = createInsertSchema(galleryImages);
-export type InsertGalleryImage = z.infer<typeof insertGalleryImageSchema>;
-export type GalleryImage = typeof galleryImages.$inferSelect;
-
-// Newsletter input schema
-export const insertNewsletterSchema = createInsertSchema(newsletters);
-export type InsertNewsletter = z.infer<typeof insertNewsletterSchema>;
-export type Newsletter = typeof newsletters.$inferSelect;
+export type Invitation = typeof invitations.$inferSelect;
+export const insertInvitationSchema = createInsertSchema(invitations, {
+  email: z.string().email("Please enter a valid email"),
+  role: z.enum(['super_admin', 'admin', 'editor']),
+  nurseryId: z.number().int().positive("Nursery must be selected").optional(),
+  token: z.string().min(20, "Valid token required"),
+  expiresAt: z.date(),
+}).omit({ id: true, createdAt: true, accepted: true });
+export type InsertInvitation = z.infer<typeof insertInvitationSchema>;
 
 // Contact form schema
 export const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
   email: z.string().email({ message: "Please enter a valid email address" }),
   phone: z.string().optional(),
-  nurseryLocation: z.enum(['hayes', 'uxbridge', 'hounslow'], { 
-    required_error: "Please select a nursery location" 
+  nurseryLocation: z.string().min(2, { 
+    message: "Please select a nursery location" 
   }),
   message: z.string().min(10, { message: "Message must be at least 10 characters" })
 });
@@ -132,44 +217,89 @@ export const contactSubmissions = pgTable("contact_submissions", {
   createdAt: timestamp("created_at").defaultNow().notNull()
 });
 
-export const insertContactSchema = createInsertSchema(contactSubmissions);
-
-export type InsertContact = z.infer<typeof insertContactSchema>;
+export type InsertContact = z.infer<typeof contactFormSchema>;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
 
-// Activity type enum (types of actions an admin can perform)
-export const activityTypeEnum = pgEnum('activity_type', [
-  'login', 
-  'logout',
-  'create_event', 
-  'update_event', 
-  'delete_event',
-  'upload_gallery',
-  'delete_gallery',
-  'create_newsletter',
-  'update_newsletter',
-  'delete_newsletter',
-  'create_user',
-  'update_user',
-  'update_nursery'
-]);
+// Session storage table for express-session
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  }
+);
 
-// Admin activities tracking
-export const adminActivities = pgTable("admin_activities", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
-  activityType: activityTypeEnum("activity_type").notNull(),
-  description: text("description").notNull(),
-  details: jsonb("details"),
-  nurseryId: integer("nursery_id"),
-  timestamp: timestamp("timestamp").defaultNow().notNull(),
-  ipAddress: text("ip_address"),
-});
-
-export const insertActivitySchema = createInsertSchema(adminActivities).omit({ 
-  id: true, 
-  timestamp: true 
-});
-
-export type InsertActivity = z.infer<typeof insertActivitySchema>;
-export type AdminActivity = typeof adminActivities.$inferSelect;
+// Relations
+export const relations = {
+  users: {
+    nursery: (users) => ({
+      one: (nurseries, { eq }) => eq(users.nurseryId, nurseries.id),
+    }),
+  },
+  nurseries: {
+    users: (nurseries) => ({
+      many: (users, { eq }) => eq(users.nurseryId, nurseries.id),
+    }),
+    posts: (nurseries) => ({
+      many: (posts, { eq }) => eq(posts.nurseryId, nurseries.id),
+    }),
+    events: (nurseries) => ({
+      many: (events, { eq }) => eq(events.nurseryId, nurseries.id),
+    }),
+    newsletters: (nurseries) => ({
+      many: (newsletters, { eq }) => eq(newsletters.nurseryId, nurseries.id),
+    }),
+    media: (nurseries) => ({
+      many: (mediaLibrary, { eq }) => eq(mediaLibrary.nurseryId, nurseries.id),
+    }),
+  },
+  posts: {
+    nursery: (posts) => ({
+      one: (nurseries, { eq }) => eq(posts.nurseryId, nurseries.id),
+    }),
+    author: (posts) => ({
+      one: (users, { eq }) => eq(posts.authorId, users.id),
+    }),
+  },
+  newsletters: {
+    nursery: (newsletters) => ({
+      one: (nurseries, { eq }) => eq(newsletters.nurseryId, nurseries.id),
+    }),
+    author: (newsletters) => ({
+      one: (users, { eq }) => eq(newsletters.authorId, users.id),
+    }),
+  },
+  events: {
+    nursery: (events) => ({
+      one: (nurseries, { eq }) => eq(events.nurseryId, nurseries.id),
+    }),
+    creator: (events) => ({
+      one: (users, { eq }) => eq(events.createdBy, users.id),
+    }),
+  },
+  mediaLibrary: {
+    nursery: (mediaLibrary) => ({
+      one: (nurseries, { eq }) => eq(mediaLibrary.nurseryId, nurseries.id),
+    }),
+    uploader: (mediaLibrary) => ({
+      one: (users, { eq }) => eq(mediaLibrary.uploadedBy, users.id),
+    }),
+  },
+  activityLogs: {
+    user: (activityLogs) => ({
+      one: (users, { eq }) => eq(activityLogs.userId, users.id),
+    }),
+    nursery: (activityLogs) => ({
+      one: (nurseries, { eq }) => eq(activityLogs.nurseryId, nurseries.id),
+    }),
+  },
+  invitations: {
+    nursery: (invitations) => ({
+      one: (nurseries, { eq }) => eq(invitations.nurseryId, nurseries.id),
+    }),
+    inviter: (invitations) => ({
+      one: (users, { eq }) => eq(invitations.invitedBy, users.id),
+    }),
+  },
+};

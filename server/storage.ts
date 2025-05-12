@@ -1,858 +1,498 @@
+import { db } from './db';
+import { eq, and, desc, or, like, isNull } from 'drizzle-orm';
 import { 
-  users, type User, type InsertUser, 
-  contactSubmissions, type InsertContact, type ContactSubmission,
-  nurseries, type Nursery, type InsertNursery,
-  events, type Event, type InsertEvent,
-  galleryImages, type GalleryImage, type InsertGalleryImage,
-  newsletters, type Newsletter, type InsertNewsletter,
-  adminActivities, type AdminActivity, type InsertActivity
-} from "@shared/schema";
-import session from "express-session";
-import createMemoryStore from "memorystore";
-import { hashPassword } from "./security";
+  users, User, InsertUser,
+  nurseries, Nursery, InsertNursery,
+  events, Event, InsertEvent,
+  newsletters, Newsletter, InsertNewsletter,
+  posts, Post, InsertPost,
+  mediaLibrary, MediaItem, InsertMediaItem,
+  activityLogs, ActivityLog, InsertActivityLog,
+  invitations, Invitation, InsertInvitation,
+  contactSubmissions, ContactSubmission, InsertContact
+} from '../shared/schema';
+import bcrypt from 'bcryptjs';
+import { randomBytes } from 'crypto';
 
-// Storage interface for all CRUD operations
+// Interface for storage operations
 export interface IStorage {
-  // Session store for authentication
-  sessionStore: any; // Using any type to avoid express-session typing issues
-  
-  // User methods
+  // Session store for express-session
+  sessionStore: any;
+
+  // User operations
   getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined>;
-  
-  // Nursery methods
+  updateUser(id: number, userData: Partial<User>): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
+  getUsersByNursery(nurseryId: number): Promise<User[]>;
+  deleteUser(id: number): Promise<boolean>;
+
+  // Nursery operations
   getNursery(id: number): Promise<Nursery | undefined>;
   getNurseryByLocation(location: string): Promise<Nursery | undefined>;
   getAllNurseries(): Promise<Nursery[]>;
   createNursery(nursery: InsertNursery): Promise<Nursery>;
-  updateNursery(id: number, nurseryData: Partial<InsertNursery>): Promise<Nursery | undefined>;
-  
-  // Event methods
+  updateNursery(id: number, nurseryData: Partial<Nursery>): Promise<Nursery | undefined>;
+  deleteNursery(id: number): Promise<boolean>;
+
+  // Event operations
   getEvent(id: number): Promise<Event | undefined>;
   getEventsByNursery(nurseryId: number): Promise<Event[]>;
   getAllEvents(): Promise<Event[]>;
   createEvent(event: InsertEvent): Promise<Event>;
-  updateEvent(id: number, eventData: Partial<InsertEvent>): Promise<Event | undefined>;
+  updateEvent(id: number, eventData: Partial<Event>): Promise<Event | undefined>;
   deleteEvent(id: number): Promise<boolean>;
-  
-  // Gallery methods
-  getGalleryImage(id: number): Promise<GalleryImage | undefined>;
-  getGalleryImagesByNursery(nurseryId: number): Promise<GalleryImage[]>;
-  createGalleryImage(image: InsertGalleryImage): Promise<GalleryImage>;
-  deleteGalleryImage(id: number): Promise<boolean>;
-  
-  // Newsletter methods
+
+  // Newsletter operations
   getNewsletter(id: number): Promise<Newsletter | undefined>;
   getNewslettersByNursery(nurseryId: number): Promise<Newsletter[]>;
   getAllNewsletters(): Promise<Newsletter[]>;
   createNewsletter(newsletter: InsertNewsletter): Promise<Newsletter>;
-  updateNewsletter(id: number, newsletterData: Partial<InsertNewsletter>): Promise<Newsletter | undefined>;
+  updateNewsletter(id: number, newsletterData: Partial<Newsletter>): Promise<Newsletter | undefined>;
   deleteNewsletter(id: number): Promise<boolean>;
-  
-  // Contact methods
+
+  // Post operations
+  getPost(id: number): Promise<Post | undefined>;
+  getPostBySlug(slug: string): Promise<Post | undefined>;
+  getPostsByNursery(nurseryId: number): Promise<Post[]>;
+  getAllPosts(): Promise<Post[]>;
+  createPost(post: InsertPost): Promise<Post>;
+  updatePost(id: number, postData: Partial<Post>): Promise<Post | undefined>;
+  deletePost(id: number): Promise<boolean>;
+
+  // Media operations
+  getMediaItem(id: number): Promise<MediaItem | undefined>;
+  getMediaByNursery(nurseryId: number): Promise<MediaItem[]>;
+  getAllMedia(): Promise<MediaItem[]>;
+  createMediaItem(mediaItem: InsertMediaItem): Promise<MediaItem>;
+  deleteMediaItem(id: number): Promise<boolean>;
+
+  // Activity log operations
+  logActivity(log: InsertActivityLog): Promise<ActivityLog>;
+  getActivityLogsByUser(userId: number): Promise<ActivityLog[]>;
+  getActivityLogsByNursery(nurseryId: number): Promise<ActivityLog[]>;
+  getRecentActivityLogs(limit?: number): Promise<ActivityLog[]>;
+
+  // Invitation operations
+  createInvitation(invitation: InsertInvitation): Promise<Invitation>;
+  getInvitationByToken(token: string): Promise<Invitation | undefined>;
+  getInvitationsByNursery(nurseryId: number): Promise<Invitation[]>;
+  acceptInvitation(token: string): Promise<boolean>;
+  deleteInvitation(id: number): Promise<boolean>;
+
+  // Contact submissions
   createContactSubmission(contact: InsertContact): Promise<ContactSubmission>;
   getContactSubmissions(): Promise<ContactSubmission[]>;
-  
-  // Admin Activity methods
-  logActivity(activity: InsertActivity): Promise<AdminActivity>;
-  getActivitiesByUser(userId: number): Promise<AdminActivity[]>;
-  getActivitiesByNursery(nurseryId: number): Promise<AdminActivity[]>;
-  getRecentActivities(limit?: number): Promise<AdminActivity[]>;
-  getAllStaff(): Promise<User[]>;
 }
 
-// Import DbStorage if PostgreSQL database is configured
-let DbStorageImplementation;
-try {
-  // Check if DATABASE_URL is configured
-  if (process.env.DATABASE_URL) {
-    // Dynamic import to avoid breaking if PostgreSQL is not configured
-    DbStorageImplementation = require('./dbStorage').DbStorage;
-    console.log('DATABASE_URL found:', process.env.DATABASE_URL);
-  } else {
-    console.log('DATABASE_URL environment variable not found');
-    DbStorageImplementation = null;
-  }
-} catch (e) {
-  console.error('Error loading PostgreSQL database implementation:', e);
-  DbStorageImplementation = null;
-}
-
-// In-memory storage implementation for development
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private nurseries: Map<number, Nursery>;
-  private events: Map<number, Event>;
-  private galleryImages: Map<number, GalleryImage>;
-  private newsletters: Map<number, Newsletter>;
-  private contacts: Map<number, ContactSubmission>;
-  private activities: Map<number, AdminActivity>;
-  
-  private userCurrentId: number;
-  private nurseryCurrentId: number;
-  private eventCurrentId: number;
-  private galleryImageCurrentId: number;
-  private newsletterCurrentId: number;
-  private contactCurrentId: number;
-  private activityCurrentId: number;
-  
-  // Add session store for authentication
+export class DatabaseStorage implements IStorage {
   public sessionStore: any; // Using any type to avoid express-session typing issues
 
-  constructor() {
-    this.users = new Map();
-    this.nurseries = new Map();
-    this.events = new Map();
-    this.galleryImages = new Map();
-    this.newsletters = new Map();
-    this.contacts = new Map();
-    this.activities = new Map();
-    
-    this.userCurrentId = 1;
-    this.nurseryCurrentId = 1;
-    this.eventCurrentId = 1;
-    this.galleryImageCurrentId = 1;
-    this.newsletterCurrentId = 1;
-    this.contactCurrentId = 1;
-    this.activityCurrentId = 1;
-    
-    // Initialize the session store
-    const MemoryStore = createMemoryStore(session);
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000 // prune expired entries every 24h
-    });
-    
-    // Initialize with three nursery locations
-    this.initializeNurseries();
-    
-    // Create admin users
-    this.initializeAdminUsers();
-    
-    // Initialize sample newsletters
-    this.initializeSampleNewsletters();
-    
-    // Initialize sample gallery images
-    this.initializeSampleGalleryImages();
-    
-    // Initialize sample contact submissions
-    this.initializeSampleContactSubmissions();
-    
-    // Initialize sample admin activities
-    this.initializeSampleAdminActivities();
-  }
-  
-  private initializeSampleAdminActivities() {
-    // Create sample activities with timestamps instead of using logActivity method
-    // to avoid issues with createdAt vs timestamp field names
-    const now = new Date();
-    
-    // Define custom timestamps for activities
-    const timestamps = {
-      sevenDaysAgo: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
-      sixDaysAgo: new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000),
-      fiveDaysAgo: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000),
-      threeDaysAgo: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
-      oneDayAgo: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000)
-    };
-    
-    // Create sample activities
-    const sampleActivities: AdminActivity[] = [
-      // Super admin activities
-      {
-        id: this.activityCurrentId++,
-        userId: 1,
-        nurseryId: null,
-        activityType: 'login',
-        description: 'Super Admin logged in',
-        ipAddress: '192.168.1.1',
-        timestamp: timestamps.sevenDaysAgo,
-        details: null
-      },
-      {
-        id: this.activityCurrentId++,
-        userId: 1,
-        nurseryId: null,
-        activityType: 'update_nursery',
-        description: 'Updated nursery information for Hayes Nursery',
-        ipAddress: '192.168.1.1',
-        timestamp: timestamps.sixDaysAgo,
-        details: null
-      },
-      
-      // Hayes admin activities
-      {
-        id: this.activityCurrentId++,
-        userId: 2,
-        nurseryId: 1,
-        activityType: 'login',
-        description: 'Hayes Admin logged in',
-        ipAddress: '192.168.1.2',
-        timestamp: timestamps.fiveDaysAgo,
-        details: null
-      },
-      {
-        id: this.activityCurrentId++,
-        userId: 2,
-        nurseryId: 1,
-        activityType: 'create_event',
-        description: 'Created new event: Summer Fair',
-        ipAddress: '192.168.1.2',
-        timestamp: timestamps.fiveDaysAgo,
-        details: null
-      },
-      
-      // Uxbridge admin activities
-      {
-        id: this.activityCurrentId++,
-        userId: 3,
-        nurseryId: 2,
-        activityType: 'login',
-        description: 'Uxbridge Admin logged in',
-        ipAddress: '192.168.1.3',
-        timestamp: timestamps.threeDaysAgo,
-        details: null
-      },
-      {
-        id: this.activityCurrentId++,
-        userId: 3,
-        nurseryId: 2,
-        activityType: 'upload_gallery',
-        description: 'Uploaded new gallery images',
-        ipAddress: '192.168.1.3',
-        timestamp: timestamps.threeDaysAgo,
-        details: null
-      },
-      
-      // Hounslow admin activities
-      {
-        id: this.activityCurrentId++,
-        userId: 4,
-        nurseryId: 3,
-        activityType: 'login',
-        description: 'Hounslow Admin logged in',
-        ipAddress: '192.168.1.4',
-        timestamp: timestamps.oneDayAgo,
-        details: null
-      },
-      {
-        id: this.activityCurrentId++,
-        userId: 4,
-        nurseryId: 3,
-        activityType: 'create_newsletter',
-        description: 'Created March newsletter',
-        ipAddress: '192.168.1.4',
-        timestamp: timestamps.oneDayAgo,
-        details: null
-      }
-    ];
-    
-    // Add activities to the map
-    sampleActivities.forEach(activity => {
-      this.activities.set(activity.id, activity);
-    });
-  }
-  
-  private initializeSampleContactSubmissions() {
-    const contact1: InsertContact = {
-      name: "Sarah Johnson",
-      email: "sarah.johnson@example.com",
-      phone: "077-3456-7890",
-      nurseryLocation: "hayes",
-      message: "I'm interested in enrolling my 3-year-old daughter in your nursery starting next month. Could you please provide information about your available spots and fees?",
-      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) // 5 days ago
-    };
-    
-    const contact2: InsertContact = {
-      name: "Michael Roberts",
-      email: "m.roberts@example.com",
-      phone: "079-8765-4321",
-      nurseryLocation: "uxbridge",
-      message: "We're relocating to the area next month and looking for a nursery for our twins (age 4). Do you have availability for two children? I'd also like to arrange a visit if possible.",
-      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) // 2 days ago
-    };
-    
-    const contact3: InsertContact = {
-      name: "Priya Patel",
-      email: "priya.p@example.com",
-      phone: null,
-      nurseryLocation: "hounslow",
-      message: "I'd like to know more about your curriculum and daily activities for toddlers. My son is very active and I'm looking for a program that can challenge him.",
-      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) // 1 day ago
-    };
-    
-    this.createContactSubmission(contact1);
-    this.createContactSubmission(contact2);
-    this.createContactSubmission(contact3);
-  }
-  
-  private initializeNurseries() {
-    const hayesNursery: InsertNursery = {
-      name: "Hayes Nursery",
-      location: "hayes",
-      address: "192 Church Road, Hayes, UB3 2LT",
-      phoneNumber: "01895 272885",
-      email: "hayes@cmcnursery.co.uk",
-      description: "Our Hayes nursery provides a warm, welcoming environment with an emphasis on creative expression and arts. Located in a converted church hall, it features bright, airy spaces filled with natural light, a dedicated creative arts studio, a music space, and a secure outdoor play area designed to encourage imaginative play and exploration.",
-      heroImage: "https://images.unsplash.com/photo-1567448400815-a6fa3ac9c0ff?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    
-    const uxbridgeNursery: InsertNursery = {
-      name: "Uxbridge Nursery",
-      location: "uxbridge",
-      address: "4 New Windsor Street, Uxbridge, UB8 2TU",
-      phoneNumber: "01895 272885",
-      email: "uxbridge@cmcnursery.co.uk",
-      description: "Our Uxbridge nursery is a cozy, innovative environment with state-of-the-art learning facilities and a dedicated sensory room. We cater to children aged 2-5, providing a nurturing space where curious minds flourish. Our approach focuses on hands-on learning experiences that develop cognitive, social, and emotional skills while celebrating each child's unique personality and learning style.",
-      heroImage: "https://images.unsplash.com/photo-1544487660-b86394cba400?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    
-    const hounslowNursery: InsertNursery = {
-      name: "Hounslow Nursery",
-      location: "hounslow",
-      address: "488, 490 Great West Rd, Hounslow TW5 0TA",
-      phoneNumber: "01895 272885",
-      email: "hounslow@cmcnursery.co.uk",
-      description: "Our Hounslow nursery is a nature-focused environment with extensive outdoor play areas and forest school activities. Designed for children aged 1-5, our approach emphasizes environmental awareness, exploration, and adventure. Children spend significant time outdoors in all seasons, developing resilience, physical skills, and a deep connection to the natural world, complemented by thoughtful indoor spaces that extend their learning.",
-      heroImage: "https://images.unsplash.com/photo-1543248939-4296e1fea89b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    
-    this.createNursery(hayesNursery);
-    this.createNursery(uxbridgeNursery);
-    this.createNursery(hounslowNursery);
-  }
-  
-  private initializeAdminUsers() {
-    // Super admin
-    const superAdmin: InsertUser = {
-      username: "superadmin",
-      password: "superadmin123", // In a real app, this would be hashed
-      firstName: "Super",
-      lastName: "Admin",
-      email: "admin@cmcnursery.co.uk",
-      role: "super_admin",
-      nurseryId: null
-    };
-    
-    // Nursery admins - one for each location
-    const hayesAdmin: InsertUser = {
-      username: "hayesadmin",
-      password: "hayesadmin123", // In a real app, this would be hashed
-      firstName: "Hayes",
-      lastName: "Manager",
-      email: "hayes.manager@cmcnursery.co.uk",
-      role: "nursery_admin",
-      nurseryId: 1
-    };
-    
-    const uxbridgeAdmin: InsertUser = {
-      username: "uxbridgeadmin",
-      password: "uxbridgeadmin123", // In a real app, this would be hashed
-      firstName: "Uxbridge",
-      lastName: "Manager",
-      email: "uxbridge.manager@cmcnursery.co.uk",
-      role: "nursery_admin",
-      nurseryId: 2
-    };
-    
-    const hounslowAdmin: InsertUser = {
-      username: "hounslowadmin",
-      password: "hounslowadmin123", // In a real app, this would be hashed
-      firstName: "Hounslow",
-      lastName: "Manager",
-      email: "hounslow.manager@cmcnursery.co.uk",
-      role: "nursery_admin",
-      nurseryId: 3
-    };
-    
-    this.createUser(superAdmin);
-    this.createUser(hayesAdmin);
-    this.createUser(uxbridgeAdmin);
-    this.createUser(hounslowAdmin);
-  }
-
-  // User methods
+  // User operations
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-  
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.email === email,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.userCurrentId++;
-    const now = new Date();
-    
-    // Hash the password using bcrypt
-    const hashedPassword = await hashPassword(insertUser.password);
-    
-    const user: User = { 
-      ...insertUser,
-      password: hashedPassword, // Store the hashed password 
-      id, 
-      role: insertUser.role ?? 'regular', // Ensure role is not undefined
-      nurseryId: insertUser.nurseryId ?? null, // Ensure nurseryId is not undefined
-      createdAt: now, 
-      updatedAt: now 
-    };
-    this.users.set(id, user);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
-  
-  async updateUser(id: number, userData: Partial<InsertUser>): Promise<User | undefined> {
-    const user = await this.getUser(id);
-    if (!user) {
-      return undefined;
-    }
-    
-    // If password is being updated, hash it
-    if (userData.password) {
-      userData.password = await hashPassword(userData.password);
-    }
-    
-    const updatedUser: User = { 
-      ...user, 
-      ...userData, 
-      updatedAt: new Date() 
-    };
-    this.users.set(id, updatedUser);
-    return updatedUser;
-  }
-  
-  // Nursery methods
-  async getNursery(id: number): Promise<Nursery | undefined> {
-    return this.nurseries.get(id);
-  }
-  
-  async getNurseryByLocation(location: string): Promise<Nursery | undefined> {
-    return Array.from(this.nurseries.values()).find(
-      (nursery) => nursery.location === location,
-    );
-  }
-  
-  async getAllNurseries(): Promise<Nursery[]> {
-    return Array.from(this.nurseries.values());
-  }
-  
-  async createNursery(insertNursery: InsertNursery): Promise<Nursery> {
-    const id = this.nurseryCurrentId++;
-    const now = new Date();
-    const nursery: Nursery = { 
-      ...insertNursery, 
-      id,
-      createdAt: insertNursery.createdAt || now,
-      updatedAt: insertNursery.updatedAt || now
-    };
-    this.nurseries.set(id, nursery);
-    return nursery;
-  }
-  
-  async updateNursery(id: number, nurseryData: Partial<InsertNursery>): Promise<Nursery | undefined> {
-    const nursery = await this.getNursery(id);
-    if (!nursery) {
-      return undefined;
-    }
-    
-    const updatedNursery: Nursery = { 
-      ...nursery, 
-      ...nurseryData, 
-      updatedAt: new Date() 
-    };
-    this.nurseries.set(id, updatedNursery);
-    return updatedNursery;
-  }
-  
-  // Event methods
-  async getEvent(id: number): Promise<Event | undefined> {
-    return this.events.get(id);
-  }
-  
-  async getEventsByNursery(nurseryId: number): Promise<Event[]> {
-    return Array.from(this.events.values()).filter(
-      (event) => event.nurseryId === nurseryId
-    );
-  }
-  
-  async getAllEvents(): Promise<Event[]> {
-    return Array.from(this.events.values());
-  }
-  
-  async createEvent(insertEvent: InsertEvent): Promise<Event> {
-    const id = this.eventCurrentId++;
-    const now = new Date();
-    const event: Event = { 
-      ...insertEvent, 
-      id,
-      createdAt: now,
-      updatedAt: now
-    };
-    this.events.set(id, event);
-    return event;
-  }
-  
-  async updateEvent(id: number, eventData: Partial<InsertEvent>): Promise<Event | undefined> {
-    const event = await this.getEvent(id);
-    if (!event) {
-      return undefined;
-    }
-    
-    const updatedEvent: Event = { 
-      ...event, 
-      ...eventData, 
-      updatedAt: new Date() 
-    };
-    this.events.set(id, updatedEvent);
-    return updatedEvent;
-  }
-  
-  async deleteEvent(id: number): Promise<boolean> {
-    return this.events.delete(id);
-  }
-  
-  // Gallery methods
-  async getGalleryImage(id: number): Promise<GalleryImage | undefined> {
-    return this.galleryImages.get(id);
-  }
-  
-  async getGalleryImagesByNursery(nurseryId: number): Promise<GalleryImage[]> {
-    return Array.from(this.galleryImages.values()).filter(
-      (image) => image.nurseryId === nurseryId
-    );
-  }
-  
-  async createGalleryImage(insertImage: InsertGalleryImage): Promise<GalleryImage> {
-    const id = this.galleryImageCurrentId++;
-    const galleryImage: GalleryImage = { 
-      ...insertImage, 
-      id,
-      caption: insertImage.caption ?? null, // Ensure caption is not undefined
-      createdAt: new Date()
-    };
-    this.galleryImages.set(id, galleryImage);
-    return galleryImage;
-  }
-  
-  async deleteGalleryImage(id: number): Promise<boolean> {
-    return this.galleryImages.delete(id);
-  }
-  
-  // Newsletter methods
-  async getNewsletter(id: number): Promise<Newsletter | undefined> {
-    return this.newsletters.get(id);
-  }
-  
-  async getNewslettersByNursery(nurseryId: number): Promise<Newsletter[]> {
-    return Array.from(this.newsletters.values()).filter(
-      (newsletter) => newsletter.nurseryId === nurseryId
-    );
-  }
-  
-  async getAllNewsletters(): Promise<Newsletter[]> {
-    return Array.from(this.newsletters.values());
-  }
-  
-  async createNewsletter(insertNewsletter: InsertNewsletter): Promise<Newsletter> {
-    const id = this.newsletterCurrentId++;
-    const now = new Date();
-    const newsletter: Newsletter = { 
-      ...insertNewsletter, 
-      id,
-      pdfUrl: insertNewsletter.pdfUrl ?? null, // Ensure pdfUrl is not undefined
-      publishDate: insertNewsletter.publishDate ?? now, // Ensure publishDate is not undefined
-      tags: insertNewsletter.tags ?? null, // Ensure tags is not undefined
-      createdAt: now,
-      updatedAt: now
-    };
-    this.newsletters.set(id, newsletter);
-    return newsletter;
-  }
-  
-  async updateNewsletter(id: number, newsletterData: Partial<InsertNewsletter>): Promise<Newsletter | undefined> {
-    const newsletter = await this.getNewsletter(id);
-    if (!newsletter) {
-      return undefined;
-    }
-    
-    const updatedNewsletter: Newsletter = { 
-      ...newsletter, 
-      ...newsletterData, 
-      updatedAt: new Date() 
-    };
-    this.newsletters.set(id, updatedNewsletter);
-    return updatedNewsletter;
-  }
-  
-  async deleteNewsletter(id: number): Promise<boolean> {
-    return this.newsletters.delete(id);
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
   }
 
-  // Contact methods
-  async createContactSubmission(contact: InsertContact): Promise<ContactSubmission> {
-    const id = this.contactCurrentId++;
-    const newContact: ContactSubmission = { 
-      id,
-      name: contact.name,
-      email: contact.email,
-      phone: contact.phone ?? null,
-      nurseryLocation: contact.nurseryLocation,
-      message: contact.message,
-      createdAt: new Date()
-    };
-    this.contacts.set(id, newContact);
-    return newContact;
+  async createUser(userData: InsertUser): Promise<User> {
+    // Hash password before storing
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    
+    const [user] = await db.insert(users).values({
+      ...userData,
+      password: hashedPassword
+    }).returning();
+    
+    return user;
+  }
+
+  async updateUser(id: number, userData: Partial<User>): Promise<User | undefined> {
+    // If password is being updated, hash it
+    if (userData.password) {
+      userData.password = await bcrypt.hash(userData.password, 10);
+    }
+    
+    const [user] = await db
+      .update(users)
+      .set({
+        ...userData,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, id))
+      .returning();
+    
+    return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return db.select().from(users).orderBy(users.lastName);
+  }
+
+  async getUsersByNursery(nurseryId: number): Promise<User[]> {
+    return db
+      .select()
+      .from(users)
+      .where(eq(users.nurseryId, nurseryId))
+      .orderBy(users.lastName);
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    const result = await db.delete(users).where(eq(users.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Nursery operations
+  async getNursery(id: number): Promise<Nursery | undefined> {
+    const [nursery] = await db.select().from(nurseries).where(eq(nurseries.id, id));
+    return nursery;
+  }
+
+  async getNurseryByLocation(location: string): Promise<Nursery | undefined> {
+    const [nursery] = await db
+      .select()
+      .from(nurseries)
+      .where(eq(nurseries.location, location));
+    
+    return nursery;
+  }
+
+  async getAllNurseries(): Promise<Nursery[]> {
+    return db.select().from(nurseries).orderBy(nurseries.name);
+  }
+
+  async createNursery(nurseryData: InsertNursery): Promise<Nursery> {
+    const [nursery] = await db
+      .insert(nurseries)
+      .values(nurseryData)
+      .returning();
+    
+    return nursery;
+  }
+
+  async updateNursery(id: number, nurseryData: Partial<Nursery>): Promise<Nursery | undefined> {
+    const [nursery] = await db
+      .update(nurseries)
+      .set({
+        ...nurseryData,
+        updatedAt: new Date()
+      })
+      .where(eq(nurseries.id, id))
+      .returning();
+    
+    return nursery;
+  }
+
+  async deleteNursery(id: number): Promise<boolean> {
+    const result = await db.delete(nurseries).where(eq(nurseries.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Event operations
+  async getEvent(id: number): Promise<Event | undefined> {
+    const [event] = await db.select().from(events).where(eq(events.id, id));
+    return event;
+  }
+
+  async getEventsByNursery(nurseryId: number): Promise<Event[]> {
+    return db
+      .select()
+      .from(events)
+      .where(eq(events.nurseryId, nurseryId))
+      .orderBy(desc(events.startDate));
+  }
+
+  async getAllEvents(): Promise<Event[]> {
+    return db.select().from(events).orderBy(desc(events.startDate));
+  }
+
+  async createEvent(eventData: InsertEvent): Promise<Event> {
+    const [event] = await db
+      .insert(events)
+      .values(eventData)
+      .returning();
+    
+    return event;
+  }
+
+  async updateEvent(id: number, eventData: Partial<Event>): Promise<Event | undefined> {
+    const [event] = await db
+      .update(events)
+      .set({
+        ...eventData,
+        updatedAt: new Date()
+      })
+      .where(eq(events.id, id))
+      .returning();
+    
+    return event;
+  }
+
+  async deleteEvent(id: number): Promise<boolean> {
+    const result = await db.delete(events).where(eq(events.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Newsletter operations
+  async getNewsletter(id: number): Promise<Newsletter | undefined> {
+    const [newsletter] = await db.select().from(newsletters).where(eq(newsletters.id, id));
+    return newsletter;
+  }
+
+  async getNewslettersByNursery(nurseryId: number): Promise<Newsletter[]> {
+    return db
+      .select()
+      .from(newsletters)
+      .where(eq(newsletters.nurseryId, nurseryId))
+      .orderBy(desc(newsletters.createdAt));
+  }
+
+  async getAllNewsletters(): Promise<Newsletter[]> {
+    return db.select().from(newsletters).orderBy(desc(newsletters.createdAt));
+  }
+
+  async createNewsletter(newsletterData: InsertNewsletter): Promise<Newsletter> {
+    const [newsletter] = await db
+      .insert(newsletters)
+      .values(newsletterData)
+      .returning();
+    
+    return newsletter;
+  }
+
+  async updateNewsletter(id: number, newsletterData: Partial<Newsletter>): Promise<Newsletter | undefined> {
+    const [newsletter] = await db
+      .update(newsletters)
+      .set({
+        ...newsletterData,
+        updatedAt: new Date()
+      })
+      .where(eq(newsletters.id, id))
+      .returning();
+    
+    return newsletter;
+  }
+
+  async deleteNewsletter(id: number): Promise<boolean> {
+    const result = await db.delete(newsletters).where(eq(newsletters.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Post operations
+  async getPost(id: number): Promise<Post | undefined> {
+    const [post] = await db.select().from(posts).where(eq(posts.id, id));
+    return post;
+  }
+
+  async getPostBySlug(slug: string): Promise<Post | undefined> {
+    const [post] = await db.select().from(posts).where(eq(posts.slug, slug));
+    return post;
+  }
+
+  async getPostsByNursery(nurseryId: number): Promise<Post[]> {
+    return db
+      .select()
+      .from(posts)
+      .where(eq(posts.nurseryId, nurseryId))
+      .orderBy(desc(posts.createdAt));
+  }
+
+  async getAllPosts(): Promise<Post[]> {
+    return db.select().from(posts).orderBy(desc(posts.createdAt));
+  }
+
+  async createPost(postData: InsertPost): Promise<Post> {
+    // Generate slug from title if not provided
+    if (!postData.slug) {
+      const slug = this.slugify(postData.title);
+      postData = { ...postData, slug };
+    }
+    
+    const [post] = await db
+      .insert(posts)
+      .values(postData)
+      .returning();
+    
+    return post;
+  }
+
+  async updatePost(id: number, postData: Partial<Post>): Promise<Post | undefined> {
+    // Update slug if title is changing and slug isn't explicitly set
+    if (postData.title && !postData.slug) {
+      postData.slug = this.slugify(postData.title);
+    }
+    
+    const [post] = await db
+      .update(posts)
+      .set({
+        ...postData,
+        updatedAt: new Date()
+      })
+      .where(eq(posts.id, id))
+      .returning();
+    
+    return post;
+  }
+
+  async deletePost(id: number): Promise<boolean> {
+    const result = await db.delete(posts).where(eq(posts.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Media Library operations
+  async getMediaItem(id: number): Promise<MediaItem | undefined> {
+    const [item] = await db.select().from(mediaLibrary).where(eq(mediaLibrary.id, id));
+    return item;
+  }
+
+  async getMediaByNursery(nurseryId: number): Promise<MediaItem[]> {
+    return db
+      .select()
+      .from(mediaLibrary)
+      .where(eq(mediaLibrary.nurseryId, nurseryId))
+      .orderBy(desc(mediaLibrary.createdAt));
+  }
+
+  async getAllMedia(): Promise<MediaItem[]> {
+    return db.select().from(mediaLibrary).orderBy(desc(mediaLibrary.createdAt));
+  }
+
+  async createMediaItem(mediaItemData: InsertMediaItem): Promise<MediaItem> {
+    const [mediaItem] = await db
+      .insert(mediaLibrary)
+      .values(mediaItemData)
+      .returning();
+    
+    return mediaItem;
+  }
+
+  async deleteMediaItem(id: number): Promise<boolean> {
+    const result = await db.delete(mediaLibrary).where(eq(mediaLibrary.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Activity logging
+  async logActivity(logData: InsertActivityLog): Promise<ActivityLog> {
+    const [log] = await db
+      .insert(activityLogs)
+      .values(logData)
+      .returning();
+    
+    return log;
+  }
+
+  async getActivityLogsByUser(userId: number): Promise<ActivityLog[]> {
+    return db
+      .select()
+      .from(activityLogs)
+      .where(eq(activityLogs.userId, userId))
+      .orderBy(desc(activityLogs.createdAt));
+  }
+
+  async getActivityLogsByNursery(nurseryId: number): Promise<ActivityLog[]> {
+    return db
+      .select()
+      .from(activityLogs)
+      .where(eq(activityLogs.nurseryId, nurseryId))
+      .orderBy(desc(activityLogs.createdAt));
+  }
+
+  async getRecentActivityLogs(limit: number = 50): Promise<ActivityLog[]> {
+    return db
+      .select()
+      .from(activityLogs)
+      .orderBy(desc(activityLogs.createdAt))
+      .limit(limit);
+  }
+
+  // Invitation management
+  async createInvitation(invitationData: InsertInvitation): Promise<Invitation> {
+    // Generate a unique token if not provided
+    if (!invitationData.token) {
+      invitationData.token = randomBytes(32).toString('hex');
+    }
+    
+    // Set default expiration if not provided (48 hours)
+    if (!invitationData.expiresAt) {
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 48);
+      invitationData.expiresAt = expiresAt;
+    }
+    
+    const [invitation] = await db
+      .insert(invitations)
+      .values(invitationData)
+      .returning();
+    
+    return invitation;
+  }
+
+  async getInvitationByToken(token: string): Promise<Invitation | undefined> {
+    const [invitation] = await db
+      .select()
+      .from(invitations)
+      .where(eq(invitations.token, token));
+    
+    return invitation;
+  }
+
+  async getInvitationsByNursery(nurseryId: number): Promise<Invitation[]> {
+    return db
+      .select()
+      .from(invitations)
+      .where(eq(invitations.nurseryId, nurseryId))
+      .orderBy(desc(invitations.createdAt));
+  }
+
+  async acceptInvitation(token: string): Promise<boolean> {
+    const [invitation] = await db
+      .update(invitations)
+      .set({ accepted: true })
+      .where(eq(invitations.token, token))
+      .returning();
+    
+    return !!invitation;
+  }
+
+  async deleteInvitation(id: number): Promise<boolean> {
+    const result = await db.delete(invitations).where(eq(invitations.id, id));
+    return result.rowCount > 0;
+  }
+
+  // Contact form submissions
+  async createContactSubmission(contactData: InsertContact): Promise<ContactSubmission> {
+    const [submission] = await db
+      .insert(contactSubmissions)
+      .values(contactData)
+      .returning();
+    
+    return submission;
   }
 
   async getContactSubmissions(): Promise<ContactSubmission[]> {
-    return Array.from(this.contacts.values());
-  }
-  
-  // Admin Activity methods
-  async logActivity(activity: InsertActivity): Promise<AdminActivity> {
-    const id = this.activityCurrentId++;
-    const newActivity: AdminActivity = {
-      id,
-      userId: activity.userId,
-      nurseryId: activity.nurseryId || null,
-      description: activity.description,
-      activityType: activity.activityType,
-      details: activity.details || null,
-      timestamp: new Date(),
-      ipAddress: activity.ipAddress || null
-    };
-    this.activities.set(id, newActivity);
-    return newActivity;
-  }
-  
-  async getActivitiesByUser(userId: number): Promise<AdminActivity[]> {
-    return Array.from(this.activities.values())
-      .filter(activity => activity.userId === userId)
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  }
-  
-  async getActivitiesByNursery(nurseryId: number): Promise<AdminActivity[]> {
-    return Array.from(this.activities.values())
-      .filter(activity => activity.nurseryId === nurseryId)
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  }
-  
-  async getRecentActivities(limit: number = 10): Promise<AdminActivity[]> {
-    return Array.from(this.activities.values())
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-      .slice(0, limit);
-  }
-  
-  async getAllStaff(): Promise<User[]> {
-    return Array.from(this.users.values())
-      .filter(user => user.role === 'super_admin' || user.role === 'nursery_admin' || user.role === 'staff');
+    return db
+      .select()
+      .from(contactSubmissions)
+      .orderBy(desc(contactSubmissions.createdAt));
   }
 
-  // Initialize sample newsletters
-  private initializeSampleNewsletters() {
-    // Sample newsletters for Hayes nursery
-    const hayesJanuaryNewsletter: InsertNewsletter = {
-      title: "Hayes January 2025 Newsletter",
-      content: "Welcome to the new year at Hayes Nursery! This month we're focusing on winter activities, exploring snow and ice through sensory play, and learning about arctic animals. We'll also be celebrating Chinese New Year with special crafts and food tasting.",
-      pdfUrl: "/uploads/1742475619079-5f9576e94fc92b51.pdf",
-      nurseryId: 1,
-      publishedBy: 2, // Hayes admin
-      publishDate: new Date("2025-01-10"),
-      createdAt: new Date("2025-01-10"),
-      updatedAt: new Date("2025-01-10")
-    };
-
-    const hayesFebruaryNewsletter: InsertNewsletter = {
-      title: "Hayes February 2025 Newsletter",
-      content: "February at Hayes Nursery brings a focus on friendship and kindness as we celebrate Valentine's Day. Children will engage in cooperative play activities, create handmade cards, and participate in our 'Random Acts of Kindness' initiative throughout the month.",
-      pdfUrl: "/uploads/1742480655034-ed1648bedca4e49d.pdf",
-      nurseryId: 1,
-      publishedBy: 2, // Hayes admin
-      publishDate: new Date("2025-02-05"),
-      createdAt: new Date("2025-02-05"),
-      updatedAt: new Date("2025-02-05")
-    };
-
-    // Sample newsletters for Uxbridge nursery
-    const uxbridgeJanuaryNewsletter: InsertNewsletter = {
-      title: "Uxbridge January 2025 Newsletter",
-      content: "January at Uxbridge Nursery brings exciting new learning themes including 'Space Exploration' and 'Winter Wildlife'. Our preschoolers will be starting their phonics journey, while toddlers will focus on sensory development through our enhanced winter sensory station.",
-      pdfUrl: "/uploads/1742475619079-5f9576e94fc92b51.pdf",
-      nurseryId: 2,
-      publishedBy: 3, // Uxbridge admin
-      publishDate: new Date("2025-01-08"),
-      createdAt: new Date("2025-01-08"),
-      updatedAt: new Date("2025-01-08")
-    };
-
-    // Sample newsletters for Hounslow nursery
-    const hounslowJanuaryNewsletter: InsertNewsletter = {
-      title: "Hounslow January 2025 Newsletter",
-      content: "Happy New Year from Hounslow Nursery! This month we're introducing our 'Growing Green' environmental awareness program. Children will be planting winter vegetables in our greenhouse, learning about recycling, and starting our bird-watching club with new feeding stations in our garden.",
-      pdfUrl: "/uploads/1742480655034-ed1648bedca4e49d.pdf",
-      nurseryId: 3,
-      publishedBy: 4, // Hounslow admin
-      publishDate: new Date("2025-01-12"),
-      createdAt: new Date("2025-01-12"),
-      updatedAt: new Date("2025-01-12")
-    };
-
-    const hounslowFebruaryNewsletter: InsertNewsletter = {
-      title: "Hounslow February 2025 Newsletter",
-      content: "February at Hounslow Nursery focuses on cultural diversity as we explore traditions from around the world. We'll be hosting parent volunteers to share stories, foods, and customs from their cultures, enhancing our understanding of our diverse community.",
-      pdfUrl: "/uploads/1742475619079-5f9576e94fc92b51.pdf",
-      nurseryId: 3,
-      publishedBy: 4, // Hounslow admin
-      publishDate: new Date("2025-02-03"),
-      createdAt: new Date("2025-02-03"),
-      updatedAt: new Date("2025-02-03")
-    };
-
-    this.createNewsletter(hayesJanuaryNewsletter);
-    this.createNewsletter(hayesFebruaryNewsletter);
-    this.createNewsletter(uxbridgeJanuaryNewsletter);
-    this.createNewsletter(hounslowJanuaryNewsletter);
-    this.createNewsletter(hounslowFebruaryNewsletter);
-  }
-  
-  // Initialize sample gallery images
-  private initializeSampleGalleryImages() {
-    // Hayes Nursery gallery images
-    const hayesGalleryImages: InsertGalleryImage[] = [
-      {
-        imageUrl: "https://images.unsplash.com/photo-1526634332515-d56c5fd16991?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-        caption: "Art and Craft Session - Children creating colorful paintings during our weekly art workshop",
-        nurseryId: 1,
-        uploadedBy: 2, // Hayes admin
-        createdAt: new Date("2025-03-10")
-      },
-      {
-        imageUrl: "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-        caption: "Spring Festival - Our annual celebration with performances by the children",
-        nurseryId: 1,
-        uploadedBy: 2, // Hayes admin
-        createdAt: new Date("2025-03-15")
-      },
-      {
-        imageUrl: "https://images.unsplash.com/photo-1567057419565-4349c49d8a04?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-        caption: "Story Time - Children engaged in our daily reading circle",
-        nurseryId: 1,
-        uploadedBy: 2, // Hayes admin
-        createdAt: new Date("2025-03-20")
-      },
-      {
-        imageUrl: "https://images.unsplash.com/photo-1555861496-0666c8981751?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-        caption: "Music Workshop - Learning rhythm and movement in our music class",
-        nurseryId: 1,
-        uploadedBy: 2, // Hayes admin
-        createdAt: new Date("2025-03-25")
-      }
-    ];
-    
-    // Uxbridge Nursery gallery images
-    const uxbridgeGalleryImages: InsertGalleryImage[] = [
-      {
-        imageUrl: "https://images.unsplash.com/photo-1544487660-b86394cba400?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-        caption: "Gardening Project - Children planting seeds in our nursery garden",
-        nurseryId: 2,
-        uploadedBy: 3, // Uxbridge admin
-        createdAt: new Date("2025-03-12")
-      },
-      {
-        imageUrl: "https://images.unsplash.com/photo-1571210862729-78a52d3779a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-        caption: "Science Experiment Day - Exploring bubbles and reactions",
-        nurseryId: 2,
-        uploadedBy: 3, // Uxbridge admin
-        createdAt: new Date("2025-03-18")
-      },
-      {
-        imageUrl: "https://images.unsplash.com/photo-1541692641319-981cc79ee10a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-        caption: "Cooking Class - Making healthy snacks in our kitchen area",
-        nurseryId: 2,
-        uploadedBy: 3, // Uxbridge admin
-        createdAt: new Date("2025-03-22")
-      },
-      {
-        imageUrl: "https://images.unsplash.com/photo-1472162072942-cd5147eb3902?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-        caption: "Parent's Day - Families joining us for activities and presentations",
-        nurseryId: 2,
-        uploadedBy: 3, // Uxbridge admin
-        createdAt: new Date("2025-03-26")
-      }
-    ];
-    
-    // Hounslow Nursery gallery images
-    const hounslowGalleryImages: InsertGalleryImage[] = [
-      {
-        imageUrl: "https://images.unsplash.com/photo-1543248939-4296e1fea89b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-        caption: "Forest School - Outdoor learning in our local woodland area",
-        nurseryId: 3,
-        uploadedBy: 4, // Hounslow admin
-        createdAt: new Date("2025-03-05")
-      },
-      {
-        imageUrl: "https://images.unsplash.com/photo-1560969184-10fe8719e047?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-        caption: "Sports Day - Children participating in fun physical activities",
-        nurseryId: 3,
-        uploadedBy: 4, // Hounslow admin
-        createdAt: new Date("2025-03-14")
-      },
-      {
-        imageUrl: "https://images.unsplash.com/photo-1516214104703-d870798883c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-        caption: "Cultural Week - Learning about different countries and traditions",
-        nurseryId: 3,
-        uploadedBy: 4, // Hounslow admin
-        createdAt: new Date("2025-03-19")
-      },
-      {
-        imageUrl: "https://images.unsplash.com/photo-1604881988758-f76ad2f7aac1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-        caption: "Technology Day - Exploring simple coding with our interactive boards",
-        nurseryId: 3,
-        uploadedBy: 4, // Hounslow admin
-        createdAt: new Date("2025-03-24")
-      }
-    ];
-    
-    // Add all gallery images to storage
-    [...hayesGalleryImages, ...uxbridgeGalleryImages, ...hounslowGalleryImages].forEach(image => {
-      this.createGalleryImage(image);
-    });
+  // Helper methods
+  private slugify(text: string): string {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')          // Replace spaces with -
+      .replace(/[^\w\-]+/g, '')      // Remove all non-word chars
+      .replace(/\-\-+/g, '-')        // Replace multiple - with single -
+      .replace(/^-+/, '')            // Trim - from start of text
+      .replace(/-+$/, '');           // Trim - from end of text
   }
 }
 
-// Use database storage if PostgreSQL is configured, otherwise use in-memory storage
-let storage: IStorage;
-
-if (process.env.DATABASE_URL && DbStorageImplementation) {
-  try {
-    console.log('Using PostgreSQL database storage with URL:', process.env.DATABASE_URL);
-    storage = new DbStorageImplementation();
-  } catch (error) {
-    console.error('Error initializing PostgreSQL storage:', error);
-    console.log('Falling back to in-memory storage due to error');
-    storage = new MemStorage();
-  }
-} else {
-  console.log('Using in-memory storage (DATABASE_URL availability: ' + 
-    (process.env.DATABASE_URL ? 'Yes' : 'No') + 
-    ', DbStorageImplementation: ' + 
-    (DbStorageImplementation ? 'Yes' : 'No') + ')');
-  storage = new MemStorage();
-}
-
-export { storage };
+export const storage = new DatabaseStorage();
