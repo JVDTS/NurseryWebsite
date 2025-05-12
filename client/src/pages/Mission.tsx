@@ -376,7 +376,7 @@ export default function MissionPage() {
                 who they will become tomorrow. Every interaction, every lesson, every moment of play 
                 is an opportunity to nurture their potential.
               </blockquote>
-              <div className="font-semibold text-rainbow-pink">Sarah Johnson</div>
+              <div className="font-semibold text-rainbow-pink">Toyin Balogun</div>
               <div className="text-muted-foreground">Founder & Director</div>
             </motion.div>
           </div>

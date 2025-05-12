@@ -5,6 +5,7 @@ interface Facility {
   icon: React.ReactNode;
   title: string;
   description: string;
+  image?: string; // Optional image URL for the facility
 }
 
 interface NurseryFacilitiesProps {
@@ -39,15 +40,26 @@ export default function NurseryFacilities({ facilities }: NurseryFacilitiesProps
           {facilities.map((facility, index) => (
             <motion.div
               key={index}
-              className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow duration-300"
+              className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 flex flex-col"
               variants={childFadeIn}
               custom={index}
             >
-              <div className="bg-primary bg-opacity-10 w-14 h-14 rounded-full flex items-center justify-center mb-4">
-                {facility.icon}
+              {facility.image && (
+                <div className="h-48 overflow-hidden">
+                  <img 
+                    src={facility.image} 
+                    alt={facility.title} 
+                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  />
+                </div>
+              )}
+              <div className="p-6 flex-grow">
+                <div className="bg-primary bg-opacity-10 w-14 h-14 rounded-full flex items-center justify-center mb-4">
+                  {facility.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-3 text-gray-900">{facility.title}</h3>
+                <p className="text-gray-600">{facility.description}</p>
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-900">{facility.title}</h3>
-              <p className="text-gray-600">{facility.description}</p>
             </motion.div>
           ))}
         </motion.div>
