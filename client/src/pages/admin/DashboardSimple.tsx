@@ -85,6 +85,7 @@ export default function AdminDashboard() {
   // Set nurseries when data is loaded
   useEffect(() => {
     if (nurseriesData?.nurseries) {
+      console.log("Nurseries loaded:", nurseriesData.nurseries);
       setNurseries(nurseriesData.nurseries);
     }
   }, [nurseriesData]);
@@ -107,13 +108,17 @@ export default function AdminDashboard() {
     setSelectedNurseryId(newNurseryId);
     
     // Invalidate and refetch all data
-    queryClient.invalidateQueries({ queryKey: ['gallery'] });
-    queryClient.invalidateQueries({ queryKey: ['newsletters'] });
-    queryClient.invalidateQueries({ queryKey: ['events'] });
+    queryClient.invalidateQueries({ queryKey: ['gallery', newNurseryId] });
+    queryClient.invalidateQueries({ queryKey: ['newsletters', newNurseryId] });
+    queryClient.invalidateQueries({ queryKey: ['events', newNurseryId] });
   };
   
   // Update stats when data changes
   useEffect(() => {
+    console.log("Gallery data updated:", galleryData);
+    console.log("Newsletters data updated:", newslettersData);
+    console.log("Events data updated:", eventsData);
+    
     const updatedStats = {
       galleryImages: galleryData?.images?.length || 0,
       newsletters: newslettersData?.newsletters?.length || 0,
@@ -121,6 +126,7 @@ export default function AdminDashboard() {
       staff: 0
     };
     
+    console.log("Updated stats:", updatedStats);
     setStats(updatedStats);
   }, [galleryData, newslettersData, eventsData]);
 
