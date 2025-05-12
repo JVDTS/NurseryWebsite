@@ -7,6 +7,7 @@ import NurseryGallery from "@/components/nursery/NurseryGallery";
 import UpcomingEvents from "@/components/nursery/UpcomingEvents";
 import Newsletter from "@/components/nursery/Newsletter";
 import AnimatedElements from "@/components/nursery/AnimatedElements";
+import useSmoothScroll from "@/hooks/use-smooth-scroll";
 import { 
   Palette, 
   BookOpen, 
@@ -21,6 +22,9 @@ import { useQuery } from "@tanstack/react-query";
 
 export default function HayesNursery() {
   const [events, setEvents] = useState<any[]>([]);
+  
+  // Apply smooth scrolling to enhance the animated elements effect
+  useSmoothScroll({ speed: 10, threshold: 50 });
   
   // Fetch events from the API
   const { data: eventsData, isLoading: eventsLoading } = useQuery({
