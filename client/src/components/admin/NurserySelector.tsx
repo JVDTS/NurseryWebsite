@@ -30,7 +30,7 @@ export const NurserySelector: React.FC<NurserySelectorProps> = ({
   });
   
   // Extract nurseries data from response
-  const nurseriesData = response || [];
+  const nurseriesData = response?.data || [];
   
   // Set initial nursery based on user's role
   useEffect(() => {
