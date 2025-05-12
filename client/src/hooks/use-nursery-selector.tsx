@@ -1,5 +1,4 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
-import { useAuth } from '@/hooks/use-auth';
 
 // This constant is used to represent "All Nurseries" selection
 export const ALL_NURSERIES = -1;
@@ -17,27 +16,17 @@ interface NurserySelectorProviderProps {
 }
 
 export const NurserySelectorProvider: React.FC<NurserySelectorProviderProps> = ({ children }) => {
-  const { user } = useAuth();
   const [selectedNurseryId, setSelectedNurseryId] = useState<number | null>(null);
   const [nurseryName, setNurseryName] = useState<string>('');
-  
-  // Initialize nursery selection based on user role
-  useEffect(() => {
-    if (user && user.role !== 'super_admin' && user.nurseryId) {
-      setSelectedNurseryId(user.nurseryId);
-    }
-  }, [user]);
   
   // Update nursery name when selection changes
   useEffect(() => {
     if (selectedNurseryId) {
       setNurseryName(getNurseryNameById(selectedNurseryId));
-    } else if (user && user.role === 'super_admin') {
-      setNurseryName('All Nurseries');
     } else {
-      setNurseryName('');
+      setNurseryName('All Nurseries');
     }
-  }, [selectedNurseryId, user]);
+  }, [selectedNurseryId]);
   
   // Helper function to get nursery name by ID
   function getNurseryNameById(id: number): string {
