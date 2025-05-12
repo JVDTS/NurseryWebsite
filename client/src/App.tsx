@@ -29,7 +29,7 @@ import PoliciesPage from "@/pages/parent-info/Policies";
 
 // Admin pages
 import AdminLogin from "@/pages/admin/Login";
-import AdminDashboard from "@/pages/admin/DashboardNew"; // Using new fixed dashboard
+import AdminDashboard from "@/pages/admin/Dashboard";
 import AdminEvents from "@/pages/admin/Events";
 import AdminGallery from "@/pages/admin/Gallery";
 import AdminNewsletters from "@/pages/admin/Newsletters";
