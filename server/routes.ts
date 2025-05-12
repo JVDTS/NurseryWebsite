@@ -1273,6 +1273,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin Activities API routes
+  app.get("/api/admin/activities/recent", authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const activities = await storage.getRecentActivities(10);
+      res.json({ success: true, data: activities });
+    } catch (error) {
+      console.error("Error fetching recent activities:", error);
+      res.status(500).json({ success: false, message: "Failed to fetch recent activities" });
+    }
+  });
+
+  app.get("/api/admin/activities/nursery/:nurseryId", authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const nurseryId = parseInt(req.params.nurseryId);
+      const activities = await storage.getActivitiesByNursery(nurseryId);
+      res.json({ success: true, data: activities });
+    } catch (error) {
+      console.error("Error fetching nursery activities:", error);
+      res.status(500).json({ success: false, message: "Failed to fetch nursery activities" });
+    }
+  });
+
+  app.get("/api/admin/activities/user/:userId", authenticateUser, async (req: Request, res: Response) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const activities = await storage.getActivitiesByUser(userId);
+      res.json({ success: true, data: activities });
+    } catch (error) {
+      console.error("Error fetching user activities:", error);
+      res.status(500).json({ success: false, message: "Failed to fetch user activities" });
+    }
+  });
+
+  // Staff API routes
+  app.get("/api/admin/staff", superAdminOnly, async (req: Request, res: Response) => {
+    try {
+      const staff = await storage.getAllStaff();
+      res.json({ success: true, data: staff });
+    } catch (error) {
+      console.error("Error fetching staff:", error);
+      res.status(500).json({ success: false, message: "Failed to fetch staff" });
+    }
+  });
+
+  app.get("/api/admin/staff/nursery/:nurseryId", authenticateUser, nurseryAccessCheck("nurseryId"), async (req: Request, res: Response) => {
+    try {
+      const nurseryId = parseInt(req.params.nurseryId);
+      // For now, we'll filter staff by nurseryId
+      const allStaff = await storage.getAllStaff();
+      const nurseryStaff = allStaff.filter(staff => staff.nurseryId === nurseryId);
+      res.json({ success: true, data: nurseryStaff });
+    } catch (error) {
+      console.error("Error fetching nursery staff:", error);
+      res.status(500).json({ success: false, message: "Failed to fetch nursery staff" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

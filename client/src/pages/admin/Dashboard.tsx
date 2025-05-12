@@ -25,48 +25,55 @@ export default function AdminDashboard() {
     staff: 0
   });
 
-  // Fetch actual gallery images count
+  // Fetch actual gallery images count based on selected nursery
   const { data: galleryData } = useQuery<{ images: any[] }>({
-    queryKey: user?.role === 'super_admin' 
-      ? ['/api/admin/gallery'] 
-      : [`/api/admin/nurseries/${user?.nurseryId}/gallery`],
+    queryKey: selectedNurseryId 
+      ? [`/api/admin/nurseries/${selectedNurseryId}/gallery`]
+      : (user?.role === 'super_admin' 
+        ? ['/api/admin/gallery'] 
+        : [`/api/admin/nurseries/${user?.nurseryId}/gallery`]
+      ),
     enabled: !!user,
   });
   
-  // Fetch actual newsletters count
+  // Fetch actual newsletters count based on selected nursery
   const { data: newslettersData } = useQuery<{ newsletters: any[] }>({
-    queryKey: user?.role === 'super_admin' 
-      ? ['/api/admin/newsletters'] 
-      : [`/api/admin/nurseries/${user?.nurseryId}/newsletters`],
+    queryKey: selectedNurseryId 
+      ? [`/api/admin/nurseries/${selectedNurseryId}/newsletters`]
+      : (user?.role === 'super_admin' 
+        ? ['/api/admin/newsletters'] 
+        : [`/api/admin/nurseries/${user?.nurseryId}/newsletters`]
+      ),
     enabled: !!user,
   });
 
-  // Fetch events
+  // Fetch events based on selected nursery
   const { data: eventsData } = useQuery<{ events: any[] }>({
-    queryKey: user?.role === 'super_admin' 
-      ? ['/api/admin/events'] 
-      : [`/api/admin/nurseries/${user?.nurseryId}/events`],
+    queryKey: selectedNurseryId 
+      ? [`/api/admin/nurseries/${selectedNurseryId}/events`]
+      : (user?.role === 'super_admin' 
+        ? ['/api/admin/events'] 
+        : [`/api/admin/nurseries/${user?.nurseryId}/events`]
+      ),
     enabled: !!user,
   });
+  
+  // Handle nursery selection change
+  const handleNurseryChange = (nurseryId: number | null) => {
+    setSelectedNurseryId(nurseryId);
+  };
   
   // Update stats with actual data when available
   useEffect(() => {
-    const updatedStats = { ...stats };
-    
-    if (galleryData?.images) {
-      updatedStats.galleryImages = galleryData.images.length;
-    }
-    
-    if (newslettersData?.newsletters) {
-      updatedStats.newsletters = newslettersData.newsletters.length;
-    }
-
-    if (eventsData?.events) {
-      updatedStats.events = eventsData.events.length;
-    }
+    const updatedStats = {
+      galleryImages: galleryData?.images?.length || 0,
+      newsletters: newslettersData?.newsletters?.length || 0,
+      events: eventsData?.events?.length || 0,
+      staff: 0 // This will be updated when we have staff data
+    };
     
     setStats(updatedStats);
-  }, [galleryData, newslettersData, eventsData]);
+  }, [galleryData, newslettersData, eventsData, selectedNurseryId]);
 
   // Format welcome message based on time of day
   const getWelcomeMessage = () => {
@@ -121,25 +128,12 @@ export default function AdminDashboard() {
       <DashboardLayout title="Dashboard">
         <div className="grid gap-6 max-w-6xl mx-auto">
           {/* Stats Grid */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {/* Activity Stats */}
-            <Card className="overflow-hidden">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-purple-100 bg-opacity-50">
-                <CardTitle className="text-sm font-medium">
-                  Activity
-                </CardTitle>
-                <div className="rounded-md bg-purple-500 p-2">
-                  <BarChart3 className="h-4 w-4 text-white" />
-                </div>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="text-3xl font-bold">${(stats.galleryImages + stats.newsletters + stats.events) * 100}</div>
-                <div className="text-xs text-green-500 font-medium flex items-center mt-1">
-                  <ArrowUp className="h-3 w-3 mr-1" />
-                  +12%
-                </div>
-              </CardContent>
-            </Card>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {/* Nursery Selector */}
+            <NurserySelector
+              onChange={handleNurseryChange}
+              selectedNurseryId={selectedNurseryId}
+            />
             
             {/* Events Stats */}
             <Card className="overflow-hidden">
@@ -153,14 +147,13 @@ export default function AdminDashboard() {
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="text-3xl font-bold">{stats.events}</div>
-                <div className="text-xs text-green-500 font-medium flex items-center mt-1">
-                  <ArrowUp className="h-3 w-3 mr-1" />
-                  +22%
-                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {selectedNurseryId ? `For selected nursery` : 'Across all nurseries'}
+                </p>
               </CardContent>
             </Card>
             
-            {/* Products (Gallery) Stats */}
+            {/* Gallery Stats */}
             <Card className="overflow-hidden">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-orange-100 bg-opacity-50">
                 <CardTitle className="text-sm font-medium">
@@ -172,80 +165,38 @@ export default function AdminDashboard() {
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="text-3xl font-bold">{stats.galleryImages}</div>
-                <div className="text-xs text-green-500 font-medium flex items-center mt-1">
-                  <ArrowUp className="h-3 w-3 mr-1" />
-                  +12%
+                <p className="text-xs text-gray-500 mt-1">
+                  {selectedNurseryId ? `For selected nursery` : 'Across all nurseries'}
+                </p>
+              </CardContent>
+            </Card>
+            
+            {/* Newsletters Stats */}
+            <Card className="overflow-hidden">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-blue-100 bg-opacity-50">
+                <CardTitle className="text-sm font-medium">
+                  Newsletters
+                </CardTitle>
+                <div className="rounded-md bg-blue-500 p-2">
+                  <Newspaper className="h-4 w-4 text-white" />
                 </div>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="text-3xl font-bold">{stats.newsletters}</div>
+                <p className="text-xs text-gray-500 mt-1">
+                  {selectedNurseryId ? `For selected nursery` : 'Across all nurseries'}
+                </p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Activity Chart & Recent Events */}
-          <div className="grid gap-6 lg:grid-cols-7">
-            {/* Activity Chart */}
-            <Card className="col-span-7 lg:col-span-4">
-              <CardHeader className="text-center">
-                <div>
-                  <CardTitle>Activity</CardTitle>
-                  <CardDescription>Monthly Activity Growth</CardDescription>
-                </div>
-                <div className="flex items-center justify-center mt-2">
-                  <Button variant="outline" size="sm" className="h-8">
-                    <Clock className="mr-2 h-3.5 w-3.5" />
-                    Last 30 Days
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {/* Chart placeholder - in a real implementation, this would be a chart */}
-                <div className="h-[260px] w-full rounded-md bg-gray-100 flex items-center justify-center">
-                  <p className="text-gray-500 text-sm">Activity Chart Placeholder</p>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Admin Activities & Staff Sections */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Admin Activities */}
+            <ActivitiesSection nurseryId={selectedNurseryId || undefined} limit={5} />
 
-            {/* Recent Events */}
-            <Card className="col-span-7 lg:col-span-3">
-              <CardHeader className="text-center">
-                <div>
-                  <CardTitle>Recent Events</CardTitle>
-                  <CardDescription>Latest scheduled events</CardDescription>
-                </div>
-                <div className="flex justify-center mt-2">
-                  <Button variant="ghost" size="icon" className="h-7 w-7">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {sampleRecentEvents.length > 0 ? (
-                    sampleRecentEvents.map((event, i) => (
-                      <div key={i} className="flex items-center">
-                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3">
-                          <Calendar className="h-5 w-5 text-gray-500" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="text-sm font-medium">{event.title}</h4>
-                          <p className="text-xs text-gray-500">{event.date}</p>
-                        </div>
-                        <div className="text-sm font-medium text-green-600">{event.nurseryName}</div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-gray-500">No recent events found</p>
-                  )}
-                </div>
-              </CardContent>
-              <CardFooter className="border-t px-6 py-3 flex justify-center">
-                <Link href={user?.role === 'super_admin' ? '/admin/events' : `/admin/nurseries/${user?.nurseryId}/events`}>
-                  <a className="text-sm text-primary font-medium flex items-center hover:underline">
-                    View More
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </a>
-                </Link>
-              </CardFooter>
-            </Card>
+            {/* Staff Section */}
+            <StaffSection nurseryId={selectedNurseryId || undefined} limit={5} />
           </div>
 
           {/* Latest Content */}
