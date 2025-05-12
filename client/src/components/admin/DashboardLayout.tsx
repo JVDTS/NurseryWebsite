@@ -380,9 +380,11 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
       <div className="flex flex-col flex-1 md:ml-64 overflow-y-auto">
         <main className="flex-1">
           <div className="md:pt-20 py-6">
-            <div className="px-4 sm:px-6 md:px-8 max-w-7xl mx-auto">
+            <div className="px-4 sm:px-6 md:px-8 max-w-7xl mx-auto flex flex-col items-center">
               <h1 className="text-2xl font-semibold text-gray-900 mb-6 text-center">{title}</h1>
-              {children}
+              <div className="w-full max-w-6xl">
+                {children}
+              </div>
             </div>
           </div>
         </main>
