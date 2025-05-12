@@ -51,6 +51,10 @@ export const NurserySelector: React.FC<NurserySelectorProps> = ({
   // Extract nurseries data from response
   const nurseriesData: Nursery[] = response?.nurseries || [];
   
+  // For debugging
+  console.log("Nurseries data:", nurseriesData);
+  console.log("Selected nursery ID:", selectedNurseryId);
+  
   // Set initial nursery based on user's role
   useEffect(() => {
     if (user && !isSuperAdmin && user.nurseryId) {
