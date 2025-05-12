@@ -5,7 +5,9 @@ import { CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building2 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
-import { ALL_NURSERIES } from '@/hooks/use-nursery-selector';
+
+// Use -1 to represent "All Nurseries" selection
+const ALL_NURSERIES = -1;
 
 interface Nursery {
   id: number;

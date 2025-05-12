@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
-import { useNurserySelector, ALL_NURSERIES } from '@/hooks/use-nursery-selector';
 import DashboardLayout from '@/components/admin/DashboardLayout';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -16,10 +15,13 @@ import ActivitiesSection from '@/components/admin/ActivitiesSection';
 import NurserySelector from '@/components/admin/NurserySelectorNew';
 import StaffSection from '@/components/admin/StaffSection';
 
+// Use -1 to represent "All Nurseries" selection
+const ALL_NURSERIES = -1;
+
 export default function AdminDashboard() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { selectedNurseryId, setSelectedNurseryId, nurseryName } = useNurserySelector();
+  const [selectedNurseryId, setSelectedNurseryId] = useState<number | null>(null);
   const [stats, setStats] = useState({
     newsletters: 0,
     events: 0,
