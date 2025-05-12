@@ -145,80 +145,113 @@ export class MemStorage implements IStorage {
   }
   
   private initializeSampleAdminActivities() {
-    // For super admin
-    this.logActivity({
-      userId: 1, // super admin
-      nurseryId: null,
-      activityType: 'login',
-      description: 'Super Admin logged in',
-      ipAddress: '192.168.1.1',
-      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // 7 days ago
-    });
+    // Create sample activities with timestamps instead of using logActivity method
+    // to avoid issues with createdAt vs timestamp field names
+    const now = new Date();
     
-    this.logActivity({
-      userId: 1, // super admin
-      nurseryId: null,
-      activityType: 'update_nursery',
-      description: 'Updated nursery information for Hayes Nursery',
-      ipAddress: '192.168.1.1',
-      createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000) // 6 days ago
-    });
+    // Define custom timestamps for activities
+    const timestamps = {
+      sevenDaysAgo: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
+      sixDaysAgo: new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000),
+      fiveDaysAgo: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000),
+      threeDaysAgo: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000),
+      oneDayAgo: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000)
+    };
     
-    // For Hayes admin
-    this.logActivity({
-      userId: 2, // Hayes admin
-      nurseryId: 1,
-      activityType: 'login',
-      description: 'Hayes Admin logged in',
-      ipAddress: '192.168.1.2',
-      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) // 5 days ago
-    });
+    // Create sample activities
+    const sampleActivities: AdminActivity[] = [
+      // Super admin activities
+      {
+        id: this.activityCurrentId++,
+        userId: 1,
+        nurseryId: null,
+        activityType: 'login',
+        description: 'Super Admin logged in',
+        ipAddress: '192.168.1.1',
+        timestamp: timestamps.sevenDaysAgo,
+        details: null
+      },
+      {
+        id: this.activityCurrentId++,
+        userId: 1,
+        nurseryId: null,
+        activityType: 'update_nursery',
+        description: 'Updated nursery information for Hayes Nursery',
+        ipAddress: '192.168.1.1',
+        timestamp: timestamps.sixDaysAgo,
+        details: null
+      },
+      
+      // Hayes admin activities
+      {
+        id: this.activityCurrentId++,
+        userId: 2,
+        nurseryId: 1,
+        activityType: 'login',
+        description: 'Hayes Admin logged in',
+        ipAddress: '192.168.1.2',
+        timestamp: timestamps.fiveDaysAgo,
+        details: null
+      },
+      {
+        id: this.activityCurrentId++,
+        userId: 2,
+        nurseryId: 1,
+        activityType: 'create_event',
+        description: 'Created new event: Summer Fair',
+        ipAddress: '192.168.1.2',
+        timestamp: timestamps.fiveDaysAgo,
+        details: null
+      },
+      
+      // Uxbridge admin activities
+      {
+        id: this.activityCurrentId++,
+        userId: 3,
+        nurseryId: 2,
+        activityType: 'login',
+        description: 'Uxbridge Admin logged in',
+        ipAddress: '192.168.1.3',
+        timestamp: timestamps.threeDaysAgo,
+        details: null
+      },
+      {
+        id: this.activityCurrentId++,
+        userId: 3,
+        nurseryId: 2,
+        activityType: 'upload_gallery',
+        description: 'Uploaded new gallery images',
+        ipAddress: '192.168.1.3',
+        timestamp: timestamps.threeDaysAgo,
+        details: null
+      },
+      
+      // Hounslow admin activities
+      {
+        id: this.activityCurrentId++,
+        userId: 4,
+        nurseryId: 3,
+        activityType: 'login',
+        description: 'Hounslow Admin logged in',
+        ipAddress: '192.168.1.4',
+        timestamp: timestamps.oneDayAgo,
+        details: null
+      },
+      {
+        id: this.activityCurrentId++,
+        userId: 4,
+        nurseryId: 3,
+        activityType: 'create_newsletter',
+        description: 'Created March newsletter',
+        ipAddress: '192.168.1.4',
+        timestamp: timestamps.oneDayAgo,
+        details: null
+      }
+    ];
     
-    this.logActivity({
-      userId: 2, // Hayes admin
-      nurseryId: 1,
-      activityType: 'create_event',
-      description: 'Created new event: Summer Fair',
-      ipAddress: '192.168.1.2',
-      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) // 5 days ago
-    });
-    
-    // For Uxbridge admin
-    this.logActivity({
-      userId: 3, // Uxbridge admin
-      nurseryId: 2,
-      activityType: 'login',
-      description: 'Uxbridge Admin logged in',
-      ipAddress: '192.168.1.3',
-      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) // 3 days ago
-    });
-    
-    this.logActivity({
-      userId: 3, // Uxbridge admin
-      nurseryId: 2,
-      activityType: 'upload_gallery',
-      description: 'Uploaded new gallery images',
-      ipAddress: '192.168.1.3',
-      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) // 3 days ago
-    });
-    
-    // For Hounslow admin
-    this.logActivity({
-      userId: 4, // Hounslow admin
-      nurseryId: 3,
-      activityType: 'login',
-      description: 'Hounslow Admin logged in',
-      ipAddress: '192.168.1.4',
-      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) // 1 day ago
-    });
-    
-    this.logActivity({
-      userId: 4, // Hounslow admin
-      nurseryId: 3,
-      activityType: 'create_newsletter',
-      description: 'Created March newsletter',
-      ipAddress: '192.168.1.4',
-      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) // 1 day ago
+    // Add activities to the map
+    sampleActivities.forEach(activity => {
+      this.activities.set(activity.id, activity);
     });
   }
   
