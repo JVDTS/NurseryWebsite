@@ -26,6 +26,12 @@ import DailyRoutinePage from "@/pages/parent-info/DailyRoutine";
 import TermDatesPage from "@/pages/parent-info/TermDates";
 import PoliciesPage from "@/pages/parent-info/Policies";
 
+// Admin pages
+import AdminDashboard from "@/pages/admin/DashboardSimple";
+import AdminLogin from "@/pages/admin/Login";
+import AdminStaff from "@/pages/admin/Staff";
+import AdminSettings from "@/pages/admin/Settings";
+
 function Router() {
   return (
     <Switch>
@@ -49,6 +55,12 @@ function Router() {
       <Route path="/parent-info/daily-routine" component={DailyRoutinePage} />
       <Route path="/parent-info/term-dates" component={TermDatesPage} />
       <Route path="/parent-info/policies" component={PoliciesPage} />
+      
+      {/* Admin routes */}
+      <Route path="/admin/dashboard" component={AdminDashboard} />
+      <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/admin/staff" component={AdminStaff} />
+      <Route path="/admin/settings" component={AdminSettings} />
       
       <Route component={NotFound} />
     </Switch>
