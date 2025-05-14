@@ -68,19 +68,22 @@ function Router() {
 }
 
 import { NurserySelectorProvider } from '@/hooks/use-nursery-selector';
+import { AuthProvider } from '@/hooks/use-auth';
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <NurserySelectorProvider>
-        <div className="min-h-screen overflow-x-hidden relative w-full">
-          <ScrollToTop />
-          <PageTransition>
-            <Router />
-          </PageTransition>
-          <Toaster />
-        </div>
-      </NurserySelectorProvider>
+      <AuthProvider>
+        <NurserySelectorProvider>
+          <div className="min-h-screen overflow-x-hidden relative w-full">
+            <ScrollToTop />
+            <PageTransition>
+              <Router />
+            </PageTransition>
+            <Toaster />
+          </div>
+        </NurserySelectorProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
