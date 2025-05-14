@@ -42,7 +42,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // CSRF API
   app.get("/api/csrf-token", (req, res) => {
     // Simple CSRF token generation
-    const csrfToken = require('crypto').randomBytes(16).toString('hex');
+    // Using a timestamp-based token for simplicity
+    const timestamp = new Date().getTime().toString();
+    const csrfToken = timestamp + '-' + Math.random().toString(36).substring(2, 15);
     res.json({ csrfToken });
   });
 
