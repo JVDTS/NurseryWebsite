@@ -10,6 +10,7 @@ export type AdminUser = {
   email: string;
   role: 'super_admin' | 'nursery_admin' | 'staff' | 'regular';
   nurseryId: number | null;
+  profileImageUrl?: string | null;
 };
 
 interface AuthContextProps {

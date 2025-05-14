@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth, type AdminUser } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -82,7 +82,7 @@ export default function NewDashboardLayout({ children }: DashboardLayoutProps) {
       href: '/admin/staff',
       icon: Users,
       active: location.includes('/admin/staff'),
-      show: user?.role === 'super_admin' || user?.role === 'admin',
+      show: user?.role === 'super_admin' || user?.role === 'nursery_admin',
     },
     {
       name: 'Settings',

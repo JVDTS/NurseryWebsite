@@ -26,7 +26,12 @@ import DailyRoutinePage from "@/pages/parent-info/DailyRoutine";
 import TermDatesPage from "@/pages/parent-info/TermDates";
 import PoliciesPage from "@/pages/parent-info/Policies";
 
-// Admin pages
+// New Admin pages
+import NewDashboard from "@/pages/admin/NewDashboard";
+import NewLogin from "@/pages/admin/NewLogin";
+import ContentManagement from "@/pages/admin/ContentManagement";
+
+// Legacy Admin pages
 import AdminDashboard from "@/pages/admin/DashboardSimple";
 import AdminLogin from "@/pages/admin/Login";
 import AdminStaff from "@/pages/admin/Staff";
@@ -56,11 +61,16 @@ function Router() {
       <Route path="/parent-info/term-dates" component={TermDatesPage} />
       <Route path="/parent-info/policies" component={PoliciesPage} />
       
-      {/* Admin routes */}
-      <Route path="/admin/dashboard" component={AdminDashboard} />
-      <Route path="/admin/login" component={AdminLogin} />
-      <Route path="/admin/staff" component={AdminStaff} />
-      <Route path="/admin/settings" component={AdminSettings} />
+      {/* New CMS routes */}
+      <Route path="/admin/dashboard" component={NewDashboard} />
+      <Route path="/admin/login" component={NewLogin} />
+      <Route path="/admin/content" component={ContentManagement} />
+      
+      {/* Legacy Admin routes (keeping for reference) */}
+      <Route path="/admin-old/dashboard" component={AdminDashboard} />
+      <Route path="/admin-old/login" component={AdminLogin} />
+      <Route path="/admin-old/staff" component={AdminStaff} />
+      <Route path="/admin-old/settings" component={AdminSettings} />
       
       <Route component={NotFound} />
     </Switch>
