@@ -174,7 +174,7 @@ function Sidebar({ className }: SidebarProps) {
               <span>Help</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => logout()}>
+            <DropdownMenuItem onClick={() => logout && logout()}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>
@@ -322,7 +322,7 @@ function DashboardHeader({ user }: DashboardHeaderProps) {
               <span>Help</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => logout()}>
+            <DropdownMenuItem onClick={() => logout && logout()}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>
             </DropdownMenuItem>
@@ -338,7 +338,7 @@ interface NewDashboardLayoutProps {
 }
 
 export default function NewDashboardLayout({ children }: NewDashboardLayoutProps) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
