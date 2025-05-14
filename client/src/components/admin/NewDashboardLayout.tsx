@@ -5,9 +5,10 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import {
+import { 
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -16,43 +17,40 @@ import {
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import {
-  LayoutDashboard,
-  FileText,
-  Image,
-  Users,
-  CalendarRange,
-  Settings,
-  Bell,
-  LogOut,
-  Menu,
-  X,
+import { Badge } from '@/components/ui/badge';
+import { 
+  LayoutDashboard, 
+  FileText, 
+  Calendar, 
+  Users, 
+  Settings, 
+  LogOut, 
+  Menu, 
   ChevronDown,
-  Home
+  Image,
+  BookOpen,
+  Mail,
+  Newspaper,
+  Bell,
+  User,
+  HelpCircle,
 } from 'lucide-react';
 
-interface DashboardLayoutProps {
-  children: React.ReactNode;
+interface SidebarProps {
+  className?: string;
 }
 
-export default function NewDashboardLayout({ children }: DashboardLayoutProps) {
+function Sidebar({ className }: SidebarProps) {
   const [location] = useLocation();
   const { user, logout } = useAuth();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [selectedNursery, setSelectedNursery] = useState<string | null>(null);
-
-  // Initials for avatar
-  const getInitials = () => {
-    if (!user) return 'U';
-    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`;
-  };
-
+  
   // Navigation items
-  const navigationItems = [
+  const navItems = [
     {
       name: 'Dashboard',
       href: '/admin/dashboard',
@@ -66,15 +64,9 @@ export default function NewDashboardLayout({ children }: DashboardLayoutProps) {
       active: location.includes('/admin/content'),
     },
     {
-      name: 'Gallery',
-      href: '/admin/gallery',
-      icon: Image,
-      active: location.includes('/admin/gallery'),
-    },
-    {
       name: 'Events',
       href: '/admin/events',
-      icon: CalendarRange,
+      icon: Calendar,
       active: location.includes('/admin/events'),
     },
     {
@@ -88,210 +80,277 @@ export default function NewDashboardLayout({ children }: DashboardLayoutProps) {
       name: 'Settings',
       href: '/admin/settings',
       icon: Settings,
-      active: location === '/admin/settings',
+      active: location.includes('/admin/settings'),
     },
   ];
 
-  // Filter out items that shouldn't be shown based on user role
-  const filteredNavItems = navigationItems.filter(
-    (item) => !('show' in item) || item.show !== false
-  );
-
-  const handleLogout = async () => {
-    await logout();
-  };
-
-  const closeMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
-
-  // Nursery locations for dropdown
-  const nurseryLocations = ['All Nurseries', 'Hayes', 'Uxbridge', 'Hounslow'];
+  // Filter out nav items based on user role
+  const filteredNavItems = navItems.filter(item => !item.hasOwnProperty('show') || item.show);
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Desktop sidebar */}
-      <div className="hidden md:flex md:w-64 md:flex-col">
-        <div className="flex flex-col flex-grow pt-5 overflow-y-auto bg-white border-r">
-          <div className="flex items-center flex-shrink-0 px-4">
-            <Link href="/admin/dashboard" className="flex items-center space-x-2">
-              <div className="rounded-md bg-primary/10 p-1">
-                <Home className="h-6 w-6 text-primary" />
-              </div>
-              <span className="text-xl font-bold text-primary">Nursery CMS</span>
-            </Link>
+    <div className={cn("flex flex-col h-full border-r bg-white", className)}>
+      {/* Logo area */}
+      <div className="flex items-center h-16 px-4 border-b">
+        <Link href="/admin/dashboard" className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
+            <span className="text-primary-foreground font-bold text-lg">N</span>
           </div>
-          <div className="mt-6 flex flex-col flex-1">
-            <nav className="flex-1 px-2 space-y-1">
-              {filteredNavItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={closeMenu}
-                  className={cn(
-                    "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
-                    item.active
-                      ? "bg-primary text-white"
-                      : "text-gray-700 hover:bg-primary/10"
-                  )}
-                >
-                  <item.icon
-                    className={cn(
-                      "mr-3 h-5 w-5 flex-shrink-0",
-                      item.active ? "text-white" : "text-gray-500 group-hover:text-primary"
-                    )}
-                  />
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
-          <div className="flex-shrink-0 p-4 border-t">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-full justify-start px-2 text-sm">
-                  <div className="flex items-center">
-                    <Avatar className="h-8 w-8 mr-2">
-                      <AvatarImage src={user?.profileImageUrl || ''} alt={user?.firstName} />
-                      <AvatarFallback>{getInitials()}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col items-start">
-                      <span className="font-medium">{user?.firstName} {user?.lastName}</span>
-                      <span className="text-xs text-gray-500">{user?.role}</span>
-                    </div>
-                  </div>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/admin/profile">Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/admin/settings">Settings</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-red-600">
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
+          <span className="font-semibold text-xl">Nursery CMS</span>
+        </Link>
       </div>
-
-      {/* Mobile menu */}
-      <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-        <SheetContent side="left" className="p-0 w-72">
-          <SheetHeader className="border-b p-4">
-            <SheetTitle className="text-left flex items-center">
-              <Home className="h-5 w-5 mr-2 text-primary" />
-              Nursery CMS
-            </SheetTitle>
-          </SheetHeader>
-          <div className="py-4">
-            <nav className="flex-1 px-2 space-y-1">
-              {filteredNavItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={closeMenu}
-                  className={cn(
-                    "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
-                    item.active
-                      ? "bg-primary text-white"
-                      : "text-gray-700 hover:bg-primary/10"
-                  )}
-                >
-                  <item.icon
-                    className={cn(
-                      "mr-3 h-5 w-5 flex-shrink-0",
-                      item.active ? "text-white" : "text-gray-500 group-hover:text-primary"
-                    )}
-                  />
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
-          <div className="mt-auto border-t p-4">
-            <div className="flex items-center">
-              <Avatar className="h-8 w-8 mr-2">
-                <AvatarImage src={user?.profileImageUrl || ''} alt={user?.firstName} />
-                <AvatarFallback>{getInitials()}</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col">
-                <span className="font-medium">{user?.firstName} {user?.lastName}</span>
-                <span className="text-xs text-gray-500">{user?.role}</span>
-              </div>
-            </div>
-            <Button 
-              variant="outline" 
-              className="mt-4 w-full justify-center" 
-              onClick={handleLogout}
+      
+      {/* Navigation */}
+      <div className="flex-1 overflow-auto py-2">
+        <nav className="grid grid-flow-row auto-rows-max text-sm">
+          {filteredNavItems.map((item, index) => (
+            <Link
+              key={index}
+              href={item.href}
+              className={cn(
+                "flex items-center gap-3 rounded-md px-3 py-2 text-muted-foreground hover:text-foreground my-1 mx-2",
+                "transition-colors",
+                "hover:bg-gray-100",
+                item.active && "bg-primary/10 text-primary hover:bg-primary/10 font-medium"
+              )}
             >
-              <LogOut className="h-4 w-4 mr-2" />
-              Log out
+              <item.icon className={cn("h-4 w-4", item.active && "text-primary")} />
+              <span>{item.name}</span>
+              {item.active && (
+                <div className="ml-auto w-1 h-5 bg-primary rounded-full" />
+              )}
+            </Link>
+          ))}
+        </nav>
+      </div>
+      
+      {/* User area */}
+      <div className="mt-auto p-4 border-t">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="w-full flex items-center justify-start gap-2 px-2">
+              <Avatar className="h-8 w-8">
+                {user?.profileImageUrl ? (
+                  <AvatarImage src={user.profileImageUrl} alt={user?.firstName || 'User'} />
+                ) : (
+                  <AvatarFallback>
+                    {user?.firstName?.charAt(0) || 'U'}
+                    {user?.lastName?.charAt(0) || ''}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <div className="flex flex-col items-start text-left">
+                <p className="text-sm font-medium">
+                  {user?.firstName} {user?.lastName}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {user?.role === 'super_admin' ? 'Administrator' : 
+                   user?.role === 'nursery_admin' ? 'Nursery Manager' : 
+                   user?.role === 'staff' ? 'Staff Member' : 'User'}
+                </p>
+              </div>
+              <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground" />
             </Button>
-          </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <User className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Bell className="mr-2 h-4 w-4" />
+                <span>Notifications</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <HelpCircle className="mr-2 h-4 w-4" />
+              <span>Help</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => logout()}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+  );
+}
+
+interface DashboardHeaderProps {
+  user: AdminUser | null;
+}
+
+function DashboardHeader({ user }: DashboardHeaderProps) {
+  const { logout } = useAuth();
+  return (
+    <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-white px-4 sm:px-6">
+      {/* Mobile sidebar trigger */}
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button variant="outline" size="icon" className="sm:hidden">
+            <Menu className="h-5 w-5" />
+            <span className="sr-only">Toggle Menu</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="pr-0 sm:max-w-xs">
+          <SheetHeader className="px-1">
+            <SheetTitle>Nursery CMS</SheetTitle>
+            <SheetDescription>
+              Content Management System
+            </SheetDescription>
+          </SheetHeader>
+          <Sidebar className="border-0" />
         </SheetContent>
       </Sheet>
-
-      {/* Main content */}
-      <div className="flex flex-col flex-1">
-        {/* Top navbar */}
-        <div className="sticky top-0 z-10 bg-white border-b">
-          <div className="px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-16">
-              {/* Mobile menu button */}
-              <div className="flex md:hidden">
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(true)}>
-                    <Menu className="h-6 w-6" />
-                  </Button>
-                </SheetTrigger>
+      
+      {/* Nursery selector */}
+      <div className="flex-1 flex items-center gap-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="hidden sm:flex">
+              <span>All Nurseries</span>
+              <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>All Nurseries</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>Hayes</DropdownMenuItem>
+            <DropdownMenuItem>Uxbridge</DropdownMenuItem>
+            <DropdownMenuItem>Hounslow</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      
+      {/* Header actions */}
+      <div className="flex items-center gap-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center">
+                3
+              </span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <div className="max-h-[300px] overflow-y-auto">
+              <div className="flex items-start gap-4 p-3 hover:bg-gray-50">
+                <Mail className="h-5 w-5 text-primary mt-1" />
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">New contact form submission</p>
+                  <p className="text-xs text-muted-foreground">
+                    From: parent@example.com
+                  </p>
+                  <p className="text-xs text-muted-foreground">5 minutes ago</p>
+                </div>
               </div>
-
-              {/* Nursery Selector */}
-              <div className="flex-1 flex justify-center md:justify-start">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="h-9">
-                      <span>{selectedNursery || 'All Nurseries'}</span>
-                      <ChevronDown className="ml-2 h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    {nurseryLocations.map((location) => (
-                      <DropdownMenuItem 
-                        key={location}
-                        onClick={() => setSelectedNursery(location === 'All Nurseries' ? null : location)}
-                      >
-                        {location}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              <div className="flex items-start gap-4 p-3 hover:bg-gray-50">
+                <Calendar className="h-5 w-5 text-primary mt-1" />
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Event reminder: Parent-Teacher Conference</p>
+                  <p className="text-xs text-muted-foreground">
+                    Tomorrow at 10:00 AM
+                  </p>
+                  <p className="text-xs text-muted-foreground">2 hours ago</p>
+                </div>
               </div>
-
-              {/* Right section - notifications, profile */}
-              <div className="hidden md:flex items-center space-x-4">
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                  </span>
-                </Button>
+              <div className="flex items-start gap-4 p-3 hover:bg-gray-50">
+                <Users className="h-5 w-5 text-primary mt-1" />
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">New staff member added</p>
+                  <p className="text-xs text-muted-foreground">
+                    by Emma Taylor
+                  </p>
+                  <p className="text-xs text-muted-foreground">Yesterday</p>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="cursor-pointer justify-center text-center">
+              View all notifications
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Avatar className="h-8 w-8">
+                {user?.profileImageUrl ? (
+                  <AvatarImage src={user.profileImageUrl} alt={user?.firstName || 'User'} />
+                ) : (
+                  <AvatarFallback>
+                    {user?.firstName?.charAt(0) || 'U'}
+                    {user?.lastName?.charAt(0) || ''}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem>
+                <User className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Bell className="mr-2 h-4 w-4" />
+                <span>Notifications</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <HelpCircle className="mr-2 h-4 w-4" />
+              <span>Help</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => logout()}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Log out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </header>
+  );
+}
 
-        {/* Page content */}
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-6 md:p-8">
+interface NewDashboardLayoutProps {
+  children: React.ReactNode;
+}
+
+export default function NewDashboardLayout({ children }: NewDashboardLayoutProps) {
+  const { user, logout } = useAuth();
+
+  return (
+    <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
+      {/* Sidebar - hidden on mobile */}
+      <aside className="hidden md:flex md:w-64 md:flex-col">
+        <Sidebar />
+      </aside>
+      
+      {/* Main content */}
+      <div className="flex-1 flex flex-col">
+        <DashboardHeader user={user} />
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
           {children}
         </main>
       </div>

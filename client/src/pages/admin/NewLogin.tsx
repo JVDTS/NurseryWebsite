@@ -1,65 +1,73 @@
-import { useState, useEffect } from 'react';
-import { useLocation } from 'wouter';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useRoute } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { fetchCsrfToken } from '@/lib/csrf';
 import { useToast } from '@/hooks/use-toast';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { 
+  Card,
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, LogIn } from 'lucide-react';
+import { Lock, User, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
-const loginSchema = z.object({
-  username: z.string().min(3, { message: "Email address is required" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-  rememberMe: z.boolean().optional(),
+// Form validation schema
+const formSchema = z.object({
+  username: z.string().min(1, { message: 'Username is required' }),
+  password: z.string().min(1, { message: 'Password is required' }),
+  remember: z.boolean().optional(),
 });
 
-type LoginFormValues = z.infer<typeof loginSchema>;
-
 export default function NewLogin() {
-  const { login, isAuthenticated, isLoading } = useAuth();
-  const [, setLocation] = useLocation();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [csrfToken, setCsrfToken] = useState<string | null>(null);
-  const [tokenLoading, setTokenLoading] = useState(true);
+  const [location, setLocation] = useLocation();
+  const { isAuthenticated, login, isLoading } = useAuth();
   const { toast } = useToast();
+  const [error, setError] = useState<string | null>(null);
+  const [csrfToken, setCsrfToken] = useState<string>('');
 
-  // Create form
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+  // Define form with validation
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       username: '',
       password: '',
-      rememberMe: true,
+      remember: false,
     },
   });
 
   // Fetch CSRF token on component mount
   useEffect(() => {
-    const getCsrfToken = async () => {
+    const fetchCsrfToken = async () => {
       try {
-        setTokenLoading(true);
-        const token = await fetchCsrfToken();
-        setCsrfToken(token);
+        const response = await fetch('/api/csrf-token');
+        const data = await response.json();
+        setCsrfToken(data.csrfToken);
       } catch (error) {
         console.error('Failed to fetch CSRF token:', error);
-        toast({
-          title: 'Authentication Error',
-          description: 'Could not initialize secure login. Please refresh the page.',
-          variant: 'destructive',
-        });
-      } finally {
-        setTokenLoading(false);
+        setError('Failed to establish a secure connection. Please try again.');
       }
     };
 
-    getCsrfToken();
-  }, [toast]);
+    fetchCsrfToken();
+  }, []);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -68,120 +76,66 @@ export default function NewLogin() {
     }
   }, [isAuthenticated, setLocation]);
 
-  async function onSubmit(data: LoginFormValues) {
+  // Handle form submission
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setError(null);
+    
     try {
-      setIsSubmitting(true);
-      
-      // Get a fresh CSRF token right before login attempt
-      const freshToken = await fetchCsrfToken();
-      
-      if (!freshToken) {
-        toast({
-          title: 'Authentication Error',
-          description: 'Security token missing. Please refresh the page.',
-          variant: 'destructive',
-        });
-        return;
-      }
-      
-      // Update the token state
-      setCsrfToken(freshToken);
-      
-      // Use the fresh token for login
-      const success = await login(data.username, data.password, freshToken);
+      const success = await login(values.username, values.password, csrfToken);
       
       if (success) {
+        toast({
+          title: "Login successful",
+          description: "Welcome to the Nursery CMS",
+        });
         setLocation('/admin/dashboard');
+      } else {
+        setError('Invalid username or password');
       }
     } catch (error) {
       console.error('Login error:', error);
-      toast({
-        title: 'Login Failed',
-        description: 'There was a problem logging in. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSubmitting(false);
+      setError('An error occurred during login. Please try again.');
     }
-  }
+  };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Left side - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-primary/10 items-center justify-center p-12">
-        <div className="max-w-md">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-primary">Nursery Network CMS</h1>
-            <p className="mt-3 text-gray-600">
-              Manage content for all nursery locations from one central dashboard
-            </p>
-          </div>
-          <div className="mt-8">
-            <img 
-              src="/nursery-illustration.svg" 
-              alt="Nursery Illustration" 
-              className="max-w-full h-auto"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-          </div>
-          <div className="mt-8 space-y-4 text-sm text-gray-500">
-            <div className="flex items-center">
-              <div className="rounded-full bg-primary/20 p-1">
-                <svg className="h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-2">Manage multiple nursery locations</div>
-            </div>
-            <div className="flex items-center">
-              <div className="rounded-full bg-primary/20 p-1">
-                <svg className="h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-2">Upload newsletters and gallery images</div>
-            </div>
-            <div className="flex items-center">
-              <div className="rounded-full bg-primary/20 p-1">
-                <svg className="h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-2">Schedule events and manage staff</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Right side - Login Form */}
-      <div className="flex flex-col justify-center w-full lg:w-1/2 px-4 sm:px-6 lg:px-8 py-12">
-        <div className="mx-auto w-full max-w-sm">
-          <div className="text-center sm:text-left">
-            <h2 className="text-2xl font-bold text-gray-900">Welcome back</h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Please sign in to your account
-            </p>
-          </div>
-
-          <div className="mt-10">
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+        {/* Left side - Login form */}
+        <Card className="w-full shadow-lg border-0">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-primary">
+              Nursery Management
+            </CardTitle>
+            <CardDescription>
+              Sign in to access the admin dashboard
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email address</FormLabel>
+                      <FormLabel>Username</FormLabel>
                       <FormControl>
-                        <Input 
-                          placeholder="admin@nurseries.com" 
-                          type="email"
-                          autoComplete="email"
-                          disabled={isSubmitting}
-                          {...field} 
-                        />
+                        <div className="relative">
+                          <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Input 
+                            placeholder="Enter your username" 
+                            className="pl-10" 
+                            {...field} 
+                          />
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -193,84 +147,95 @@ export default function NewLogin() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <div className="flex items-center justify-between">
-                        <FormLabel>Password</FormLabel>
-                        <div className="text-sm">
-                          <a href="#" className="font-medium text-primary hover:text-primary/90">
-                            Forgot password?
-                          </a>
-                        </div>
-                      </div>
+                      <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input 
-                          type="password" 
-                          placeholder="Enter your password" 
-                          autoComplete="current-password"
-                          disabled={isSubmitting}
-                          {...field} 
-                        />
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Input 
+                            type="password" 
+                            placeholder="Enter your password" 
+                            className="pl-10" 
+                            {...field} 
+                          />
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
+                
                 <FormField
                   control={form.control}
-                  name="rememberMe"
+                  name="remember"
                   render={({ field }) => (
-                    <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormItem className="flex flex-row items-start space-x-2 space-y-0">
                       <FormControl>
-                        <Checkbox 
-                          checked={field.value} 
-                          onCheckedChange={field.onChange} 
-                          disabled={isSubmitting}
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                      <FormLabel className="text-sm font-normal">Remember me for 30 days</FormLabel>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Remember me</FormLabel>
+                      </div>
                     </FormItem>
                   )}
                 />
-
+                
                 <Button 
                   type="submit" 
-                  className="w-full h-10" 
-                  disabled={isSubmitting || tokenLoading}
+                  className="w-full" 
+                  disabled={isLoading}
                 >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Signing in...
-                    </>
-                  ) : (
-                    <>
-                      <LogIn className="w-4 h-4 mr-2" />
-                      Sign in
-                    </>
-                  )}
+                  {isLoading ? 'Signing in...' : 'Sign In'}
                 </Button>
               </form>
             </Form>
-          </div>
-
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-gray-50 text-gray-500">Demo credentials</span>
-              </div>
+            
+            <div className="mt-4 text-center text-sm">
+              <a href="#" className="text-primary hover:underline">
+                Forgot password?
+              </a>
             </div>
-
-            <div className="mt-6 grid gap-2">
-              <div className="text-xs border rounded-md p-3 bg-gray-50">
-                <p><strong>Super Admin:</strong> admin@nurseries.com / admin123</p>
-                <p><strong>Hayes Manager:</strong> hayes@nurseries.com / hayes123</p>
-              </div>
+          </CardContent>
+        </Card>
+        
+        {/* Right side - Illustration */}
+        <div className="hidden lg:flex flex-col items-center justify-center p-6 text-center bg-white rounded-lg">
+          <img 
+            src="/nursery-illustration.svg"
+            alt="Nursery illustration" 
+            className="w-full max-w-md mb-6" 
+          />
+          <h2 className="text-xl font-semibold text-primary mb-2">
+            Welcome to Nursery CMS
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Manage your nursery content, events, staff, and more from one central dashboard.
+          </p>
+          <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
+            <div className="p-3 bg-primary/5 rounded-lg flex flex-col items-center">
+              <span className="font-medium text-primary">Hayes</span>
+              <span className="text-xs text-gray-500">Nursery</span>
+            </div>
+            <div className="p-3 bg-primary/5 rounded-lg flex flex-col items-center">
+              <span className="font-medium text-primary">Uxbridge</span>
+              <span className="text-xs text-gray-500">Nursery</span>
+            </div>
+            <div className="p-3 bg-primary/5 rounded-lg flex flex-col items-center">
+              <span className="font-medium text-primary">Hounslow</span>
+              <span className="text-xs text-gray-500">Nursery</span>
+            </div>
+            <div className="p-3 bg-primary/5 rounded-lg flex flex-col items-center">
+              <span className="font-medium text-primary">Management</span>
+              <span className="text-xs text-gray-500">Portal</span>
             </div>
           </div>
         </div>
+      </div>
+      
+      <div className="mt-8 text-center text-sm text-gray-500">
+        © {new Date().getFullYear()} Nursery Management System. All rights reserved.
       </div>
     </div>
   );
