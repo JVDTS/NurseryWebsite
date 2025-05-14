@@ -39,6 +39,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ success: true });
   });
 
+  // CSRF API
+  app.get("/api/csrf-token", (req, res) => {
+    // Simple CSRF token generation
+    const csrfToken = require('crypto').randomBytes(16).toString('hex');
+    res.json({ csrfToken });
+  });
+
+  // Admin API
+  app.post("/api/admin/login", async (req: Request, res: Response) => {
+    try {
+      const { username, password } = req.body;
+      
+      // For email login
+      let user = await storage.getUserByEmail(username);
+      
+      if (!user) {
+        return res.status(401).json({ 
+          success: false, 
+          message: "Invalid username or password" 
+        });
+      }
+      
+      // Compare password (using bcrypt)
+      const { comparePassword } = await import('./security');
+      const passwordMatch = await comparePassword(password, user.password);
+      
+      if (!passwordMatch) {
+        return res.status(401).json({ 
+          success: false, 
+          message: "Invalid username or password" 
+        });
+      }
+      
+      // Map database user to AdminUser for the client
+      const { password: _, ...userWithoutPassword } = user;
+      const adminUser = {
+        ...userWithoutPassword,
+        username: user.email, // Use email as username
+      };
+      
+      // Store user in session
+      req.session.user = adminUser;
+      
+      res.json({ 
+        success: true, 
+        message: "Login successful", 
+        user: adminUser 
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "An error occurred during login" 
+      });
+    }
+  });
+  
+  app.post("/api/admin/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ 
+          success: false, 
+          message: "Failed to logout" 
+        });
+      }
+      
+      res.json({ 
+        success: true, 
+        message: "Logged out successfully" 
+      });
+    });
+  });
+  
+  app.get("/api/admin/me", (req, res) => {
+    if (req.session.user) {
+      res.json({ 
+        success: true, 
+        user: req.session.user 
+      });
+    } else {
+      res.status(401).json({ 
+        success: false, 
+        message: "Not authenticated" 
+      });
+    }
+  });
+
   // Auth API
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
