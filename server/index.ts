@@ -11,6 +11,12 @@ import fileUpload from "express-fileupload";
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(fileUpload({
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max file size
+  createParentPath: true,
+  useTempFiles: false,
+  debug: process.env.NODE_ENV === 'development'
+}));
 
 // Add security headers with Helmet
 app.use(helmet({
