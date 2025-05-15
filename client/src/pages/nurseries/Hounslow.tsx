@@ -86,14 +86,44 @@ export default function HounslowNursery() {
     }
   ];
 
-  const galleryImages = [
+  // Fetch gallery images from API
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  
+  // Fetch gallery images from our backend API
+  const { data: galleryData, isLoading: galleryLoading } = useQuery({
+    queryKey: ['/api/nurseries/hounslow/gallery'],
+    async queryFn() {
+      try {
+        const response = await fetch('/api/nurseries/hounslow/gallery');
+        if (!response.ok) {
+          throw new Error('Failed to fetch gallery images');
+        }
+        return response.json();
+      } catch (error) {
+        console.error('Error fetching gallery images:', error);
+        return { images: [] };
+      }
+    }
+  });
+  
+  // Update gallery images when data is loaded
+  useEffect(() => {
+    if (galleryData && galleryData.images) {
+      // Extract image URLs from the response
+      const imageUrls = galleryData.images.map((image: any) => image.imageUrl || image.url);
+      setGalleryImages(imageUrls);
+    }
+  }, [galleryData]);
+  
+  // Fallback images if no gallery images are available
+  const fallbackImages = [
     "https://images.unsplash.com/photo-1543248939-4296e1fea89b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
     "https://images.unsplash.com/photo-1560969184-10fe8719e047?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
     "https://images.unsplash.com/photo-1516214104703-d870798883c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "https://images.unsplash.com/photo-1604881988758-f76ad2f7aac1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "https://images.unsplash.com/photo-1508184964240-ee96bb9677a7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "https://images.unsplash.com/photo-1517164850305-99a3e65bb47e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
   ];
+  
+  // Use uploaded images if available, otherwise use fallback images
+  const displayGalleryImages = galleryImages.length > 0 ? galleryImages : fallbackImages;
 
   return (
     <NurseryLayout 
@@ -115,7 +145,7 @@ export default function HounslowNursery() {
         mapImage="/images/maps/hounslow-map.png"
       />
       
-      <NurseryGallery images={galleryImages} />
+      <NurseryGallery images={displayGalleryImages} />
       
       <UpcomingEvents events={events} nurseryName="Hounslow" />
       

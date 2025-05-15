@@ -86,14 +86,44 @@ export default function HayesNursery() {
     }
   ];
 
-  const galleryImages = [
+  // Fetch gallery images from API
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  
+  // Fetch gallery images from our backend API
+  const { data: galleryData, isLoading: galleryLoading } = useQuery({
+    queryKey: ['/api/nurseries/hayes/gallery'],
+    async queryFn() {
+      try {
+        const response = await fetch('/api/nurseries/hayes/gallery');
+        if (!response.ok) {
+          throw new Error('Failed to fetch gallery images');
+        }
+        return response.json();
+      } catch (error) {
+        console.error('Error fetching gallery images:', error);
+        return { images: [] };
+      }
+    }
+  });
+  
+  // Update gallery images when data is loaded
+  useEffect(() => {
+    if (galleryData && galleryData.images) {
+      // Extract image URLs from the response
+      const imageUrls = galleryData.images.map((image: any) => image.imageUrl || image.url);
+      setGalleryImages(imageUrls);
+    }
+  }, [galleryData]);
+  
+  // Fallback images if no gallery images are available
+  const fallbackImages = [
     "https://images.unsplash.com/photo-1526634332515-d56c5fd16991?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
     "https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "https://images.unsplash.com/photo-1567057419565-4349c49d8a04?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "https://images.unsplash.com/photo-1555861496-0666c8981751?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "https://images.unsplash.com/photo-1610440042657-612c34d95e9f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "https://images.unsplash.com/photo-1484820540004-14229fe36ca4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+    "https://images.unsplash.com/photo-1567057419565-4349c49d8a04?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
   ];
+  
+  // Use uploaded images if available, otherwise use fallback images
+  const displayGalleryImages = galleryImages.length > 0 ? galleryImages : fallbackImages;
 
   return (
     <NurseryLayout 
@@ -115,7 +145,7 @@ export default function HayesNursery() {
         mapImage="/images/maps/hayes-map.png"
       />
       
-      <NurseryGallery images={galleryImages} />
+      <NurseryGallery images={displayGalleryImages} />
       
       <UpcomingEvents events={events} nurseryName="Hayes" />
       

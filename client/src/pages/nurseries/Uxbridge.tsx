@@ -86,14 +86,44 @@ export default function UxbridgeNursery() {
     }
   ];
 
-  const galleryImages = [
+  // Fetch gallery images from API
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  
+  // Fetch gallery images from our backend API
+  const { data: galleryData, isLoading: galleryLoading } = useQuery({
+    queryKey: ['/api/nurseries/uxbridge/gallery'],
+    async queryFn() {
+      try {
+        const response = await fetch('/api/nurseries/uxbridge/gallery');
+        if (!response.ok) {
+          throw new Error('Failed to fetch gallery images');
+        }
+        return response.json();
+      } catch (error) {
+        console.error('Error fetching gallery images:', error);
+        return { images: [] };
+      }
+    }
+  });
+  
+  // Update gallery images when data is loaded
+  useEffect(() => {
+    if (galleryData && galleryData.images) {
+      // Extract image URLs from the response
+      const imageUrls = galleryData.images.map((image: any) => image.imageUrl || image.url);
+      setGalleryImages(imageUrls);
+    }
+  }, [galleryData]);
+  
+  // Fallback images if no gallery images are available
+  const fallbackImages = [
     "https://images.unsplash.com/photo-1544487660-b86394cba400?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
     "https://images.unsplash.com/photo-1571210862729-78a52d3779a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "https://images.unsplash.com/photo-1541692641319-981cc79ee10a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "https://images.unsplash.com/photo-1472162072942-cd5147eb3902?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "https://images.unsplash.com/photo-1551966775-a4ddc8df048b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
-    "https://images.unsplash.com/photo-1599687267392-b92a30d39263?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+    "https://images.unsplash.com/photo-1541692641319-981cc79ee10a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
   ];
+  
+  // Use uploaded images if available, otherwise use fallback images
+  const displayGalleryImages = galleryImages.length > 0 ? galleryImages : fallbackImages;
 
   return (
     <NurseryLayout 
@@ -115,7 +145,7 @@ export default function UxbridgeNursery() {
         mapImage="/images/maps/uxbridge-map.png"
       />
       
-      <NurseryGallery images={galleryImages} />
+      <NurseryGallery images={displayGalleryImages} />
       
       <UpcomingEvents events={events} nurseryName="Uxbridge" />
       
