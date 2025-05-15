@@ -12,6 +12,11 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, checkAuth } = useAuth();
 
   useEffect(() => {
+    // Skip verification if already authenticated
+    if (isAuthenticated) {
+      return;
+    }
+    
     // Verify authentication status when component mounts
     const verifyAuth = async () => {
       const isAuthed = await checkAuth();
