@@ -6,6 +6,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { generateSecureToken } from "./security";
 import fs from "fs";
+import fileUpload from "express-fileupload";
 
 const app = express();
 app.use(express.json());

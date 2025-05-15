@@ -4,6 +4,9 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated, hasRole } from "./replitAuth";
 import { contactFormSchema } from "@shared/schema";
 import { z } from "zod";
+import path from "path";
+import fs from "fs";
+import fileUpload from "express-fileupload";
 
 /**
  * Register API routes for the CMS
@@ -573,11 +576,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("Gallery image upload request:", req.body);
       
+      // Process the file upload first if there is one
+      let filename = req.body.filename || "image.jpg";
+      
+      // If there's a file upload, handle it
+      if (req.files && Object.keys(req.files).length > 0) {
+        const file = req.files.image;
+        
+        // Save the file to uploads directory
+        const uploadDir = path.join(__dirname, "../uploads");
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        
+        // Generate a unique filename
+        filename = `${Date.now()}_${file.name}`;
+        const filePath = path.join(uploadDir, filename);
+        
+        // Write the file
+        await fs.promises.writeFile(filePath, file.data);
+        console.log(`File saved to ${filePath}`);
+      }
+      
       // Ensure required fields are present
       const imageData = {
         title: req.body.title || "Uploaded Image",
         description: req.body.description || "",
-        filename: req.body.filename || "image.jpg",
+        filename: filename,
         nurseryId: parseInt(req.body.nurseryId || "1", 10),
         categoryId: req.body.categoryId && req.body.categoryId !== 'none' ? parseInt(req.body.categoryId, 10) : undefined,
         uploadedBy: 1 // Default admin user

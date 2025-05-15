@@ -195,14 +195,48 @@ export default function ManageGallery() {
 
     const formData = new FormData();
     formData.append('title', values.title);
-    formData.append('description', values.description);
-    formData.append('nurseryId', values.nurseryId);
-    if (values.categoryId) {
+    formData.append('description', values.description || '');
+    formData.append('nurseryId', values.nurseryId || '1');
+    if (values.categoryId && values.categoryId !== 'none') {
       formData.append('categoryId', values.categoryId);
     }
+    formData.append('filename', fileToUpload.name);
     formData.append('image', fileToUpload);
+    
+    // Log what we're sending
+    console.log('Submitting gallery image:', {
+      title: values.title,
+      description: values.description,
+      nurseryId: values.nurseryId,
+      categoryId: values.categoryId,
+      filename: fileToUpload.name
+    });
 
-    addGalleryImageMutation.mutate(formData);
+    try {
+      addGalleryImageMutation.mutate(formData, {
+        onSuccess: () => {
+          toast({
+            title: 'Image added successfully',
+            variant: 'default',
+          });
+          setIsAddDialogOpen(false);
+          addForm.reset();
+          setFileToUpload(null);
+          // Force refetch gallery images
+          queryClient.invalidateQueries({ queryKey: ['/api/gallery'] });
+        },
+        onError: (error) => {
+          console.error('Failed to add image:', error);
+          toast({
+            title: 'Error adding image',
+            description: error.message || 'Please try again',
+            variant: 'destructive',
+          });
+        }
+      });
+    } catch (error) {
+      console.error('Error submitting form:', error);
+    }
   };
 
   // Handle delete gallery image
