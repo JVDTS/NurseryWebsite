@@ -216,7 +216,7 @@ export default function ManageGallery() {
     const matchesSearch = searchQuery === '' || 
       image.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       image.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesNursery = !selectedNursery || image.nurseryId.toString() === selectedNursery;
+    const matchesNursery = selectedNursery === 'none' || !selectedNursery || image.nurseryId.toString() === selectedNursery;
     return matchesSearch && matchesNursery;
   });
 
