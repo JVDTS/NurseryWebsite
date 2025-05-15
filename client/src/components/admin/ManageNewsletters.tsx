@@ -367,7 +367,7 @@ export default function ManageNewsletters() {
               <SelectValue placeholder="All Nurseries" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Nurseries</SelectItem>
+              <SelectItem value="all">All Nurseries</SelectItem>
               {nurseries.map((nursery) => (
                 <SelectItem key={nursery.id} value={nursery.id.toString()}>
                   {nursery.name}
