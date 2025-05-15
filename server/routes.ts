@@ -316,8 +316,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Nursery not found" });
       }
       
-      const gallery = await storage.getMediaByNursery(nursery.id);
-      res.json(gallery);
+      // Get gallery images for the nursery
+      const galleryImages = await storage.getGalleryImagesByNursery(nursery.id);
+      
+      // Map the gallery images to include full URL path for images
+      const galleryWithUrls = galleryImages.map(image => ({
+        ...image,
+        url: `/uploads/${image.filename}` // Add URL to access the uploaded image
+      }));
+      
+      res.json(galleryWithUrls);
     } catch (error) {
       console.error("Error fetching gallery:", error);
       res.status(500).json({ message: "Failed to fetch gallery" });
