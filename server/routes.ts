@@ -322,10 +322,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Map the gallery images to include full URL path for images
       const galleryWithUrls = galleryImages.map(image => ({
         ...image,
-        url: `/uploads/${image.filename}` // Add URL to access the uploaded image
+        imageUrl: `/uploads/${image.filename}`, // Match frontend's expected property
+        url: `/uploads/${image.filename}` // Keep for compatibility
       }));
       
-      res.json(galleryWithUrls);
+      // Return the data in the expected format
+      res.json({
+        images: galleryWithUrls, // Wrap in 'images' array for frontend compatibility
+        nursery: nursery.name
+      });
     } catch (error) {
       console.error("Error fetching gallery:", error);
       res.status(500).json({ message: "Failed to fetch gallery" });
@@ -573,7 +578,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/gallery", async (req: Request, res: Response) => {
     try {
       const images = await storage.getAllGalleryImages();
-      res.json(images);
+      
+      // Add imageUrl property to each image for frontend display
+      const imagesWithUrls = images.map(image => ({
+        ...image,
+        imageUrl: `/uploads/${image.filename}`, // Match the frontend's expected property name
+        url: `/uploads/${image.filename}` // For compatibility
+      }));
+      
+      res.json(imagesWithUrls);
     } catch (error) {
       console.error("Error fetching gallery images:", error);
       res.status(500).json({ message: "Failed to fetch gallery images" });
