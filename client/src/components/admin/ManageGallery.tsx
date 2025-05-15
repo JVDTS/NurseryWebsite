@@ -380,7 +380,7 @@ export default function ManageGallery() {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="">None</SelectItem>
+                              <SelectItem value="none">None</SelectItem>
                               {categories.map((category) => (
                                 <SelectItem key={category.id} value={category.id.toString()}>
                                   {category.name}
