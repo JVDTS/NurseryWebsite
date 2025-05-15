@@ -350,7 +350,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/newsletters", async (req: Request, res: Response) => {
     try {
-      const newsletter = await storage.createNewsletter(req.body);
+      console.log("Newsletter upload request:", req.body);
+      
+      // Ensure required fields are present
+      const newsletterData = {
+        title: req.body.title || "Newsletter",
+        description: req.body.description || "",
+        month: req.body.month || new Date().toLocaleString('default', { month: 'long' }),
+        year: parseInt(req.body.year || new Date().getFullYear().toString(), 10),
+        filename: req.body.filename || "newsletter.pdf",
+        file: req.body.file || req.body.filename || "newsletter.pdf",
+        nurseryId: parseInt(req.body.nurseryId || "1", 10),
+        authorId: 1, // Default admin user
+        status: req.body.status || "published"
+      };
+      
+      console.log("Processed newsletter data:", newsletterData);
+      
+      const newsletter = await storage.createNewsletter(newsletterData);
       res.status(201).json(newsletter);
     } catch (error) {
       console.error("Error creating newsletter:", error);
@@ -554,7 +571,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/gallery", async (req: Request, res: Response) => {
     try {
-      const image = await storage.createGalleryImage(req.body);
+      console.log("Gallery image upload request:", req.body);
+      
+      // Ensure required fields are present
+      const imageData = {
+        title: req.body.title || "Uploaded Image",
+        description: req.body.description || "",
+        filename: req.body.filename || "image.jpg",
+        nurseryId: parseInt(req.body.nurseryId || "1", 10),
+        categoryId: req.body.categoryId && req.body.categoryId !== 'none' ? parseInt(req.body.categoryId, 10) : undefined,
+        uploadedBy: 1 // Default admin user
+      };
+      
+      console.log("Processed image data:", imageData);
+      
+      const image = await storage.createGalleryImage(imageData);
       res.status(201).json(image);
     } catch (error) {
       console.error("Error creating gallery image:", error);
