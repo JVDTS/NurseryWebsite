@@ -86,15 +86,19 @@ export class DbStorage implements IStorage {
   }
 
   async getNurseryByLocation(location: string): Promise<Nursery | undefined> {
-    // Convert location string to the enum type
+    // Convert location string to lowercase for validation
+    const locationLower = location.toLowerCase();
     const validLocations = ['hayes', 'uxbridge', 'hounslow'];
-    if (!validLocations.includes(location)) {
+    if (!validLocations.includes(locationLower)) {
       return undefined;
     }
     
-    // Use SQL query with parameterized value for enum column
+    // Create a capitalized version for proper case matching (Hayes, Uxbridge, Hounslow)
+    const capitalizedLocation = locationLower.charAt(0).toUpperCase() + locationLower.slice(1);
+    
+    // Use SQL query with case-insensitive comparison
     const result = await drizzleDb.select().from(nurseries)
-      .where(sql`location = ${location}`);
+      .where(eq(nurseries.location, capitalizedLocation));
     return result.length > 0 ? result[0] : undefined;
   }
 
