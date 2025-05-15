@@ -1,94 +1,42 @@
-import { ReactNode, useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { useAuth, AdminUser } from '@/hooks/use-auth';
+import { useAuth } from '@/hooks/use-auth';
 import { Loader2 } from 'lucide-react';
 
-// Helper type to ensure type safety
-type UserRole = AdminUser['role'];
-
 interface ProtectedRouteProps {
-  children: ReactNode;
-  requiredRole?: UserRole;
-  nurseryId?: number;
+  children: React.ReactNode;
 }
 
-export default function ProtectedRoute({ 
-  children, 
-  requiredRole,
-  nurseryId 
-}: ProtectedRouteProps) {
-  const { user, isAuthenticated, isLoading, checkAuth } = useAuth();
-  const [, setLocation] = useLocation();
-  const [isChecking, setIsChecking] = useState(true);
+export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const [location, navigate] = useLocation();
+  const { isAuthenticated, isLoading, checkAuth } = useAuth();
 
   useEffect(() => {
+    // Verify authentication status when component mounts
     const verifyAuth = async () => {
-      try {
-        setIsChecking(true);
-        await checkAuth();
-      } finally {
-        setIsChecking(false);
+      const isAuthed = await checkAuth();
+      
+      if (!isAuthed && !isLoading) {
+        // Redirect to login if not authenticated
+        navigate('/admin/login?redirect=' + encodeURIComponent(location));
       }
     };
 
-    // Only run once when component mounts
     verifyAuth();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [checkAuth, isAuthenticated, isLoading, location, navigate]);
 
-  useEffect(() => {
-    // Use a timeout to prevent too many redirects at once
-    let redirectTimeout: NodeJS.Timeout;
-    
-    if (!isLoading && !isChecking && !isAuthenticated) {
-      redirectTimeout = setTimeout(() => {
-        setLocation('/admin/login');
-      }, 100);
-    }
-    
-    return () => {
-      if (redirectTimeout) clearTimeout(redirectTimeout);
-    };
-  }, [isAuthenticated, isLoading, isChecking, setLocation]);
-
-  // Check role access if a role is required
-  useEffect(() => {
-    if (!isLoading && !isChecking && isAuthenticated && user && requiredRole) {
-      // For super_admin, allow access to everything
-      if (user.role === 'super_admin') return;
-
-      // For nursery_admin, check if they have the required role and are accessing their nursery
-      if (requiredRole === 'nursery_admin') {
-        if (user.role !== 'nursery_admin') {
-          setLocation('/admin/dashboard');
-        } else if (nurseryId && user.nurseryId !== nurseryId) {
-          // Nursery admin trying to access another nursery's data
-          setLocation('/admin/dashboard');
-        }
-      }
-
-      // For other roles, just check if they have the required role level
-      const roleHierarchy = ['regular', 'staff', 'nursery_admin', 'super_admin'];
-      const userRoleIndex = roleHierarchy.indexOf(user.role);
-      const requiredRoleIndex = roleHierarchy.indexOf(requiredRole);
-
-      if (userRoleIndex < requiredRoleIndex) {
-        setLocation('/admin/dashboard');
-      }
-    }
-  }, [isAuthenticated, isLoading, isChecking, user, requiredRole, nurseryId, setLocation]);
-
-  if (isLoading || isChecking) {
+  // Show loading state
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="h-8 w-8 text-primary animate-spin" />
+          <p className="text-gray-500">Loading...</p>
+        </div>
       </div>
     );
   }
 
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  return <>{children}</>;
+  // Show content if authenticated
+  return isAuthenticated ? <>{children}</> : null;
 }
