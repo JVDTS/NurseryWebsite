@@ -216,7 +216,7 @@ export default function ManageGallery() {
     const matchesSearch = searchQuery === '' || 
       image.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       image.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesNursery = selectedNursery === 'none' || !selectedNursery || image.nurseryId.toString() === selectedNursery;
+    const matchesNursery = selectedNursery === 'all' || selectedNursery === 'none' || !selectedNursery || image.nurseryId.toString() === selectedNursery;
     return matchesSearch && matchesNursery;
   });
 
@@ -278,7 +278,7 @@ export default function ManageGallery() {
               <SelectValue placeholder="All Nurseries" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Nurseries</SelectItem>
+              <SelectItem value="all">All Nurseries</SelectItem>
               {nurseries.map((nursery) => (
                 <SelectItem key={nursery.id} value={nursery.id.toString()}>
                   {nursery.name}
