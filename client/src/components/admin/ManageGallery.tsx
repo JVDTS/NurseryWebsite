@@ -220,21 +220,15 @@ export default function ManageGallery() {
     return matchesSearch && matchesNursery;
   });
 
-  // Nursery data (would normally come from API)
-  const nurseries = [
-    { id: 1, name: 'Hayes Nursery' },
-    { id: 2, name: 'Uxbridge Nursery' },
-    { id: 3, name: 'Hounslow Nursery' },
-  ];
+  // Fetch nurseries for dropdown
+  const { data: nurseries = [] } = useQuery<{id: number, name: string}[]>({
+    queryKey: ['/api/nurseries'],
+  });
 
-  // Image categories (would normally come from API)
-  const categories = [
-    { id: 1, name: 'Activities' },
-    { id: 2, name: 'Events' },
-    { id: 3, name: 'Facilities' },
-    { id: 4, name: 'Staff' },
-    { id: 5, name: 'Children' },
-  ];
+  // Fetch gallery categories for dropdown
+  const { data: categories = [] } = useQuery<{id: number, name: string}[]>({
+    queryKey: ['/api/gallery/categories'],
+  });
 
   // Format date for display
   const formatDate = (dateString: string) => {

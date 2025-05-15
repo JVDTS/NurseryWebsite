@@ -114,7 +114,7 @@ export default function ManageNewsletters() {
   const queryClient = useQueryClient();
 
   // Fetch newsletters
-  const { data: newsletters = [], isLoading, error } = useQuery({
+  const { data: newsletters = [], isLoading, error } = useQuery<Newsletter[]>({
     queryKey: ['/api/newsletters'],
   });
 
@@ -296,7 +296,7 @@ export default function ManageNewsletters() {
   };
 
   // Filter newsletters based on search and nursery selection
-  const filteredNewsletters = newsletters.filter((newsletter: Newsletter) => {
+  const filteredNewsletters = newsletters.filter((newsletter) => {
     const matchesSearch = searchQuery === '' || 
       newsletter.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       newsletter.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -304,12 +304,10 @@ export default function ManageNewsletters() {
     return matchesSearch && matchesNursery;
   });
 
-  // Nursery data (would normally come from API)
-  const nurseries = [
-    { id: 1, name: 'Hayes Nursery' },
-    { id: 2, name: 'Uxbridge Nursery' },
-    { id: 3, name: 'Hounslow Nursery' },
-  ];
+  // Fetch nurseries for dropdown
+  const { data: nurseries = [] } = useQuery<{id: number, name: string}[]>({
+    queryKey: ['/api/nurseries'],
+  });
 
   // Month options
   const months = [
