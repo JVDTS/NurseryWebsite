@@ -338,7 +338,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/newsletters", isAuthenticated, async (req: Request, res: Response) => {
+  app.get("/api/newsletters", async (req: Request, res: Response) => {
     try {
       const newsletters = await storage.getAllNewsletters();
       res.json(newsletters);
@@ -542,7 +542,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Gallery Images API
-  app.get("/api/gallery", isAuthenticated, async (req: Request, res: Response) => {
+  app.get("/api/gallery", async (req: Request, res: Response) => {
     try {
       const images = await storage.getAllGalleryImages();
       res.json(images);
@@ -595,7 +595,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Gallery Categories API
-  app.get("/api/gallery/categories", isAuthenticated, async (req: Request, res: Response) => {
+  app.get("/api/gallery/categories", async (req: Request, res: Response) => {
     try {
       const categories = await storage.getAllGalleryCategories();
       res.json(categories);
