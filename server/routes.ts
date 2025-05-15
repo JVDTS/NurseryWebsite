@@ -348,7 +348,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/newsletters", isAuthenticated, hasRole(["super_admin", "admin", "editor"]), async (req: Request, res: Response) => {
+  app.post("/api/newsletters", async (req: Request, res: Response) => {
     try {
       const newsletter = await storage.createNewsletter(req.body);
       res.status(201).json(newsletter);
@@ -552,7 +552,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/gallery", isAuthenticated, hasRole(["super_admin", "admin", "editor"]), async (req: Request, res: Response) => {
+  app.post("/api/gallery", async (req: Request, res: Response) => {
     try {
       const image = await storage.createGalleryImage(req.body);
       res.status(201).json(image);
@@ -642,7 +642,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/media", isAuthenticated, hasRole(["super_admin", "admin", "editor"]), async (req: Request, res: Response) => {
+  app.post("/api/media", async (req: Request, res: Response) => {
     try {
       const media = await storage.createMediaItem(req.body);
       res.status(201).json(media);
