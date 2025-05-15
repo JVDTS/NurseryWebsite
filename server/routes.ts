@@ -2,7 +2,9 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, hasRole } from "./replitAuth";
-import { contactFormSchema } from "@shared/schema";
+import { contactFormSchema, nurseries, galleryImages as galleryImagesTable } from "@shared/schema";
+import { db } from "./db";
+import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import path from "path";
 import fs from "fs";
@@ -199,13 +201,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/nurseries/:location", async (req: Request, res: Response) => {
     try {
-      const nursery = await storage.getNurseryByLocation(req.params.location);
+      console.log(`Getting nursery by location: ${req.params.location}`);
       
-      if (!nursery) {
+      // For debugging purposes, let's try a direct database query
+      const result = await db.select().from(nurseries)
+        .where(sql`LOWER(location) = LOWER(${req.params.location})`);
+      
+      console.log('Database query result:', result);
+      
+      if (result.length === 0) {
         return res.status(404).json({ message: "Nursery not found" });
       }
       
-      res.json(nursery);
+      res.json(result[0]);
     } catch (error) {
       console.error("Error fetching nursery:", error);
       res.status(500).json({ message: "Failed to fetch nursery" });
@@ -310,14 +318,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Gallery API
   app.get("/api/nurseries/:location/gallery", async (req: Request, res: Response) => {
     try {
-      const nursery = await storage.getNurseryByLocation(req.params.location);
+      console.log(`Getting gallery for nursery location: ${req.params.location}`);
       
-      if (!nursery) {
+      // For debugging purposes, let's try a direct database query for the nursery
+      const nurseryResult = await db.select().from(nurseries)
+        .where(sql`LOWER(location) = LOWER(${req.params.location})`);
+      
+      console.log('Nursery query result:', nurseryResult);
+      
+      if (nurseryResult.length === 0) {
         return res.status(404).json({ message: "Nursery not found" });
       }
       
+      const nursery = nurseryResult[0];
+      
       // Get gallery images for the nursery
-      const galleryImages = await storage.getGalleryImagesByNursery(nursery.id);
+      const galleryImages = await db.select().from(galleryImages)
+        .where(eq(galleryImages.nurseryId, nursery.id));
+      
+      console.log(`Found ${galleryImages.length} gallery images for nursery ID ${nursery.id}`);
       
       // Map the gallery images to include full URL path for images
       const galleryWithUrls = galleryImages.map(image => ({
