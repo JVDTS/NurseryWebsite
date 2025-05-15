@@ -574,28 +574,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/gallery", async (req: Request, res: Response) => {
     try {
-      console.log("Gallery image upload request:", req.body);
+      console.log("Gallery image upload request received");
       
       // Process the file upload first if there is one
       let filename = req.body.filename || "image.jpg";
       
       // If there's a file upload, handle it
       if (req.files && Object.keys(req.files).length > 0) {
-        const file = req.files.image;
+        console.log("File detected in request");
+        const uploadedFile = req.files.image as any;
         
-        // Save the file to uploads directory
-        const uploadDir = path.join(__dirname, "../uploads");
-        if (!fs.existsSync(uploadDir)) {
-          fs.mkdirSync(uploadDir, { recursive: true });
+        if (Array.isArray(uploadedFile)) {
+          console.log("Multiple files detected, using first one");
+          // If multiple files uploaded, just use the first one
+          const file = uploadedFile[0];
+          
+          // Generate a unique filename
+          filename = `${Date.now()}_${file.name}`;
+          
+          // Move the file to the uploads directory
+          const uploadPath = path.join(process.cwd(), 'uploads', filename);
+          await file.mv(uploadPath);
+          console.log(`File saved to ${uploadPath}`);
+        } else {
+          // Single file uploaded
+          const file = uploadedFile;
+          
+          // Generate a unique filename
+          filename = `${Date.now()}_${file.name}`;
+          
+          // Move the file to the uploads directory
+          const uploadPath = path.join(process.cwd(), 'uploads', filename);
+          await file.mv(uploadPath);
+          console.log(`File saved to ${uploadPath}`);
         }
-        
-        // Generate a unique filename
-        filename = `${Date.now()}_${file.name}`;
-        const filePath = path.join(uploadDir, filename);
-        
-        // Write the file
-        await fs.promises.writeFile(filePath, file.data);
-        console.log(`File saved to ${filePath}`);
+      } else {
+        console.log("No file detected in request");
       }
       
       // Ensure required fields are present
@@ -614,7 +628,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(image);
     } catch (error) {
       console.error("Error creating gallery image:", error);
-      res.status(500).json({ message: "Failed to create gallery image" });
+      res.status(500).json({ message: "Failed to create gallery image", error: error.message });
     }
   });
 
