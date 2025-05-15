@@ -29,31 +29,34 @@ import {
   AlertTriangle,
   ArrowRight,
   Info,
+  ImageIcon,
+  Newspaper,
+  CalendarDays,
 } from 'lucide-react';
 
 export default function NewDashboard() {
   const { user } = useAuth();
   const [timeframe, setTimeframe] = useState('weekly');
 
-  // Simulated data
-  const analytics = {
+  // CMS content metrics
+  const contentMetrics = {
     weekly: {
-      visitors: 1245,
-      contactSubmissions: 28,
-      newsletterSignups: 37,
-      visitorIncrease: 12.5,
+      newsletters: 4,
+      galleryImages: 24,
+      blogPosts: 6,
+      eventsCreated: 8,
     },
     monthly: {
-      visitors: 5250,
-      contactSubmissions: 124,
-      newsletterSignups: 156,
-      visitorIncrease: 8.3,
+      newsletters: 18,
+      galleryImages: 86,
+      blogPosts: 26,
+      eventsCreated: 32,
     },
     yearly: {
-      visitors: 62500,
-      contactSubmissions: 1450,
-      newsletterSignups: 1820,
-      visitorIncrease: 24.7,
+      newsletters: 216,
+      galleryImages: 1025,
+      blogPosts: 312,
+      eventsCreated: 385,
     },
   };
 
@@ -158,10 +161,10 @@ export default function NewDashboard() {
             </p>
           </div>
 
-          {/* Analytics Overview */}
+          {/* Content Metrics Overview */}
           <Tabs defaultValue="weekly" className="space-y-4" onValueChange={setTimeframe}>
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Analytics Overview</h2>
+              <h2 className="text-lg font-semibold">Content Overview</h2>
               <TabsList>
                 <TabsTrigger value="weekly">Weekly</TabsTrigger>
                 <TabsTrigger value="monthly">Monthly</TabsTrigger>
@@ -174,59 +177,56 @@ export default function NewDashboard() {
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Website Visitors
+                      Newsletters
                     </CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <Newspaper className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{analytics.weekly.visitors.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground flex items-center">
-                      <span className={analytics.weekly.visitorIncrease > 0 ? "text-green-500" : "text-red-500"}>
-                        {analytics.weekly.visitorIncrease > 0 ? "+" : ""}{analytics.weekly.visitorIncrease}%
-                      </span>
-                      <span className="ml-1">from last week</span>
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Contact Submissions
-                    </CardTitle>
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{analytics.weekly.contactSubmissions}</div>
+                    <div className="text-2xl font-bold">{contentMetrics.weekly.newsletters}</div>
                     <p className="text-xs text-muted-foreground">
-                      {(analytics.weekly.contactSubmissions / 7).toFixed(1)} per day
+                      {(contentMetrics.weekly.newsletters / 3).toFixed(1)} per nursery
                     </p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Newsletter Signups
+                      Gallery Images
+                    </CardTitle>
+                    <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{contentMetrics.weekly.galleryImages}</div>
+                    <p className="text-xs text-muted-foreground">
+                      {(contentMetrics.weekly.galleryImages / 7).toFixed(1)} per day
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Blog Posts
                     </CardTitle>
                     <FileText className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{analytics.weekly.newsletterSignups}</div>
+                    <div className="text-2xl font-bold">{contentMetrics.weekly.blogPosts}</div>
                     <p className="text-xs text-muted-foreground">
-                      {(analytics.weekly.newsletterSignups / 7).toFixed(1)} per day
+                      {(contentMetrics.weekly.blogPosts / 3).toFixed(1)} per nursery
                     </p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Site Performance
+                      Events Created
                     </CardTitle>
-                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">98.2%</div>
+                    <div className="text-2xl font-bold">{contentMetrics.weekly.eventsCreated}</div>
                     <p className="text-xs text-muted-foreground">
-                      Uptime this week
+                      {(contentMetrics.weekly.eventsCreated / 3).toFixed(1)} per nursery
                     </p>
                   </CardContent>
                 </Card>
@@ -238,59 +238,56 @@ export default function NewDashboard() {
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Website Visitors
+                      Newsletters
                     </CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <Newspaper className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{analytics.monthly.visitors.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground flex items-center">
-                      <span className={analytics.monthly.visitorIncrease > 0 ? "text-green-500" : "text-red-500"}>
-                        {analytics.monthly.visitorIncrease > 0 ? "+" : ""}{analytics.monthly.visitorIncrease}%
-                      </span>
-                      <span className="ml-1">from last month</span>
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Contact Submissions
-                    </CardTitle>
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{analytics.monthly.contactSubmissions}</div>
+                    <div className="text-2xl font-bold">{contentMetrics.monthly.newsletters}</div>
                     <p className="text-xs text-muted-foreground">
-                      {(analytics.monthly.contactSubmissions / 30).toFixed(1)} per day
+                      {(contentMetrics.monthly.newsletters / 3).toFixed(1)} per nursery
                     </p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Newsletter Signups
+                      Gallery Images
+                    </CardTitle>
+                    <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{contentMetrics.monthly.galleryImages}</div>
+                    <p className="text-xs text-muted-foreground">
+                      {(contentMetrics.monthly.galleryImages / 30).toFixed(1)} per day
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Blog Posts
                     </CardTitle>
                     <FileText className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{analytics.monthly.newsletterSignups}</div>
+                    <div className="text-2xl font-bold">{contentMetrics.monthly.blogPosts}</div>
                     <p className="text-xs text-muted-foreground">
-                      {(analytics.monthly.newsletterSignups / 30).toFixed(1)} per day
+                      {(contentMetrics.monthly.blogPosts / 3).toFixed(1)} per nursery
                     </p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Site Performance
+                      Events Created
                     </CardTitle>
-                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">99.1%</div>
+                    <div className="text-2xl font-bold">{contentMetrics.monthly.eventsCreated}</div>
                     <p className="text-xs text-muted-foreground">
-                      Uptime this month
+                      {(contentMetrics.monthly.eventsCreated / 3).toFixed(1)} per nursery
                     </p>
                   </CardContent>
                 </Card>
@@ -302,59 +299,56 @@ export default function NewDashboard() {
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Website Visitors
+                      Newsletters
                     </CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
+                    <Newspaper className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{analytics.yearly.visitors.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground flex items-center">
-                      <span className={analytics.yearly.visitorIncrease > 0 ? "text-green-500" : "text-red-500"}>
-                        {analytics.yearly.visitorIncrease > 0 ? "+" : ""}{analytics.yearly.visitorIncrease}%
-                      </span>
-                      <span className="ml-1">from last year</span>
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Contact Submissions
-                    </CardTitle>
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{analytics.yearly.contactSubmissions}</div>
+                    <div className="text-2xl font-bold">{contentMetrics.yearly.newsletters}</div>
                     <p className="text-xs text-muted-foreground">
-                      {(analytics.yearly.contactSubmissions / 365).toFixed(1)} per day avg.
+                      {(contentMetrics.yearly.newsletters / 3).toFixed(1)} per nursery
                     </p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Newsletter Signups
+                      Gallery Images
+                    </CardTitle>
+                    <ImageIcon className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{contentMetrics.yearly.galleryImages}</div>
+                    <p className="text-xs text-muted-foreground">
+                      {(contentMetrics.yearly.galleryImages / 365).toFixed(1)} per day
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Blog Posts
                     </CardTitle>
                     <FileText className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">{analytics.yearly.newsletterSignups}</div>
+                    <div className="text-2xl font-bold">{contentMetrics.yearly.blogPosts}</div>
                     <p className="text-xs text-muted-foreground">
-                      {(analytics.yearly.newsletterSignups / 365).toFixed(1)} per day avg.
+                      {(contentMetrics.yearly.blogPosts / 3).toFixed(1)} per nursery
                     </p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Site Performance
+                      Events Created
                     </CardTitle>
-                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">99.3%</div>
+                    <div className="text-2xl font-bold">{contentMetrics.yearly.eventsCreated}</div>
                     <p className="text-xs text-muted-foreground">
-                      Uptime this year
+                      {(contentMetrics.yearly.eventsCreated / 3).toFixed(1)} per nursery
                     </p>
                   </CardContent>
                 </Card>
