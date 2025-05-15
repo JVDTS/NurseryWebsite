@@ -69,11 +69,25 @@ export default function NewLogin() {
     fetchCsrfToken();
   }, []);
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated (only once)
   useEffect(() => {
-    if (isAuthenticated) {
-      setLocation('/admin/dashboard');
+    let isMounted = true;
+    
+    if (isAuthenticated && isMounted) {
+      // Add a small delay to prevent race conditions
+      const timer = setTimeout(() => {
+        setLocation('/admin/dashboard');
+      }, 100);
+      
+      return () => {
+        clearTimeout(timer);
+        isMounted = false;
+      };
     }
+    
+    return () => {
+      isMounted = false;
+    };
   }, [isAuthenticated, setLocation]);
 
   // Handle form submission

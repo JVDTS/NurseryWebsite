@@ -31,6 +31,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Check if user is logged in
   const checkAuth = async (): Promise<boolean> => {
+    // If we already have a user, return true without making an API call
+    if (user) {
+      return true;
+    }
+    
     try {
       setIsLoading(true);
       const response = await fetch('/api/admin/me', {
