@@ -87,20 +87,23 @@ export const newsletters = pgTable("newsletters", {
   id: serial("id").primaryKey(),
   title: varchar("title").notNull(),
   description: text("description"),
-  pdfUrl: varchar("pdf_url"),
-  htmlContent: text("html_content"),
+  file: varchar("file").notNull(),
+  month: varchar("month").notNull(),
+  year: integer("year").notNull(),
   nurseryId: integer("nursery_id").notNull(),
   authorId: integer("author_id").notNull(),
-  status: varchar("status").notNull().default("draft"), // draft, published, sent
-  scheduledFor: timestamp("scheduled_for"),
-  sentAt: timestamp("sent_at"),
+  status: varchar("status").notNull().default("published"), // draft, published, etc
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export type Newsletter = typeof newsletters.$inferSelect;
 export const insertNewsletterSchema = createInsertSchema(newsletters, {
-  title: z.string().min(5, "Title must be at least 5 characters"),
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  description: z.string().min(5, "Description must be at least 5 characters"),
+  file: z.string().min(1, "File is required"),
+  month: z.string().min(1, "Month is required"),
+  year: z.number().int().min(2000, "Valid year is required"),
   nurseryId: z.number().int().positive("Nursery must be selected"),
 }).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertNewsletter = z.infer<typeof insertNewsletterSchema>;
@@ -130,6 +133,42 @@ export const insertEventSchema = createInsertSchema(events, {
   nurseryId: z.number().int().positive("Nursery must be selected"),
 }).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertEvent = z.infer<typeof insertEventSchema>;
+
+// Gallery Images schema
+export const galleryImages = pgTable("gallery_images", {
+  id: serial("id").primaryKey(),
+  title: varchar("title").notNull(),
+  description: text("description"),
+  filename: varchar("filename").notNull(),
+  nurseryId: integer("nursery_id").notNull(),
+  categoryId: integer("category_id"),
+  uploadedBy: integer("uploaded_by").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export type GalleryImage = typeof galleryImages.$inferSelect;
+export const insertGalleryImageSchema = createInsertSchema(galleryImages, {
+  title: z.string().min(3, "Title must be at least 3 characters"),
+  description: z.string().optional(),
+  filename: z.string().min(1, "Filename is required"),
+  nurseryId: z.number().int().positive("Nursery must be selected"),
+  categoryId: z.number().int().positive("Category is required").optional(),
+}).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertGalleryImage = z.infer<typeof insertGalleryImageSchema>;
+
+// Gallery Categories schema
+export const galleryCategories = pgTable("gallery_categories", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type GalleryCategory = typeof galleryCategories.$inferSelect;
+export const insertGalleryCategorySchema = createInsertSchema(galleryCategories, {
+  name: z.string().min(2, "Category name is required"),
+}).omit({ id: true, createdAt: true });
+export type InsertGalleryCategory = z.infer<typeof insertGalleryCategorySchema>;
 
 // Media Library schema
 export const mediaLibrary = pgTable("media_library", {
@@ -253,6 +292,9 @@ export const relations = {
     media: (nurseries) => ({
       many: (mediaLibrary, { eq }) => eq(mediaLibrary.nurseryId, nurseries.id),
     }),
+    galleryImages: (nurseries) => ({
+      many: (galleryImages, { eq }) => eq(galleryImages.nurseryId, nurseries.id),
+    }),
   },
   posts: {
     nursery: (posts) => ({
@@ -300,6 +342,22 @@ export const relations = {
     }),
     inviter: (invitations) => ({
       one: (users, { eq }) => eq(invitations.invitedBy, users.id),
+    }),
+  },
+  galleryImages: {
+    nursery: (galleryImages) => ({
+      one: (nurseries, { eq }) => eq(galleryImages.nurseryId, nurseries.id),
+    }),
+    category: (galleryImages) => ({
+      one: (galleryCategories, { eq }) => eq(galleryImages.categoryId, galleryCategories.id),
+    }),
+    uploader: (galleryImages) => ({
+      one: (users, { eq }) => eq(galleryImages.uploadedBy, users.id),
+    }),
+  },
+  galleryCategories: {
+    images: (galleryCategories) => ({
+      many: (galleryImages, { eq }) => eq(galleryImages.categoryId, galleryCategories.id),
     }),
   },
 };

@@ -32,7 +32,7 @@ import {
   LogOut, 
   Menu, 
   ChevronDown,
-  Image,
+  Image as ImageIcon,
   BookOpen,
   Mail,
   Newspaper,
@@ -68,6 +68,12 @@ function Sidebar({ className }: SidebarProps) {
       href: '/admin/events',
       icon: Calendar,
       active: location.includes('/admin/events'),
+    },
+    {
+      name: 'Media',
+      href: '/admin/media',
+      icon: ImageIcon,
+      active: location.includes('/admin/media'),
     },
     {
       name: 'Staff',
