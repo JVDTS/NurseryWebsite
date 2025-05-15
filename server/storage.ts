@@ -7,6 +7,8 @@ import {
   newsletters, Newsletter, InsertNewsletter,
   posts, Post, InsertPost,
   mediaLibrary, MediaItem, InsertMediaItem,
+  galleryImages, GalleryImage, InsertGalleryImage,
+  galleryCategories, GalleryCategory, InsertGalleryCategory,
   activityLogs, ActivityLog, InsertActivityLog,
   invitations, Invitation, InsertInvitation,
   contactSubmissions, ContactSubmission, InsertContact
@@ -61,6 +63,20 @@ export interface IStorage {
   updatePost(id: number, postData: Partial<Post>): Promise<Post | undefined>;
   deletePost(id: number): Promise<boolean>;
 
+  // Gallery operations
+  getGalleryImage(id: number): Promise<GalleryImage | undefined>;
+  getGalleryImagesByNursery(nurseryId: number): Promise<GalleryImage[]>;
+  getAllGalleryImages(): Promise<GalleryImage[]>;
+  createGalleryImage(image: InsertGalleryImage): Promise<GalleryImage>;
+  updateGalleryImage(id: number, imageData: Partial<GalleryImage>): Promise<GalleryImage | undefined>;
+  deleteGalleryImage(id: number): Promise<boolean>;
+  
+  // Gallery categories
+  getGalleryCategory(id: number): Promise<GalleryCategory | undefined>;
+  getAllGalleryCategories(): Promise<GalleryCategory[]>;
+  createGalleryCategory(category: InsertGalleryCategory): Promise<GalleryCategory>;
+  deleteGalleryCategory(id: number): Promise<boolean>;
+  
   // Media operations
   getMediaItem(id: number): Promise<MediaItem | undefined>;
   getMediaByNursery(nurseryId: number): Promise<MediaItem[]>;
@@ -144,7 +160,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteUser(id: number): Promise<boolean> {
     const result = await db.delete(users).where(eq(users.id, id));
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   // Nursery operations
@@ -190,7 +206,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteNursery(id: number): Promise<boolean> {
     const result = await db.delete(nurseries).where(eq(nurseries.id, id));
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   // Event operations
@@ -235,7 +251,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteEvent(id: number): Promise<boolean> {
     const result = await db.delete(events).where(eq(events.id, id));
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   // Newsletter operations
@@ -280,7 +296,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteNewsletter(id: number): Promise<boolean> {
     const result = await db.delete(newsletters).where(eq(newsletters.id, id));
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   // Post operations
@@ -341,7 +357,7 @@ export class DatabaseStorage implements IStorage {
 
   async deletePost(id: number): Promise<boolean> {
     const result = await db.delete(posts).where(eq(posts.id, id));
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   // Media Library operations
@@ -373,7 +389,76 @@ export class DatabaseStorage implements IStorage {
 
   async deleteMediaItem(id: number): Promise<boolean> {
     const result = await db.delete(mediaLibrary).where(eq(mediaLibrary.id, id));
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+  
+  // Gallery operations
+  async getGalleryImage(id: number): Promise<GalleryImage | undefined> {
+    const [image] = await db.select().from(galleryImages).where(eq(galleryImages.id, id));
+    return image;
+  }
+
+  async getGalleryImagesByNursery(nurseryId: number): Promise<GalleryImage[]> {
+    return db
+      .select()
+      .from(galleryImages)
+      .where(eq(galleryImages.nurseryId, nurseryId))
+      .orderBy(desc(galleryImages.createdAt));
+  }
+
+  async getAllGalleryImages(): Promise<GalleryImage[]> {
+    return db.select().from(galleryImages).orderBy(desc(galleryImages.createdAt));
+  }
+
+  async createGalleryImage(imageData: InsertGalleryImage): Promise<GalleryImage> {
+    const [image] = await db
+      .insert(galleryImages)
+      .values(imageData)
+      .returning();
+    
+    return image;
+  }
+
+  async updateGalleryImage(id: number, imageData: Partial<GalleryImage>): Promise<GalleryImage | undefined> {
+    const [image] = await db
+      .update(galleryImages)
+      .set({
+        ...imageData,
+        updatedAt: new Date()
+      })
+      .where(eq(galleryImages.id, id))
+      .returning();
+    
+    return image;
+  }
+
+  async deleteGalleryImage(id: number): Promise<boolean> {
+    const result = await db.delete(galleryImages).where(eq(galleryImages.id, id));
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+
+  // Gallery categories operations
+  async getGalleryCategory(id: number): Promise<GalleryCategory | undefined> {
+    const [category] = await db.select().from(galleryCategories).where(eq(galleryCategories.id, id));
+    return category;
+  }
+
+  async getAllGalleryCategories(): Promise<GalleryCategory[]> {
+    return db.select().from(galleryCategories).orderBy(galleryCategories.name);
+  }
+
+  async createGalleryCategory(categoryData: InsertGalleryCategory): Promise<GalleryCategory> {
+    const [category] = await db
+      .insert(galleryCategories)
+      .values(categoryData)
+      .returning();
+    
+    return category;
+  }
+
+  async deleteGalleryCategory(id: number): Promise<boolean> {
+    const result = await db.delete(galleryCategories).where(eq(galleryCategories.id, id));
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   // Activity logging
