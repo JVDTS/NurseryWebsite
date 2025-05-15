@@ -300,7 +300,7 @@ export default function ManageNewsletters() {
     const matchesSearch = searchQuery === '' || 
       newsletter.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       newsletter.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesNursery = !selectedNursery || newsletter.nurseryId.toString() === selectedNursery;
+    const matchesNursery = selectedNursery === 'all' || !selectedNursery || newsletter.nurseryId.toString() === selectedNursery;
     return matchesSearch && matchesNursery;
   });
 
