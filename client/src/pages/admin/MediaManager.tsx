@@ -22,31 +22,32 @@ export default function MediaManager() {
                 Manage newsletters and gallery images across all nurseries.
               </p>
             </div>
-            
-            <Tabs
-              value={activeTab}
-              onValueChange={(value) => setActiveTab(value as 'newsletters' | 'gallery')}
-            >
-              <TabsList>
-                <TabsTrigger value="newsletters" className="flex items-center gap-1">
-                  <Newspaper className="h-4 w-4" />
-                  <span>Newsletters</span>
-                </TabsTrigger>
-                <TabsTrigger value="gallery" className="flex items-center gap-1">
-                  <ImageIcon className="h-4 w-4" />
-                  <span>Gallery</span>
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
           </div>
-
-          <TabsContent value="newsletters" className="mt-0 space-y-0">
-            <ManageNewsletters />
-          </TabsContent>
           
-          <TabsContent value="gallery" className="mt-0 space-y-0">
-            <ManageGallery />
-          </TabsContent>
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) => setActiveTab(value as 'newsletters' | 'gallery')}
+            className="w-full"
+          >
+            <TabsList className="mb-4">
+              <TabsTrigger value="newsletters" className="flex items-center gap-1">
+                <Newspaper className="h-4 w-4" />
+                <span>Newsletters</span>
+              </TabsTrigger>
+              <TabsTrigger value="gallery" className="flex items-center gap-1">
+                <ImageIcon className="h-4 w-4" />
+                <span>Gallery</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="newsletters" className="mt-0 space-y-0">
+              <ManageNewsletters />
+            </TabsContent>
+            
+            <TabsContent value="gallery" className="mt-0 space-y-0">
+              <ManageGallery />
+            </TabsContent>
+          </Tabs>
         </div>
       </NewDashboardLayout>
     </ProtectedRoute>
