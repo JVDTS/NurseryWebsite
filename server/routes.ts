@@ -333,13 +333,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const nursery = nurseryResult[0];
       
       // Get gallery images for the nursery
-      const galleryImages = await db.select().from(galleryImages)
-        .where(eq(galleryImages.nurseryId, nursery.id));
+      const images = await db.select().from(galleryImagesTable)
+        .where(eq(galleryImagesTable.nurseryId, nursery.id));
       
-      console.log(`Found ${galleryImages.length} gallery images for nursery ID ${nursery.id}`);
+      console.log(`Found ${images.length} gallery images for nursery ID ${nursery.id}`);
       
       // Map the gallery images to include full URL path for images
-      const galleryWithUrls = galleryImages.map(image => ({
+      const galleryWithUrls = images.map(image => ({
         ...image,
         imageUrl: `/uploads/${image.filename}`, // Match frontend's expected property
         url: `/uploads/${image.filename}` // Keep for compatibility
