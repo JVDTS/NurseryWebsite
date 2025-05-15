@@ -541,6 +541,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Gallery Images API
+  app.get("/api/gallery", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const images = await storage.getAllGalleryImages();
+      res.json(images);
+    } catch (error) {
+      console.error("Error fetching gallery images:", error);
+      res.status(500).json({ message: "Failed to fetch gallery images" });
+    }
+  });
+
+  app.post("/api/gallery", isAuthenticated, hasRole(["super_admin", "admin", "editor"]), async (req: Request, res: Response) => {
+    try {
+      const image = await storage.createGalleryImage(req.body);
+      res.status(201).json(image);
+    } catch (error) {
+      console.error("Error creating gallery image:", error);
+      res.status(500).json({ message: "Failed to create gallery image" });
+    }
+  });
+
+  app.put("/api/gallery/:id", isAuthenticated, hasRole(["super_admin", "admin", "editor"]), async (req: Request, res: Response) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      const image = await storage.updateGalleryImage(imageId, req.body);
+      
+      if (!image) {
+        return res.status(404).json({ message: "Gallery image not found" });
+      }
+      
+      res.json(image);
+    } catch (error) {
+      console.error("Error updating gallery image:", error);
+      res.status(500).json({ message: "Failed to update gallery image" });
+    }
+  });
+
+  app.delete("/api/gallery/:id", isAuthenticated, hasRole(["super_admin", "admin"]), async (req: Request, res: Response) => {
+    try {
+      const imageId = parseInt(req.params.id);
+      const success = await storage.deleteGalleryImage(imageId);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Gallery image not found" });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting gallery image:", error);
+      res.status(500).json({ message: "Failed to delete gallery image" });
+    }
+  });
+
+  // Gallery Categories API
+  app.get("/api/gallery/categories", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const categories = await storage.getAllGalleryCategories();
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching gallery categories:", error);
+      res.status(500).json({ message: "Failed to fetch gallery categories" });
+    }
+  });
+
+  app.post("/api/gallery/categories", isAuthenticated, hasRole(["super_admin", "admin"]), async (req: Request, res: Response) => {
+    try {
+      const category = await storage.createGalleryCategory(req.body);
+      res.status(201).json(category);
+    } catch (error) {
+      console.error("Error creating gallery category:", error);
+      res.status(500).json({ message: "Failed to create gallery category" });
+    }
+  });
+
+  app.delete("/api/gallery/categories/:id", isAuthenticated, hasRole(["super_admin", "admin"]), async (req: Request, res: Response) => {
+    try {
+      const categoryId = parseInt(req.params.id);
+      const success = await storage.deleteGalleryCategory(categoryId);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Gallery category not found" });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting gallery category:", error);
+      res.status(500).json({ message: "Failed to delete gallery category" });
+    }
+  });
+
   // Media Library API
   app.get("/api/media", isAuthenticated, async (req: Request, res: Response) => {
     try {

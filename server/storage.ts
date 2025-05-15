@@ -546,7 +546,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteInvitation(id: number): Promise<boolean> {
     const result = await db.delete(invitations).where(eq(invitations.id, id));
-    return result.rowCount > 0;
+    return result.rowCount ? result.rowCount > 0 : false;
   }
 
   // Contact form submissions
