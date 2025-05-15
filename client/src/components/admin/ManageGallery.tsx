@@ -105,7 +105,7 @@ export default function ManageGallery() {
   const queryClient = useQueryClient();
 
   // Fetch gallery images
-  const { data: galleryImages = [], isLoading, error } = useQuery({
+  const { data: galleryImages = [], isLoading, error } = useQuery<GalleryImage[]>({
     queryKey: ['/api/gallery'],
   });
 
@@ -212,7 +212,7 @@ export default function ManageGallery() {
   };
 
   // Filter gallery images based on search and nursery selection
-  const filteredImages = galleryImages.filter((image: GalleryImage) => {
+  const filteredImages = galleryImages.filter((image) => {
     const matchesSearch = searchQuery === '' || 
       image.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       image.description.toLowerCase().includes(searchQuery.toLowerCase());
