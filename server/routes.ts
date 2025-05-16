@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, hasRole } from "./replitAuth";
-import { contactFormSchema, nurseries, galleryImages as galleryImagesTable } from "@shared/schema";
+import { contactFormSchema, nurseries, galleryImages as galleryImagesTable, newsletters } from "@shared/schema";
 import { db } from "./db";
 import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -359,14 +359,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Newsletter API
   app.get("/api/nurseries/:location/newsletters", async (req: Request, res: Response) => {
     try {
-      const nursery = await storage.getNurseryByLocation(req.params.location);
+      console.log(`Getting newsletters for nursery location: ${req.params.location}`);
       
-      if (!nursery) {
+      // Use direct database query with case-insensitive lookup
+      const nurseryResult = await db.select().from(nurseries)
+        .where(sql`LOWER(location) = LOWER(${req.params.location})`);
+      
+      console.log('Nursery query result:', nurseryResult);
+      
+      if (nurseryResult.length === 0) {
         return res.status(404).json({ message: "Nursery not found" });
       }
       
-      const newsletters = await storage.getNewslettersByNursery(nursery.id);
-      res.json(newsletters);
+      const nursery = nurseryResult[0];
+      
+      // Get newsletters for the nursery
+      const results = await db.select().from(newsletters)
+        .where(eq(newsletters.nurseryId, nursery.id));
+      
+      console.log(`Found ${results.length} newsletters for nursery ID ${nursery.id}`);
+      
+      // Map the newsletters to include full URL path for PDFs
+      const newslettersWithUrls = results.map(newsletter => ({
+        ...newsletter,
+        fileUrl: `/uploads/${newsletter.file}` // Add URL for frontend
+      }));
+      
+      res.json(newslettersWithUrls);
     } catch (error) {
       console.error("Error fetching newsletters:", error);
       res.status(500).json({ message: "Failed to fetch newsletters" });
