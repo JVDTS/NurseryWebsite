@@ -456,12 +456,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Ensure required fields are present
+      const filename = uploadedFile ? uploadedFile.filename : 'sample-newsletter.pdf';
       const newsletterData = {
         title: req.body.title || "Newsletter",
         description: req.body.description || "",
         month: req.body.month || new Date().toLocaleString('default', { month: 'long' }),
         year: parseInt(req.body.year || new Date().getFullYear().toString(), 10),
-        file: uploadedFile ? uploadedFile.filename : 'sample-newsletter.pdf', // Use uploaded file or fallback
+        file: filename, // File path
+        filename: filename, // The filename field must also be populated
         nurseryId: parseInt(req.body.nurseryId || "1", 10),
         authorId: parseInt(req.body.authorId || "1", 10), // Default admin user
         status: req.body.status || "published"
