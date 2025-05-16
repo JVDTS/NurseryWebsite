@@ -419,16 +419,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("Newsletter upload request:", req.body);
       
+      // Process file upload
+      let uploadedFile: any = null;
+      if (req.files && Object.keys(req.files).length > 0) {
+        const file = req.files.file;
+        if (file) {
+          const uploadPath = path.join(process.cwd(), 'uploads', `${Date.now()}_${file.name}`);
+          
+          // Create the uploads directory if it doesn't exist
+          const uploadsDir = path.join(process.cwd(), 'uploads');
+          if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir, { recursive: true });
+          }
+          
+          // Move the file to the uploads directory
+          await new Promise<void>((resolve, reject) => {
+            file.mv(uploadPath, (err: any) => {
+              if (err) {
+                console.error("Error moving file:", err);
+                reject(err);
+              } else {
+                resolve();
+              }
+            });
+          });
+          
+          uploadedFile = {
+            filename: path.basename(uploadPath),
+            originalname: file.name,
+            mimetype: file.mimetype,
+            size: file.size
+          };
+          
+          console.log("File uploaded successfully:", uploadedFile);
+        }
+      }
+      
       // Ensure required fields are present
       const newsletterData = {
         title: req.body.title || "Newsletter",
         description: req.body.description || "",
         month: req.body.month || new Date().toLocaleString('default', { month: 'long' }),
         year: parseInt(req.body.year || new Date().getFullYear().toString(), 10),
-        filename: req.body.filename || "newsletter.pdf",
-        file: req.body.file || req.body.filename || "newsletter.pdf",
+        file: uploadedFile ? uploadedFile.filename : 'sample-newsletter.pdf', // Use uploaded file or fallback
         nurseryId: parseInt(req.body.nurseryId || "1", 10),
-        authorId: 1, // Default admin user
+        authorId: parseInt(req.body.authorId || "1", 10), // Default admin user
         status: req.body.status || "published"
       };
       
