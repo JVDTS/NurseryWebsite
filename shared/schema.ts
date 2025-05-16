@@ -87,7 +87,8 @@ export const newsletters = pgTable("newsletters", {
   id: serial("id").primaryKey(),
   title: varchar("title").notNull(),
   description: text("description"),
-  file: varchar("file").notNull(),
+  filename: varchar("filename").notNull(), // Required field
+  file: varchar("file"), // Optional field
   month: varchar("month").notNull(),
   year: integer("year").notNull(),
   nurseryId: integer("nursery_id").notNull(),
