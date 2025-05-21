@@ -38,9 +38,9 @@ export default function Footer() {
               <li><Link href="/" className="text-gray-400 hover:text-white transition-colors">Home</Link></li>
               <li><Link href="/about" className="text-gray-400 hover:text-white transition-colors">About Us</Link></li>
               <li><Link href="/mission" className="text-gray-400 hover:text-white transition-colors">Our Mission</Link></li>
-              <li><Link href="/#nurseries" className="text-gray-400 hover:text-white transition-colors">Our Nurseries</Link></li>
+              <li><a href="/#nurseries" className="text-gray-400 hover:text-white transition-colors">Our Nurseries</a></li>
               <li><Link href="/newsletters" className="text-gray-400 hover:text-white transition-colors">Newsletters</Link></li>
-              <li><Link href="/#contact" className="text-gray-400 hover:text-white transition-colors">Contact Us</Link></li>
+              <li><a href="/#contact" className="text-gray-400 hover:text-white transition-colors">Contact Us</a></li>
             </ul>
           </div>
           
