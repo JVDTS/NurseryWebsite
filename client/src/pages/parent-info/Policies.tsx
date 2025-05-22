@@ -187,10 +187,12 @@ export default function PoliciesPage() {
                 If you would like to receive a copy of any specific policy or the complete policy manual, please complete a policy 
                 request form at reception or speak to the nursery manager.
               </p>
-              <Button className="w-full flex items-center justify-center gap-2">
-                <Download className="h-4 w-4" />
-                Download Complete Policy Document (PDF)
-              </Button>
+              <a href="/documents/Terms-and-Conditions.docx" download="Coat-of-Many-Colours-Terms-and-Conditions.docx">
+                <Button className="w-full flex items-center justify-center gap-2">
+                  <Download className="h-4 w-4" />
+                  Download Terms and Conditions
+                </Button>
+              </a>
             </div>
           </div>
         </motion.div>
