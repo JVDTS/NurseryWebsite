@@ -265,7 +265,118 @@ export default function StaffManagement() {
           </div>
           
           <div className="grid gap-6">
-            {/* Filters and search */}
+            {/* Role Management Section - Only visible to super admins */}
+            {isSuperAdmin && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Role Management</CardTitle>
+                  <CardDescription>
+                    Create and manage roles for staff members across nurseries
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="text-lg font-medium mb-3">Available Roles</h3>
+                      <div className="space-y-4 border rounded-lg p-4">
+                        <div className="flex justify-between items-center p-2 bg-primary/5 rounded">
+                          <div>
+                            <p className="font-medium">Super Admin</p>
+                            <p className="text-sm text-muted-foreground">Full access to all nurseries and settings</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" className="h-8">
+                              <Edit className="h-3.5 w-3.5 mr-1" />
+                              Edit
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-2 bg-primary/5 rounded">
+                          <div>
+                            <p className="font-medium">Nursery Admin</p>
+                            <p className="text-sm text-muted-foreground">Manage a specific nursery and its staff</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" className="h-8">
+                              <Edit className="h-3.5 w-3.5 mr-1" />
+                              Edit
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <div className="flex justify-between items-center p-2 bg-primary/5 rounded">
+                          <div>
+                            <p className="font-medium">Staff Member</p>
+                            <p className="text-sm text-muted-foreground">Basic access to add content</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" className="h-8">
+                              <Edit className="h-3.5 w-3.5 mr-1" />
+                              Edit
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="text-lg font-medium mb-3">Create New Role</h3>
+                      <div className="border rounded-lg p-4">
+                        <div className="space-y-4">
+                          <div className="grid gap-2">
+                            <Label htmlFor="role-name">Role Name</Label>
+                            <Input id="role-name" placeholder="Enter role name" />
+                          </div>
+                          
+                          <div className="grid gap-2">
+                            <Label htmlFor="role-description">Description</Label>
+                            <Input id="role-description" placeholder="Role description" />
+                          </div>
+                          
+                          <div className="grid gap-2">
+                            <Label>Permissions</Label>
+                            <div className="space-y-2">
+                              <div className="flex items-center space-x-2">
+                                <input type="checkbox" id="perm-content" className="h-4 w-4 rounded border-gray-300" />
+                                <label htmlFor="perm-content" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                  Manage content
+                                </label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <input type="checkbox" id="perm-gallery" className="h-4 w-4 rounded border-gray-300" />
+                                <label htmlFor="perm-gallery" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                  Add gallery images
+                                </label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <input type="checkbox" id="perm-events" className="h-4 w-4 rounded border-gray-300" />
+                                <label htmlFor="perm-events" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                  Manage events
+                                </label>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <input type="checkbox" id="perm-users" className="h-4 w-4 rounded border-gray-300" />
+                                <label htmlFor="perm-users" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                  Manage users
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <Button className="w-full">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Create Role
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            
+            {/* Staff Directory */}
             <Card>
               <CardHeader>
                 <CardTitle>Staff Directory</CardTitle>
