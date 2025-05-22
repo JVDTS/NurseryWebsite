@@ -493,8 +493,8 @@ export default function NewDashboard() {
                   variant="outline" 
                   className="h-auto flex-col items-center justify-center gap-2 p-4"
                 >
-                  <FileText className="h-5 w-5" />
-                  <span>Add New Post</span>
+                  <Mail className="h-5 w-5" />
+                  <span>Add Newsletter</span>
                 </Button>
                 <Button 
                   variant="outline" 
@@ -507,8 +507,8 @@ export default function NewDashboard() {
                   variant="outline" 
                   className="h-auto flex-col items-center justify-center gap-2 p-4"
                 >
-                  <Mail className="h-5 w-5" />
-                  <span>Send Newsletter</span>
+                  <ImageIcon className="h-5 w-5" />
+                  <span>Upload Gallery Image</span>
                 </Button>
                 <Button 
                   variant="outline" 
