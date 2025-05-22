@@ -73,6 +73,7 @@ function Router() {
       <Route path="/admin/media" component={MediaManager} />
       <Route path="/admin/users" component={UserManagement} />
       <Route path="/admin/activity" component={ActivityLogs} />
+      <Route path="/admin/staff" component={AdminStaff} />
       
       {/* Legacy Admin routes (keeping for reference) */}
       <Route path="/admin-old/dashboard" component={AdminDashboard} />
