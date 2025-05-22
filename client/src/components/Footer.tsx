@@ -26,7 +26,7 @@ export default function Footer() {
               <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary transition-all">
                 <Facebook size={16} />
               </a>
-              <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary transition-all">
+              <a href="https://www.instagram.com/cmcnursery/?hl=en-gb" target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-primary transition-all">
                 <Instagram size={16} />
               </a>
             </div>
