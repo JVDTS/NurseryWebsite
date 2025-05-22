@@ -225,7 +225,7 @@ export default function NewLogin() {
             Welcome to Nursery CMS
           </h2>
           <p className="text-gray-600 mb-4">
-            Manage your nursery content, events, staff, and more from one central dashboard.
+            Manage your nursery content, events, newsletters, and gallery images from one central dashboard.
           </p>
           <div className="grid grid-cols-2 gap-3 w-full max-w-sm">
             <div className="p-3 bg-primary/5 rounded-lg flex flex-col items-center">
