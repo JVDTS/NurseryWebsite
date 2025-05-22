@@ -221,13 +221,10 @@ export default function AdminDashboard() {
             </Card>
           </div>
 
-          {/* Admin Activities & Staff Sections */}
-          <div className="grid gap-6 lg:grid-cols-2">
+          {/* Admin Activities Section */}
+          <div className="grid gap-6">
             {/* Admin Activities */}
             <ActivitiesSection nurseryId={selectedNurseryId || undefined} limit={5} />
-
-            {/* Staff Section */}
-            <StaffSection nurseryId={selectedNurseryId || undefined} limit={5} />
           </div>
 
           {/* Latest Content */}

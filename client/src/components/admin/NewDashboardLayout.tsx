@@ -75,13 +75,7 @@ function Sidebar({ className }: SidebarProps) {
       icon: ImageIcon,
       active: location.includes('/admin/media'),
     },
-    {
-      name: 'Staff',
-      href: '/admin/staff',
-      icon: Users,
-      active: location.includes('/admin/staff'),
-      show: user?.role === 'super_admin' || user?.role === 'nursery_admin',
-    },
+
     {
       name: 'Settings',
       href: '/admin/settings',
