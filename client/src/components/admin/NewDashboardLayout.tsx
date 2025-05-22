@@ -144,8 +144,8 @@ function Sidebar({ className }: SidebarProps) {
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {user?.role === 'super_admin' ? 'Administrator' : 
-                   user?.role === 'nursery_admin' ? 'Nursery Manager' : 
-                   user?.role === 'staff' ? 'Staff Member' : 'User'}
+                   user?.role === 'admin' ? 'Nursery Manager' : 
+                   user?.role === 'editor' ? 'Content Editor' : 'User'}
                 </p>
               </div>
               <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground" />
