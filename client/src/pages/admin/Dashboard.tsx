@@ -21,7 +21,14 @@ export default function AdminDashboard() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [selectedNurseryId, setSelectedNurseryId] = useState<number | null>(null);
-  const [stats, setStats] = useState({
+  // Define stats type for dashboard
+  type DashboardStats = {
+    newsletters: number;
+    events: number;
+    galleryImages: number;
+  };
+
+  const [stats, setStats] = useState<DashboardStats>({
     newsletters: 0,
     events: 0,
     galleryImages: 0

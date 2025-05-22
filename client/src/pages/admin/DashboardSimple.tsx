@@ -24,8 +24,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({
     newsletters: 0,
     events: 0,
-    galleryImages: 0,
-    staff: 0
+    galleryImages: 0
   });
 
   // Get endpoint based on nursery selection
@@ -122,8 +121,7 @@ export default function AdminDashboard() {
     const updatedStats = {
       galleryImages: galleryData?.images?.length || 0,
       newsletters: newslettersData?.newsletters?.length || 0,
-      events: eventsData?.events?.length || 0,
-      staff: 0
+      events: eventsData?.events?.length || 0
     };
     
     console.log("Updated stats:", updatedStats);
