@@ -323,7 +323,7 @@ export default function ContactSection() {
                   <a href="#" className="w-10 h-10 bg-rainbow-blue/10 text-rainbow-blue rounded-full flex items-center justify-center hover:bg-rainbow-blue hover:text-white transition-all">
                     <Facebook size={20} />
                   </a>
-                  <a href="#" className="w-10 h-10 bg-rainbow-pink/10 text-rainbow-pink rounded-full flex items-center justify-center hover:bg-rainbow-pink hover:text-white transition-all">
+                  <a href="https://www.instagram.com/cmcnursery/?hl=en-gb" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-rainbow-pink/10 text-rainbow-pink rounded-full flex items-center justify-center hover:bg-rainbow-pink hover:text-white transition-all">
                     <Instagram size={20} />
                   </a>
                 </div>

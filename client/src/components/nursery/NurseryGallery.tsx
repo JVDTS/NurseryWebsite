@@ -19,10 +19,10 @@ export default function NurseryGallery({ images }: NurseryGalleryProps) {
         >
           <h2 className="text-3xl font-bold mb-4 text-primary">Gallery</h2>
           <div className="w-20 h-1 bg-primary mx-auto mb-6"></div>
-          <div className="flex items-center justify-center gap-2 mb-6">
+          <a href="https://www.instagram.com/cmcnursery/?hl=en-gb" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 mb-6 hover:text-primary transition-colors">
             <Instagram className="text-primary w-5 h-5" />
             <p className="text-gray-700">Follow us on Instagram for more updates</p>
-          </div>
+          </a>
         </motion.div>
 
         <motion.div 
