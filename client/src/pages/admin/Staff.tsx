@@ -1,21 +1,26 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from '@/hooks/useAuth';
-import DashboardLayout from '@/components/admin/DashboardLayout';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useToast } from '@/hooks/use-toast';
-import { Search, Plus, Edit, Trash2, UserPlus, RefreshCcw, AtSign, Briefcase, Building } from 'lucide-react';
+import { AdminLayout } from "@/components/admin/AdminLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { UserPlus, Shield, Trash2, PencilLine, MoreHorizontal, Eye, EyeOff, Search } from "lucide-react";
+import { queryClient } from "@/lib/queryClient";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 // Form schema for adding/editing staff
 const staffFormSchema = z.object({
@@ -28,43 +33,63 @@ const staffFormSchema = z.object({
   nurseryId: z.number().optional(),
 });
 
+// Create user schema - matches format used in UserManagement.tsx
+const createUserSchema = z.object({
+  email: z.string().email("Please enter a valid email"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
+  role: z.enum(["super_admin", "admin", "editor"]),
+  nurseryId: z.number().int().positive("Nursery must be selected").optional()
+});
+
+// Update user schema
+const updateUserSchema = createUserSchema.partial().extend({
+  id: z.number().positive(),
+});
+
 export default function StaffManagement() {
   const { user } = useAuth();
   const isSuperAdmin = user?.role === 'super_admin';
-  const [isAddStaffOpen, setIsAddStaffOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
   
-  // For filtering by nursery (super admin only)
-  const [selectedNurseryId, setSelectedNurseryId] = useState<number | null>(null);
+  // User management states
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [showPasswords, setShowPasswords] = useState<Record<number, boolean>>({});
   
-  // Form for adding/editing staff
-  const staffForm = useForm<z.infer<typeof staffFormSchema>>({
-    resolver: zodResolver(staffFormSchema),
+  // Forms
+  const createForm = useForm<z.infer<typeof createUserSchema>>({
+    resolver: zodResolver(createUserSchema),
     defaultValues: {
+      email: "",
+      password: "",
       firstName: "",
       lastName: "",
-      email: "",
-      role: "staff",
-    },
+      role: "editor",
+    }
+  });
+
+  const editForm = useForm<z.infer<typeof updateUserSchema>>({
+    resolver: zodResolver(updateUserSchema)
   });
   
-  // Fetch all staff (with optional nursery filter)
-  const staffQuery = useQuery({
-    queryKey: selectedNurseryId 
-      ? ['/api/admin/staff/nursery', selectedNurseryId] 
-      : ['/api/admin/staff'],
-    enabled: !!user,
+  // Fetch users
+  const usersQuery = useQuery({
+    queryKey: ['/api/users'],
   });
   
-  // Fetch nurseries for dropdown (super admin only)
+  // Fetch nurseries for dropdown
   const nurseriesQuery = useQuery({
     queryKey: ['/api/nurseries'],
-    enabled: !!user && isSuperAdmin,
   });
   
-  const staffData = staffQuery.data?.data || [];
-  const nurseries = nurseriesQuery.data?.data || [];
+  // Fetch activity logs
+  const logsQuery = useQuery({
+    queryKey: ['/api/activity'],
+  });
   
   // Filter staff based on search query
   const filteredStaff = staffData.filter((staffMember: any) => {

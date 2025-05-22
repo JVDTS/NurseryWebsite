@@ -38,8 +38,10 @@ import ActivityLogs from "@/pages/admin/ActivityLogs";
 // Legacy Admin pages
 import AdminDashboard from "@/pages/admin/DashboardSimple";
 import AdminLogin from "@/pages/admin/Login";
-import AdminStaff from "@/pages/admin/Staff";
 import AdminSettings from "@/pages/admin/Settings";
+
+// Staff Management
+import StaffManagement from "@/pages/admin/StaffManagement";
 
 function Router() {
   return (
@@ -73,12 +75,11 @@ function Router() {
       <Route path="/admin/media" component={MediaManager} />
       <Route path="/admin/users" component={UserManagement} />
       <Route path="/admin/activity" component={ActivityLogs} />
-      <Route path="/admin/staff" component={AdminStaff} />
+      <Route path="/admin/staff" component={StaffManagement} />
       
       {/* Legacy Admin routes (keeping for reference) */}
       <Route path="/admin-old/dashboard" component={AdminDashboard} />
       <Route path="/admin-old/login" component={AdminLogin} />
-      <Route path="/admin-old/staff" component={AdminStaff} />
       <Route path="/admin-old/settings" component={AdminSettings} />
       
       <Route component={NotFound} />
