@@ -1,7 +1,8 @@
 import { db } from './db';
-import { eq, and, desc, or, like, isNull } from 'drizzle-orm';
+import { eq, and, desc, or, like, isNull, sql } from 'drizzle-orm';
 import { 
   users, User, InsertUser,
+  userNurseries, UserNursery, InsertUserNursery,
   nurseries, Nursery, InsertNursery,
   events, Event, InsertEvent,
   newsletters, Newsletter, InsertNewsletter,
@@ -28,7 +29,17 @@ export interface IStorage {
   updateUser(id: number, userData: Partial<User>): Promise<User | undefined>;
   getAllUsers(): Promise<User[]>;
   getUsersByNursery(nurseryId: number): Promise<User[]>;
+  getUserWithAssignedNurseries(userId: number): Promise<{user: User, assignedNurseries: Nursery[]}>;
+  getActiveUsers(): Promise<User[]>;
+  deactivateUser(id: number): Promise<boolean>;
+  reactivateUser(id: number): Promise<boolean>;
   deleteUser(id: number): Promise<boolean>;
+  
+  // User-Nursery assignments
+  assignUserToNursery(assignment: InsertUserNursery): Promise<UserNursery>;
+  removeUserFromNursery(userId: number, nurseryId: number): Promise<boolean>;
+  getUserNurseryAssignments(userId: number): Promise<UserNursery[]>;
+  getNurseryUserAssignments(nurseryId: number): Promise<UserNursery[]>;
 
   // Nursery operations
   getNursery(id: number): Promise<Nursery | undefined>;
@@ -158,9 +169,143 @@ export class DatabaseStorage implements IStorage {
       .orderBy(users.lastName);
   }
 
+  async getUserWithAssignedNurseries(userId: number): Promise<{user: User, assignedNurseries: Nursery[]}> {
+    // Get the user
+    const user = await this.getUser(userId);
+    if (!user) {
+      throw new Error(`User with ID ${userId} not found`);
+    }
+    
+    // Get all nursery assignments for this user
+    const assignments = await this.getUserNurseryAssignments(userId);
+    
+    // Get the nursery details for each assignment
+    const nurseryIds = assignments.map(a => a.nurseryId);
+    let assignedNurseries: Nursery[] = [];
+    
+    if (nurseryIds.length > 0) {
+      // For simpler approach, just fetch each nursery individually and merge results
+      let assignedNurseriesArray = [];
+      
+      // Get nurseries from the user-nurseries table
+      for (const nurseryId of nurseryIds) {
+        const nursery = await this.getNursery(nurseryId);
+        if (nursery) {
+          assignedNurseriesArray.push(nursery);
+        }
+      }
+      
+      // Add the legacy nursery if it exists and not already included
+      if (user.nurseryId && !assignedNurseriesArray.some(n => n.id === user.nurseryId)) {
+        const legacyNursery = await this.getNursery(user.nurseryId);
+        if (legacyNursery) {
+          assignedNurseriesArray.push(legacyNursery);
+        }
+      }
+      
+      assignedNurseries = assignedNurseriesArray;
+    } else if (user.nurseryId) {
+      // If no assignments from mapping table but user has nurseryId, use that
+      const nursery = await this.getNursery(user.nurseryId);
+      if (nursery) {
+        assignedNurseries = [nursery];
+      }
+    }
+    
+    return { user, assignedNurseries };
+  }
+  
+  async getActiveUsers(): Promise<User[]> {
+    return db
+      .select()
+      .from(users)
+      .where(eq(users.isActive, true))
+      .orderBy(users.lastName);
+  }
+  
+  async deactivateUser(id: number): Promise<boolean> {
+    const [user] = await db
+      .update(users)
+      .set({ 
+        isActive: false,
+        updatedAt: new Date() 
+      })
+      .where(eq(users.id, id))
+      .returning();
+    
+    return !!user;
+  }
+  
+  async reactivateUser(id: number): Promise<boolean> {
+    const [user] = await db
+      .update(users)
+      .set({ 
+        isActive: true,
+        updatedAt: new Date() 
+      })
+      .where(eq(users.id, id))
+      .returning();
+    
+    return !!user;
+  }
+  
   async deleteUser(id: number): Promise<boolean> {
+    // First, delete all nursery assignments for this user
+    await db.delete(userNurseries).where(eq(userNurseries.userId, id));
+    
+    // Then delete the user
     const result = await db.delete(users).where(eq(users.id, id));
     return result.rowCount ? result.rowCount > 0 : false;
+  }
+  
+  // User-Nursery assignment operations
+  async assignUserToNursery(assignment: InsertUserNursery): Promise<UserNursery> {
+    // Check if assignment already exists
+    const existing = await db
+      .select()
+      .from(userNurseries)
+      .where(and(
+        eq(userNurseries.userId, assignment.userId),
+        eq(userNurseries.nurseryId, assignment.nurseryId)
+      ));
+    
+    if (existing.length > 0) {
+      // Return the existing assignment
+      return existing[0];
+    }
+    
+    // Create new assignment
+    const [newAssignment] = await db
+      .insert(userNurseries)
+      .values(assignment)
+      .returning();
+    
+    return newAssignment;
+  }
+  
+  async removeUserFromNursery(userId: number, nurseryId: number): Promise<boolean> {
+    const result = await db
+      .delete(userNurseries)
+      .where(and(
+        eq(userNurseries.userId, userId),
+        eq(userNurseries.nurseryId, nurseryId)
+      ));
+    
+    return result.rowCount ? result.rowCount > 0 : false;
+  }
+  
+  async getUserNurseryAssignments(userId: number): Promise<UserNursery[]> {
+    return db
+      .select()
+      .from(userNurseries)
+      .where(eq(userNurseries.userId, userId));
+  }
+  
+  async getNurseryUserAssignments(nurseryId: number): Promise<UserNursery[]> {
+    return db
+      .select()
+      .from(userNurseries)
+      .where(eq(userNurseries.nurseryId, nurseryId));
   }
 
   // Nursery operations
