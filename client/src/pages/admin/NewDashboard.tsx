@@ -110,30 +110,8 @@ export default function NewDashboard() {
   // Empty recent activities since we don't have real activity data yet
   const recentActivities = [];
 
-  // Upcoming events (would normally come from an API)
-  const upcomingEvents = [
-    {
-      id: 1,
-      title: 'Parent-Teacher Conference',
-      date: new Date(Date.now() + 2 * 24 * 3600000).toISOString(),
-      nursery: 'Hayes',
-      status: 'confirmed',
-    },
-    {
-      id: 2,
-      title: 'Summer Fair Preparation',
-      date: new Date(Date.now() + 5 * 24 * 3600000).toISOString(),
-      nursery: 'Uxbridge',
-      status: 'confirmed',
-    },
-    {
-      id: 3,
-      title: 'Staff Training Day',
-      date: new Date(Date.now() + 9 * 24 * 3600000).toISOString(),
-      nursery: 'Hounslow',
-      status: 'tentative',
-    },
-  ];
+  // Empty upcoming events since you haven't set up any yet
+  const upcomingEvents = [];
 
   // Format date for display
   const formatDate = (dateString: string) => {
@@ -439,36 +417,46 @@ export default function NewDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {upcomingEvents.map((event) => (
-                    <div 
-                      key={event.id} 
-                      className="flex items-start gap-4 rounded-lg border p-3"
-                    >
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                        <Calendar className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="flex-1 space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          {event.title}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <p className="text-xs text-muted-foreground">
-                            {formatDate(event.date)}
-                          </p>
-                          <span className="text-xs text-muted-foreground">•</span>
-                          <Badge variant="outline" className="text-xs">
-                            {event.nursery}
-                          </Badge>
-                        </div>
-                      </div>
-                      <Badge 
-                        variant={event.status === 'confirmed' ? 'default' : 'secondary'}
-                        className={event.status === 'confirmed' ? 'bg-green-500 hover:bg-green-600' : ''}
+                  {upcomingEvents.length > 0 ? (
+                    upcomingEvents.map((event) => (
+                      <div 
+                        key={event.id} 
+                        className="flex items-start gap-4 rounded-lg border p-3"
                       >
-                        {event.status}
-                      </Badge>
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                          <Calendar className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <p className="text-sm font-medium leading-none">
+                            {event.title}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-xs text-muted-foreground">
+                              {formatDate(event.date)}
+                            </p>
+                            <span className="text-xs text-muted-foreground">•</span>
+                            <Badge variant="outline" className="text-xs">
+                              {event.nursery}
+                            </Badge>
+                          </div>
+                        </div>
+                        <Badge 
+                          variant={event.status === 'confirmed' ? 'default' : 'secondary'}
+                          className={event.status === 'confirmed' ? 'bg-green-500 hover:bg-green-600' : ''}
+                        >
+                          {event.status}
+                        </Badge>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="flex flex-col items-center justify-center p-6 text-center">
+                      <Calendar className="h-10 w-10 text-muted-foreground mb-2" />
+                      <p className="text-lg font-medium">No upcoming events</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Events you create will appear here
+                      </p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
               <CardFooter>
