@@ -16,10 +16,22 @@ export const users = pgTable("users", {
   firstName: varchar("first_name").notNull(),
   lastName: varchar("last_name").notNull(),
   role: roleEnum("role").notNull().default('editor'),
+  // nurseryId remains for backward compatibility but will be phased out
+  // in favor of the user_nurseries mapping table
   nurseryId: integer("nursery_id"),
   profileImageUrl: varchar("profile_image_url"),
+  isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// User-Nursery mapping table for multi-nursery assignments
+export const userNurseries = pgTable("user_nurseries", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  nurseryId: integer("nursery_id").notNull().references(() => nurseries.id, { onDelete: 'cascade' }),
+  assignedAt: timestamp("assigned_at").defaultNow().notNull(),
+  assignedBy: integer("assigned_by").notNull(), // ID of the super_admin who made the assignment
 });
 
 export type User = typeof users.$inferSelect;
@@ -30,6 +42,13 @@ export const insertUserSchema = createInsertSchema(users, {
   lastName: z.string().min(2, "Last name is required"),
 }).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type UserNursery = typeof userNurseries.$inferSelect;
+export const insertUserNurserySchema = createInsertSchema(userNurseries, {
+  userId: z.number().int().positive("User ID is required"),
+  nurseryId: z.number().int().positive("Nursery ID is required"),
+  assignedBy: z.number().int().positive("Assigner ID is required"),
+}).omit({ id: true, assignedAt: true });
+export type InsertUserNursery = z.infer<typeof insertUserNurserySchema>;
 
 // Nursery schema
 export const nurseries = pgTable("nurseries", {
@@ -273,8 +292,29 @@ export const sessions = pgTable(
 // Relations
 export const relations = {
   users: {
+    // Keeping the old one-to-one relation for backward compatibility
     nursery: (users) => ({
       one: (nurseries, { eq }) => eq(users.nurseryId, nurseries.id),
+    }),
+    // New many-to-many relation through userNurseries table
+    nurseries: (users) => ({
+      many: (userNurseries, { eq }) => eq(userNurseries.userId, users.id),
+      through: {
+        table: userNurseries,
+        references: [userNurseries.nurseryId, nurseries.id],
+      }
+    }),
+  },
+  // UserNurseries relations
+  userNurseries: {
+    user: (userNurseries) => ({
+      one: (users, { eq }) => eq(userNurseries.userId, users.id),
+    }),
+    nursery: (userNurseries) => ({
+      one: (nurseries, { eq }) => eq(userNurseries.nurseryId, nurseries.id),
+    }),
+    assigner: (userNurseries) => ({
+      one: (users, { eq }) => eq(userNurseries.assignedBy, users.id),
     }),
   },
   nurseries: {
