@@ -190,7 +190,7 @@ export default function PoliciesPage() {
               <a href="/documents/Terms-and-Conditions.docx" download="Coat-of-Many-Colours-Terms-and-Conditions.docx">
                 <Button className="w-full flex items-center justify-center gap-2">
                   <Download className="h-4 w-4" />
-                  Download Terms and Conditions
+                  Download Complete Policy Document
                 </Button>
               </a>
             </div>
