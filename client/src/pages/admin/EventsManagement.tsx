@@ -128,8 +128,8 @@ export default function EventsManagement() {
     },
     {
       id: 3,
-      title: 'Staff Training Day',
-      description: 'Professional development for all nursery staff',
+      title: 'Professional Development Day',
+      description: 'Professional development workshop for the nursery',
       date: '2025-05-05',
       time: '09:00',
       duration: '8 hours',
@@ -487,9 +487,9 @@ export default function EventsManagement() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <h3 className="font-medium">Staff Allocation</h3>
+                  <h3 className="font-medium">Resource Allocation</h3>
                   <p className="text-sm text-gray-500">
-                    Assign specific roles to staff members and brief them about their responsibilities well before the event.
+                    Assign specific resources and materials needed for the event well in advance to ensure everything is prepared.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2">
