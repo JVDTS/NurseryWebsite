@@ -24,8 +24,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({
     newsletters: 0,
     events: 0,
-    galleryImages: 0,
-    staff: 0
+    galleryImages: 0
   });
 
   // Construct query keys based on selected nursery
@@ -94,8 +93,7 @@ export default function AdminDashboard() {
     const updatedStats = {
       galleryImages: galleryData?.images?.length || 0,
       newsletters: newslettersData?.newsletters?.length || 0,
-      events: eventsData?.events?.length || 0,
-      staff: 0 // This will be updated when we have staff data
+      events: eventsData?.events?.length || 0
     };
     
     setStats(updatedStats);
