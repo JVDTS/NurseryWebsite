@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useQuery } from '@tanstack/react-query';
 import NewDashboardLayout from '@/components/admin/NewDashboardLayout';
@@ -38,27 +38,77 @@ export default function NewDashboard() {
   const { user } = useAuth();
   const [timeframe, setTimeframe] = useState('weekly');
 
-  // CMS content metrics
-  const contentMetrics = {
+  // Fetch actual data from database
+  const { data: galleryImages = [] } = useQuery({
+    queryKey: ['/api/gallery'],
+  });
+  
+  const { data: newsletters = [] } = useQuery({
+    queryKey: ['/api/newsletters'],
+  });
+  
+  const { data: events = [] } = useQuery({
+    queryKey: ['/api/events'],
+  });
+  
+  const { data: users = [] } = useQuery({
+    queryKey: ['/api/users'],
+  });
+  
+  // Calculate actual metrics from database data
+  const [contentMetrics, setContentMetrics] = useState({
     weekly: {
-      newsletters: 4,
-      galleryImages: 24,
-      blogPosts: 6,
-      eventsCreated: 8,
+      newsletters: 0,
+      galleryImages: 0,
+      blogPosts: 0,
+      eventsCreated: 0,
     },
     monthly: {
-      newsletters: 18,
-      galleryImages: 86,
-      blogPosts: 26,
-      eventsCreated: 32,
+      newsletters: 0,
+      galleryImages: 0,
+      blogPosts: 0,
+      eventsCreated: 0,
     },
     yearly: {
-      newsletters: 216,
-      galleryImages: 1025,
-      blogPosts: 312,
-      eventsCreated: 385,
+      newsletters: 0,
+      galleryImages: 0,
+      blogPosts: 0,
+      eventsCreated: 0,
     },
-  };
+  });
+  
+  // Update metrics when data is loaded
+  useEffect(() => {
+    // Calculate actual counts
+    const actualCounts = {
+      newsletters: newsletters?.length || 0,
+      galleryImages: galleryImages?.length || 0,
+      events: events?.length || 0,
+      users: users?.length || 0,
+    };
+    
+    // Update all timeframes with actual data
+    setContentMetrics({
+      weekly: {
+        newsletters: actualCounts.newsletters,
+        galleryImages: actualCounts.galleryImages,
+        blogPosts: 0, // No blog posts implemented yet
+        eventsCreated: actualCounts.events,
+      },
+      monthly: {
+        newsletters: actualCounts.newsletters,
+        galleryImages: actualCounts.galleryImages,
+        blogPosts: 0, // No blog posts implemented yet
+        eventsCreated: actualCounts.events,
+      },
+      yearly: {
+        newsletters: actualCounts.newsletters,
+        galleryImages: actualCounts.galleryImages,
+        blogPosts: 0, // No blog posts implemented yet
+        eventsCreated: actualCounts.events,
+      }
+    });
+  }, [newsletters, galleryImages, events, users]);
 
   // Recent activities (would normally come from an API)
   const recentActivities = [
