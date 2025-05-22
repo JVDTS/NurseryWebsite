@@ -60,53 +60,17 @@ export default function ContentManagement() {
   const [selectedNursery, setSelectedNursery] = useState<string | null>(null);
   const [contentType, setContentType] = useState('newsletters');
 
-  // We've removed blog posts section
+  // Fetch real newsletters from the API
+  const { data: newsletters = [] } = useQuery({
+    queryKey: ['/api/newsletters'],
+  });
 
-  const newsletters = [
-    {
-      id: 1,
-      title: 'May 2025 Monthly Newsletter',
-      status: 'published',
-      nursery: 'Hayes',
-      author: 'Sarah Johnson',
-      date: 'May 1, 2025',
-      format: 'PDF'
-    },
-    {
-      id: 2,
-      title: 'April 2025 Monthly Newsletter',
-      status: 'published',
-      nursery: 'Uxbridge',
-      author: 'John Smith',
-      date: 'April 1, 2025',
-      format: 'PDF'
-    },
-    {
-      id: 3,
-      title: 'March 2025 Monthly Newsletter',
-      status: 'published',
-      nursery: 'Hounslow',
-      author: 'Emma Taylor',
-      date: 'March 1, 2025',
-      format: 'PDF'
-    },
-    {
-      id: 4,
-      title: 'Summer Term Special Newsletter',
-      status: 'draft',
-      nursery: 'Hayes',
-      author: 'Sarah Johnson',
-      date: 'May 14, 2025',
-      format: 'HTML'
-    }
-  ];
-
-  // We only have newsletters now, no more posts
-
-  const filteredNewsletters = newsletters.filter(newsletter => {
+  // Filter newsletters based on search query and selected nursery
+  const filteredNewsletters = newsletters.filter((newsletter: any) => {
     const matchesSearch = searchQuery === '' || 
-      newsletter.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesNursery = !selectedNursery || newsletter.nursery === selectedNursery;
+      (newsletter.title && newsletter.title.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesNursery = !selectedNursery || 
+      (newsletter.nursery && newsletter.nursery.toLowerCase() === selectedNursery.toLowerCase());
     return matchesSearch && matchesNursery;
   });
 
@@ -170,8 +134,8 @@ export default function ContentManagement() {
                     <TableHead>Title</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Nursery</TableHead>
-                    <TableHead>Author</TableHead>
-                    <TableHead>Date</TableHead>
+                    <TableHead>Month/Year</TableHead>
+                    <TableHead>Date Created</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -186,9 +150,13 @@ export default function ContentManagement() {
                             {item.status}
                           </Badge>
                         </TableCell>
-                        <TableCell>{item.nursery}</TableCell>
-                        <TableCell>{item.author}</TableCell>
-                        <TableCell>{item.date}</TableCell>
+                        <TableCell>
+                          {item.nurseryId === 1 ? 'Hayes' : 
+                           item.nurseryId === 2 ? 'Uxbridge' : 
+                           item.nurseryId === 3 ? 'Hounslow' : 'Unknown'}
+                        </TableCell>
+                        <TableCell>{item.month} {item.year}</TableCell>
+                        <TableCell>{new Date(item.createdAt).toLocaleDateString()}</TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
