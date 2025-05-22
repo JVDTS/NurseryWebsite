@@ -617,7 +617,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/users", isAuthenticated, hasRole(["super_admin"]), async (req: Request, res: Response) => {
     try {
+      // Create the user
       const user = await storage.createUser(req.body);
+      
+      // Log the activity
+      await storage.createActivityLog({
+        userId: req.session.user.id,
+        action: "create_user",
+        entityType: "user",
+        entityId: user.id,
+        details: { email: user.email, role: user.role },
+        ipAddress: req.ip,
+        nurseryId: user.nurseryId
+      });
       
       // Remove password from response
       const { password, ...userWithoutPassword } = user;
@@ -632,11 +644,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/users/:id", isAuthenticated, hasRole(["super_admin", "admin"]), async (req: Request, res: Response) => {
     try {
       const userId = parseInt(req.params.id);
-      const user = await storage.updateUser(userId, req.body);
+      const userData = req.body;
+      const currentUser = req.session.user;
       
-      if (!user) {
+      // Check if user exists
+      const existingUser = await storage.getUser(userId);
+      if (!existingUser) {
         return res.status(404).json({ message: "User not found" });
       }
+      
+      // Check permissions:
+      // 1. Super admins can update anyone except other super admins (unless it's themselves)
+      // 2. Admins can only update editors in their nursery
+      if (currentUser.role === 'admin') {
+        if (existingUser.role !== 'editor' || existingUser.nurseryId !== currentUser.nurseryId) {
+          return res.status(403).json({ message: "Not authorized to update this user" });
+        }
+      } else if (currentUser.role === 'super_admin') {
+        if (existingUser.role === 'super_admin' && existingUser.id !== currentUser.id) {
+          return res.status(403).json({ message: "Super admins cannot modify other super admins" });
+        }
+      }
+      
+      // Update the user
+      const user = await storage.updateUser(userId, userData);
+      
+      // Log the activity
+      await storage.createActivityLog({
+        userId: currentUser.id,
+        action: "update_user",
+        entityType: "user",
+        entityId: userId,
+        details: { 
+          email: user.email, 
+          role: user.role,
+          nurseryId: user.nurseryId 
+        },
+        ipAddress: req.ip,
+        nurseryId: user.nurseryId
+      });
       
       // Remove password from response
       const { password, ...userWithoutPassword } = user;
