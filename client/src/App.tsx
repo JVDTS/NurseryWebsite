@@ -41,7 +41,7 @@ import AdminLogin from "@/pages/admin/Login";
 import AdminSettings from "@/pages/admin/Settings";
 
 // Staff Management
-import StaffManagement from "@/pages/admin/StaffManagement";
+import StaffManager from "@/pages/admin/StaffManager";
 
 function Router() {
   return (
@@ -75,7 +75,7 @@ function Router() {
       <Route path="/admin/media" component={MediaManager} />
       <Route path="/admin/users" component={UserManagement} />
       <Route path="/admin/activity" component={ActivityLogs} />
-      <Route path="/admin/staff" component={StaffManagement} />
+      <Route path="/admin/staff" component={StaffManager} />
       
       {/* Legacy Admin routes (keeping for reference) */}
       <Route path="/admin-old/dashboard" component={AdminDashboard} />
