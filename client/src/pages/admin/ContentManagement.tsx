@@ -58,56 +58,9 @@ export default function ContentManagement() {
   const [location, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedNursery, setSelectedNursery] = useState<string | null>(null);
-  const [contentType, setContentType] = useState('posts');
+  const [contentType, setContentType] = useState('newsletters');
 
-  // Sample data for demonstration
-  const posts = [
-    {
-      id: 1,
-      title: 'Summer Activities for Children',
-      status: 'published',
-      nursery: 'Hayes',
-      author: 'Sarah Johnson',
-      date: 'May 10, 2025',
-      views: 245
-    },
-    {
-      id: 2,
-      title: 'New Curriculum Announcement',
-      status: 'draft',
-      nursery: 'Uxbridge',
-      author: 'John Smith',
-      date: 'May 8, 2025',
-      views: 0
-    },
-    {
-      id: 3,
-      title: 'Parent-Teacher Meeting Schedule',
-      status: 'published',
-      nursery: 'Hounslow',
-      author: 'Emma Taylor',
-      date: 'May 5, 2025',
-      views: 189
-    },
-    {
-      id: 4,
-      title: 'Health and Safety Guidelines Update',
-      status: 'published',
-      nursery: 'Hayes',
-      author: 'Sarah Johnson',
-      date: 'May 1, 2025',
-      views: 302
-    },
-    {
-      id: 5,
-      title: 'Fun Activities for Spring Season',
-      status: 'draft',
-      nursery: 'Hounslow',
-      author: 'Mark Wilson',
-      date: 'April 28, 2025',
-      views: 0
-    }
-  ];
+  // We've removed blog posts section
 
   const newsletters = [
     {
@@ -148,13 +101,7 @@ export default function ContentManagement() {
     }
   ];
 
-  // Filtered content based on search query and selected nursery
-  const filteredPosts = posts.filter(post => {
-    const matchesSearch = searchQuery === '' || 
-      post.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesNursery = !selectedNursery || post.nursery === selectedNursery;
-    return matchesSearch && matchesNursery;
-  });
+  // We only have newsletters now, no more posts
 
   const filteredNewsletters = newsletters.filter(newsletter => {
     const matchesSearch = searchQuery === '' || 
@@ -163,19 +110,8 @@ export default function ContentManagement() {
     return matchesSearch && matchesNursery;
   });
 
-  // Get content based on selected type
-  const getContentData = () => {
-    switch(contentType) {
-      case 'posts':
-        return filteredPosts;
-      case 'newsletters':
-        return filteredNewsletters;
-      default:
-        return [];
-    }
-  };
-
-  const contentData = getContentData();
+  // Only using newsletters now
+  const contentData = filteredNewsletters;
   
   return (
     <ProtectedRoute>
@@ -204,24 +140,15 @@ export default function ContentManagement() {
             </div>
             
             <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Tabs
-                value={contentType}
-                onValueChange={setContentType}
-                className="w-full sm:w-auto"
-              >
-                <TabsList>
-                  <TabsTrigger value="posts" className="flex items-center gap-1">
-                    <FileText className="h-4 w-4" /> Posts
-                  </TabsTrigger>
-                  <TabsTrigger value="newsletters" className="flex items-center gap-1">
-                    <Newspaper className="h-4 w-4" /> Newsletters
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
+              {/* No tabs needed with only newsletters */}
+              <div className="flex items-center gap-1">
+                <Newspaper className="h-4 w-4" /> 
+                <span className="font-medium">Newsletters</span>
+              </div>
               
               <Button className="ml-auto flex items-center">
                 <Plus className="h-4 w-4 mr-2" />
-                <span>New {contentType.slice(0, -1)}</span>
+                <span>New Newsletter</span>
               </Button>
             </div>
           </div>
@@ -230,12 +157,10 @@ export default function ContentManagement() {
           <Card>
             <CardHeader className="px-6">
               <CardTitle>
-                {contentType === 'posts' ? 'Blog Posts' : 'Newsletters'}
+                Newsletters
               </CardTitle>
               <CardDescription>
-                {contentType === 'posts' 
-                  ? 'Create and manage blog posts for your nursery website' 
-                  : 'Manage and distribute newsletters to parents'}
+                Manage and distribute newsletters to parents
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
@@ -305,7 +230,7 @@ export default function ContentManagement() {
               <div className="text-sm text-gray-500">
                 Showing <span className="font-medium">{contentData.length}</span> of{" "}
                 <span className="font-medium">
-                  {contentType === 'posts' ? posts.length : newsletters.length}
+                  {newsletters.length}
                 </span>{" "}
                 items
               </div>
