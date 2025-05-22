@@ -470,6 +470,11 @@ export class DatabaseStorage implements IStorage {
     
     return log;
   }
+  
+  // Alias for logActivity to match routes.ts expectations
+  async createActivityLog(logData: InsertActivityLog): Promise<ActivityLog> {
+    return this.logActivity(logData);
+  }
 
   async getActivityLogsByUser(userId: number): Promise<ActivityLog[]> {
     return db
