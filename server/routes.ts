@@ -1038,6 +1038,347 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create HTTP server
+  // Admin Dashboard data
+  app.get('/api/admin/dashboard', isAuthenticated, hasRole(['super_admin', 'admin']), async (req, res) => {
+    try {
+      const newsletters = await storage.getAllNewsletters();
+      const galleryImages = await storage.getAllGalleryImages();
+      const events = await storage.getAllEvents();
+      const activityLogs = await storage.getRecentActivityLogs(10);
+      
+      res.json({
+        stats: {
+          newsletters: newsletters.length,
+          galleryImages: galleryImages.length,
+          events: events.length
+        },
+        recentActivity: activityLogs,
+        upcomingEvents: events.filter(event => new Date(event.date) > new Date()).slice(0, 5)
+      });
+    } catch (error) {
+      console.error('Error fetching admin dashboard data:', error);
+      res.status(500).json({ message: 'Failed to fetch dashboard data' });
+    }
+  });
+  
+  // User Management Endpoints
+  
+  // Get all users - Super Admin only
+  app.get('/api/admin/users', isAuthenticated, hasRole(['super_admin']), async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      
+      // For each user, attach their assigned nurseries
+      const usersWithNurseries = await Promise.all(users.map(async (user) => {
+        const { assignedNurseries } = await storage.getUserWithAssignedNurseries(user.id);
+        return {
+          ...user,
+          assignedNurseries
+        };
+      }));
+      
+      res.json(usersWithNurseries);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).json({ message: 'Failed to fetch users' });
+    }
+  });
+  
+  // Get a specific user - Super Admin or the user themselves
+  app.get('/api/admin/users/:id', isAuthenticated, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      // Only super_admin can view other users' details
+      if ((req.user as any).dbUserId !== userId && (req.user as any).role !== 'super_admin') {
+        return res.status(403).json({ message: 'Unauthorized to view this user' });
+      }
+      
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      const { assignedNurseries } = await storage.getUserWithAssignedNurseries(userId);
+      
+      res.json({
+        ...user,
+        assignedNurseries
+      });
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      res.status(500).json({ message: 'Failed to fetch user' });
+    }
+  });
+  
+  // Create a new user - Super Admin only
+  app.post('/api/admin/users', isAuthenticated, hasRole(['super_admin']), async (req, res) => {
+    try {
+      const { email, firstName, lastName, password, role, nurseryIds } = req.body;
+      
+      // Validate required fields
+      if (!email || !firstName || !lastName || !password || !role) {
+        return res.status(400).json({ message: 'Missing required fields' });
+      }
+      
+      // Check if email already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: 'Email already in use' });
+      }
+      
+      // Create the user
+      const newUser = await storage.createUser({
+        email,
+        firstName,
+        lastName,
+        password, // Will be hashed in the storage implementation
+        role,
+        isActive: true
+      });
+      
+      // If nursery assignments were provided, create them
+      if (nurseryIds && nurseryIds.length > 0) {
+        await Promise.all(nurseryIds.map(async (nurseryId) => {
+          await storage.assignUserToNursery({
+            userId: newUser.id,
+            nurseryId
+          });
+        }));
+      }
+      
+      // Log the activity
+      await storage.logActivity({
+        userId: (req.user as any).dbUserId,
+        action: 'create',
+        resource: 'user',
+        description: `Created user ${firstName} ${lastName}`,
+        metadata: { userId: newUser.id }
+      });
+      
+      res.status(201).json(newUser);
+    } catch (error) {
+      console.error('Error creating user:', error);
+      res.status(500).json({ message: 'Failed to create user' });
+    }
+  });
+  
+  // Update a user - Super Admin or the user themselves
+  app.patch('/api/admin/users/:id', isAuthenticated, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { email, firstName, lastName, role, isActive } = req.body;
+      
+      // Check if user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Only super_admin can update other users or change roles
+      const isSelf = (req.user as any).dbUserId === userId;
+      const isSuperAdmin = (req.user as any).role === 'super_admin';
+      
+      if (!isSelf && !isSuperAdmin) {
+        return res.status(403).json({ message: 'Unauthorized to update this user' });
+      }
+      
+      // Regular users can only update their own info, not role or active status
+      const updateData: any = {};
+      
+      if (isSuperAdmin) {
+        // Super admin can update everything
+        if (email) updateData.email = email;
+        if (firstName) updateData.firstName = firstName;
+        if (lastName) updateData.lastName = lastName;
+        if (role) updateData.role = role;
+        if (isActive !== undefined) updateData.isActive = isActive;
+      } else {
+        // Regular users can only update basic info
+        if (email) updateData.email = email;
+        if (firstName) updateData.firstName = firstName;
+        if (lastName) updateData.lastName = lastName;
+      }
+      
+      // Update the user
+      const updatedUser = await storage.updateUser(userId, updateData);
+      
+      // Log the activity
+      await storage.logActivity({
+        userId: (req.user as any).dbUserId,
+        action: 'update',
+        resource: 'user',
+        description: `Updated user ${user.firstName} ${user.lastName}`,
+        metadata: { userId }
+      });
+      
+      res.json(updatedUser);
+    } catch (error) {
+      console.error('Error updating user:', error);
+      res.status(500).json({ message: 'Failed to update user' });
+    }
+  });
+  
+  // Deactivate a user - Super Admin only
+  app.post('/api/admin/users/:id/deactivate', isAuthenticated, hasRole(['super_admin']), async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      // Check if user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Prevent deactivating own account
+      if ((req.user as any).dbUserId === userId) {
+        return res.status(400).json({ message: 'Cannot deactivate your own account' });
+      }
+      
+      // Deactivate the user
+      await storage.deactivateUser(userId);
+      
+      // Log the activity
+      await storage.logActivity({
+        userId: (req.user as any).dbUserId,
+        action: 'update',
+        resource: 'user',
+        description: `Deactivated user ${user.firstName} ${user.lastName}`,
+        metadata: { userId }
+      });
+      
+      res.json({ message: 'User deactivated successfully' });
+    } catch (error) {
+      console.error('Error deactivating user:', error);
+      res.status(500).json({ message: 'Failed to deactivate user' });
+    }
+  });
+  
+  // Reactivate a user - Super Admin only
+  app.post('/api/admin/users/:id/reactivate', isAuthenticated, hasRole(['super_admin']), async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      // Check if user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Reactivate the user
+      await storage.reactivateUser(userId);
+      
+      // Log the activity
+      await storage.logActivity({
+        userId: (req.user as any).dbUserId,
+        action: 'update',
+        resource: 'user',
+        description: `Reactivated user ${user.firstName} ${user.lastName}`,
+        metadata: { userId }
+      });
+      
+      res.json({ message: 'User reactivated successfully' });
+    } catch (error) {
+      console.error('Error reactivating user:', error);
+      res.status(500).json({ message: 'Failed to reactivate user' });
+    }
+  });
+  
+  // Get user's nursery assignments - Super Admin or the user themselves
+  app.get('/api/admin/users/:id/nurseries', isAuthenticated, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      // Only super_admin can view other users' assignments
+      if ((req.user as any).dbUserId !== userId && (req.user as any).role !== 'super_admin') {
+        return res.status(403).json({ message: 'Unauthorized to view these assignments' });
+      }
+      
+      // Check if user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Get assigned nurseries
+      const { assignedNurseries } = await storage.getUserWithAssignedNurseries(userId);
+      
+      res.json(assignedNurseries);
+    } catch (error) {
+      console.error('Error fetching user nurseries:', error);
+      res.status(500).json({ message: 'Failed to fetch user nurseries' });
+    }
+  });
+  
+  // Update user's nursery assignments - Super Admin only
+  app.post('/api/admin/users/:id/nurseries', isAuthenticated, hasRole(['super_admin']), async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const { nurseryIds } = req.body;
+      
+      if (!Array.isArray(nurseryIds)) {
+        return res.status(400).json({ message: 'nurseryIds must be an array' });
+      }
+      
+      // Check if user exists
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Get current assignments
+      const assignments = await storage.getUserNurseryAssignments(userId);
+      const currentNurseryIds = assignments.map(a => a.nurseryId);
+      
+      // Remove assignments that are no longer in the list
+      for (const assignment of assignments) {
+        if (!nurseryIds.includes(assignment.nurseryId)) {
+          await storage.removeUserFromNursery(userId, assignment.nurseryId);
+        }
+      }
+      
+      // Add new assignments
+      for (const nurseryId of nurseryIds) {
+        if (!currentNurseryIds.includes(nurseryId)) {
+          await storage.assignUserToNursery({
+            userId,
+            nurseryId
+          });
+        }
+      }
+      
+      // Get the updated nursery names for the activity log
+      const { assignedNurseries } = await storage.getUserWithAssignedNurseries(userId);
+      const nurseryNames = assignedNurseries.map(n => n.location).join(', ');
+      
+      // Log the activity
+      await storage.logActivity({
+        userId: (req.user as any).dbUserId,
+        action: 'update',
+        resource: 'user_nurseries',
+        description: `Updated nursery assignments for ${user.firstName} ${user.lastName}: ${nurseryNames}`,
+        metadata: { userId, nurseryIds }
+      });
+      
+      res.json({ message: 'User nursery assignments updated' });
+    } catch (error) {
+      console.error('Error updating user nurseries:', error);
+      res.status(500).json({ message: 'Failed to update user nurseries' });
+    }
+  });
+  
+  // Activity Logs - Super Admin only
+  app.get('/api/admin/activity-logs', isAuthenticated, hasRole(['super_admin']), async (req, res) => {
+    try {
+      const activityLogs = await storage.getRecentActivityLogs(100);
+      res.json(activityLogs);
+    } catch (error) {
+      console.error('Error fetching activity logs:', error);
+      res.status(500).json({ message: 'Failed to fetch activity logs' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
