@@ -220,18 +220,18 @@ export default function StaffManagement() {
   if (usersQuery.isLoading) {
     return (
       <ProtectedRoute>
-        <NewDashboardLayout>
+        <AdminLayout title="Staff Management">
           <div className="flex justify-center items-center h-64">
             <RefreshCcw className="h-8 w-8 animate-spin text-primary" />
           </div>
-        </NewDashboardLayout>
+        </AdminLayout>
       </ProtectedRoute>
     );
   }
 
   return (
     <ProtectedRoute>
-      <NewDashboardLayout>
+      <AdminLayout title="Staff Management">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
             <div>
@@ -698,7 +698,7 @@ export default function StaffManagement() {
             </DialogContent>
           </Dialog>
         </div>
-      </NewDashboardLayout>
+      </AdminLayout>
     </ProtectedRoute>
   );
 }
