@@ -266,16 +266,7 @@ function DashboardHeader({ user }: DashboardHeaderProps) {
                   <p className="text-xs text-muted-foreground">2 hours ago</p>
                 </div>
               </div>
-              <div className="flex items-start gap-4 p-3 hover:bg-gray-50">
-                <Users className="h-5 w-5 text-primary mt-1" />
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">New staff member added</p>
-                  <p className="text-xs text-muted-foreground">
-                    by Emma Taylor
-                  </p>
-                  <p className="text-xs text-muted-foreground">Yesterday</p>
-                </div>
-              </div>
+
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer justify-center text-center">
