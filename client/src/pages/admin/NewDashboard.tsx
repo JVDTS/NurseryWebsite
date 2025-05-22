@@ -92,59 +92,23 @@ export default function NewDashboard() {
       weekly: {
         newsletters: actualCounts.newsletters,
         galleryImages: actualCounts.galleryImages,
-        blogPosts: 0, // No blog posts implemented yet
         eventsCreated: actualCounts.events,
       },
       monthly: {
         newsletters: actualCounts.newsletters,
         galleryImages: actualCounts.galleryImages,
-        blogPosts: 0, // No blog posts implemented yet
         eventsCreated: actualCounts.events,
       },
       yearly: {
         newsletters: actualCounts.newsletters,
         galleryImages: actualCounts.galleryImages,
-        blogPosts: 0, // No blog posts implemented yet
         eventsCreated: actualCounts.events,
       }
     });
   }, [newsletters, galleryImages, events, users]);
 
-  // Recent activities (would normally come from an API)
-  const recentActivities = [
-    {
-      id: 1,
-      type: 'content_update',
-      description: 'Summer Activities for Children post updated',
-      user: 'Sarah Johnson',
-      nursery: 'Hayes',
-      timestamp: new Date(Date.now() - 35 * 60000).toISOString(),
-    },
-    {
-      id: 2,
-      type: 'new_event',
-      description: 'New event added: Parent-Teacher Meeting',
-      user: 'John Smith',
-      nursery: 'Uxbridge',
-      timestamp: new Date(Date.now() - 3 * 3600000).toISOString(),
-    },
-    {
-      id: 3,
-      type: 'newsletter',
-      description: 'Monthly newsletter published for May',
-      user: 'Emma Taylor',
-      nursery: 'Hounslow',
-      timestamp: new Date(Date.now() - 8 * 3600000).toISOString(),
-    },
-    {
-      id: 4,
-      type: 'contact',
-      description: 'New contact form submission received',
-      user: 'System',
-      nursery: 'Hayes',
-      timestamp: new Date(Date.now() - 24 * 3600000).toISOString(),
-    },
-  ];
+  // Empty recent activities since we don't have real activity data yet
+  const recentActivities = [];
 
   // Upcoming events (would normally come from an API)
   const upcomingEvents = [
