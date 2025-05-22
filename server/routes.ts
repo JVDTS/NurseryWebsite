@@ -694,14 +694,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/users/:id", isAuthenticated, hasRole(["super_admin"]), async (req: Request, res: Response) => {
+  app.delete("/api/users/:id", isAuthenticated, hasRole(["super_admin", "admin"]), async (req: Request, res: Response) => {
     try {
       const userId = parseInt(req.params.id);
+      const currentUser = req.session.user;
+      
+      // Prevent self-deletion
+      if (currentUser.id === userId) {
+        return res.status(403).json({ message: "Cannot delete your own account" });
+      }
+      
+      // Check if user exists
+      const existingUser = await storage.getUser(userId);
+      if (!existingUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Check permissions:
+      // 1. Super admins can delete anyone except other super admins
+      // 2. Admins can only delete editors in their nursery
+      if (currentUser.role === 'admin') {
+        if (existingUser.role !== 'editor' || existingUser.nurseryId !== currentUser.nurseryId) {
+          return res.status(403).json({ message: "Not authorized to delete this user" });
+        }
+      } else if (currentUser.role === 'super_admin') {
+        if (existingUser.role === 'super_admin') {
+          return res.status(403).json({ message: "Super admins cannot delete other super admins" });
+        }
+      }
+      
+      // Delete the user
       const success = await storage.deleteUser(userId);
       
       if (!success) {
         return res.status(404).json({ message: "User not found" });
       }
+      
+      // Log the activity
+      await storage.createActivityLog({
+        userId: currentUser.id,
+        action: "delete_user",
+        entityType: "user",
+        entityId: userId,
+        details: { 
+          email: existingUser.email,
+          role: existingUser.role
+        },
+        ipAddress: req.ip,
+        nurseryId: existingUser.nurseryId
+      });
       
       res.json({ success: true });
     } catch (error) {
@@ -898,8 +939,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Activity Logs API
   app.get("/api/activity", isAuthenticated, hasRole(["super_admin", "admin"]), async (req: Request, res: Response) => {
     try {
-      const logs = await storage.getRecentActivityLogs();
-      res.json(logs);
+      // Get query parameters
+      const { userId, nurseryId, limit = '50', action } = req.query;
+      
+      let logs;
+      
+      // Get logs based on filter parameters
+      if (userId) {
+        logs = await storage.getActivityLogsByUser(parseInt(userId as string));
+      } else if (nurseryId) {
+        logs = await storage.getActivityLogsByNursery(parseInt(nurseryId as string));
+      } else {
+        logs = await storage.getRecentActivityLogs(parseInt(limit as string));
+      }
+      
+      // Filter logs by action if provided
+      if (action && logs.length > 0) {
+        logs = logs.filter(log => log.action.includes(action as string));
+      }
+      
+      // Load user and nursery details for each log
+      const enhancedLogs = await Promise.all(logs.map(async (log) => {
+        let user = null;
+        let nursery = null;
+        
+        if (log.userId) {
+          user = await storage.getUser(log.userId);
+        }
+        
+        if (log.nurseryId) {
+          nursery = await storage.getNursery(log.nurseryId);
+        }
+        
+        return {
+          ...log,
+          user: user ? { 
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            role: user.role
+          } : null,
+          nursery: nursery ? {
+            id: nursery.id,
+            name: nursery.name,
+            location: nursery.location
+          } : null
+        };
+      }));
+      
+      // Log this activity too (meta-logging)
+      if (req.session.user) {
+        await storage.createActivityLog({
+          userId: req.session.user.id,
+          action: "view_activity_logs",
+          ipAddress: req.ip,
+          details: { filters: { userId, nurseryId, limit, action } }
+        });
+      }
+      
+      res.json(enhancedLogs);
     } catch (error) {
       console.error("Error fetching activity logs:", error);
       res.status(500).json({ message: "Failed to fetch activity logs" });
