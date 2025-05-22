@@ -113,13 +113,7 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
       active: location.includes('/newsletters'),
       show: true,
     },
-    {
-      name: 'Staff',
-      href: '/admin/staff',
-      icon: Users,
-      active: location === '/admin/staff',
-      show: user?.role === 'super_admin' || user?.role === 'nursery_admin',
-    },
+
     {
       name: 'Settings',
       href: '/admin/settings',
