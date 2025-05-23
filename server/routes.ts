@@ -2,6 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, hasRole } from "./replitAuth";
+import { adminAuth, requireSuperAdmin, requireAdmin, requireAnyAdmin } from "./adminAuth";
 import { contactFormSchema, nurseries, galleryImages as galleryImagesTable, newsletters, events } from "@shared/schema";
 import { db } from "./db";
 import { eq, sql } from "drizzle-orm";
@@ -1064,9 +1065,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User Management Endpoints
   
   // Get all users - Super Admin only (using session-based auth for admin panel)
-  app.get('/api/admin/users', async (req, res) => {
-    // Temporarily bypass auth check for testing
-    console.log('Getting users - session check bypassed for testing');
+  app.get('/api/admin/users', adminAuth, requireSuperAdmin, async (req, res) => {
     try {
       const users = await storage.getAllUsers();
       
