@@ -75,7 +75,20 @@ function Sidebar({ className }: SidebarProps) {
       icon: ImageIcon,
       active: location.includes('/admin/media'),
     },
-
+    {
+      name: 'User Management',
+      href: '/admin/users',
+      icon: Users,
+      active: location.includes('/admin/users'),
+      show: user?.role === 'super_admin', // Only show for super admins
+    },
+    {
+      name: 'Activity Logs',
+      href: '/admin/activity',
+      icon: BarChart,
+      active: location.includes('/admin/activity'),
+      show: user?.role === 'super_admin', // Only show for super admins
+    },
     {
       name: 'Settings',
       href: '/admin/settings',
