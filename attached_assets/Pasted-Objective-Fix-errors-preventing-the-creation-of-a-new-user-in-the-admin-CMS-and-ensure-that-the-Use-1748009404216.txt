@@ -1,0 +1,106 @@
+Objective:
+Fix errors preventing the creation of a new user in the admin CMS and ensure that the UserManagement.tsx page uses the same layout as other admin pages. No design or UI changes are required.
+
+1. ✅ Wrap in AdminLayout to Ensure Consistent Appearance
+Ensure the return JSX in UserManagement.tsx is wrapped with the AdminLayout component.
+
+tsx
+Copy
+Edit
+import AdminLayout from "@/components/admin/AdminLayout";
+
+export default function UserManagement() {
+  return (
+    <AdminLayout>
+      {/* existing content here */}
+    </AdminLayout>
+  );
+}
+This ensures consistent styling and layout with the rest of the CMS.
+
+2. ✅ Ensure API Endpoint Exists and Works
+Open server/routes.ts and confirm a POST route exists for /api/admin/users.
+
+The backend should accept the same structure sent from the frontend:
+
+json
+Copy
+Edit
+{
+  "email": "example@email.com",
+  "firstName": "John",
+  "lastName": "Doe",
+  "password": "secure123",
+  "role": "admin",
+  "assignedNurseries": [1, 2]
+}
+If missing, create the route and make sure it inserts the user into the DB correctly with validation and error handling.
+
+3. ✅ Add Basic Client-Side Validation
+In UserManagement.tsx, before calling the mutation:
+
+tsx
+Copy
+Edit
+if (!newUser.email || !newUser.password || !newUser.firstName) {
+  toast({
+    title: "Validation Error",
+    description: "Please fill out all required fields.",
+    variant: "destructive",
+  });
+  return;
+}
+This prevents sending invalid/incomplete requests.
+
+4. ✅ Fix Response Error Handling
+Update createUserMutation to handle invalid JSON or backend crashes safely:
+
+tsx
+Copy
+Edit
+mutationFn: async (userData) => {
+  const response = await fetch("/api/admin/users", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(userData)
+  });
+
+  const text = await response.text();
+  if (!response.ok) throw new Error(text);
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error("Server returned an invalid response.");
+  }
+}
+5. ✅ Replace any with TypeScript Interface
+Create a proper type for new user creation:
+
+ts
+Copy
+Edit
+interface NewUser {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  role: "admin" | "super_admin";
+  assignedNurseries: number[];
+}
+And use it:
+
+tsx
+Copy
+Edit
+const [newUser, setNewUser] = useState<NewUser>({
+  email: "",
+  firstName: "",
+  lastName: "",
+  password: "",
+  role: "admin",
+  assignedNurseries: []
+});
+✅ Summary

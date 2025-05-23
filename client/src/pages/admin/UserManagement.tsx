@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AdminLayout from "@/components/admin/AdminLayout";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,7 +32,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { apiRequest } from "@/lib/queryClient";
@@ -49,6 +49,15 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+interface NewUser {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  role: "admin" | "super_admin";
+  assignedNurseries: number[];
+}
+
 export default function UserManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -60,13 +69,13 @@ export default function UserManagement() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Form data states
-  const [newUser, setNewUser] = useState({
+  const [newUser, setNewUser] = useState<NewUser>({
     email: "",
     firstName: "",
     lastName: "",
     password: "",
     role: "admin",
-    assignedNurseries: [] as number[]
+    assignedNurseries: []
   });
 
   const [editUser, setEditUser] = useState({
@@ -91,20 +100,28 @@ export default function UserManagement() {
 
   // Create user mutation
   const createUserMutation = useMutation({
-    mutationFn: async (userData: any) => {
+    mutationFn: async (userData: NewUser) => {
+      // Client-side validation
+      if (!userData.email || !userData.password || !userData.firstName) {
+        throw new Error("Please fill out all required fields.");
+      }
+
       const response = await fetch("/api/admin/users", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(userData)
       });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to create user: ${response.statusText}`);
+
+      const text = await response.text();
+      if (!response.ok) throw new Error(text);
+
+      try {
+        return JSON.parse(text);
+      } catch {
+        throw new Error("Server returned an invalid response.");
       }
-      
-      return response.json();
     },
     onSuccess: () => {
       toast({
