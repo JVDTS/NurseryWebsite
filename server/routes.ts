@@ -1119,9 +1119,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new user - Super Admin only
   app.post('/api/admin/users', async (req, res) => {
     // Check if user is logged in via admin session
+    console.log('Full session:', req.session);
     console.log('Session user:', req.session.user);
-    if (!req.session.user || req.session.user.role !== 'super_admin') {
-      console.log('Authorization failed - session user:', req.session.user);
+    
+    if (!req.session || !req.session.user) {
+      console.log('No session or user found');
+      return res.status(401).json({ message: 'Not authenticated' });
+    }
+    
+    if (req.session.user.role !== 'super_admin') {
+      console.log('User role:', req.session.user.role, 'Required: super_admin');
       return res.status(401).json({ message: 'Super admin access required' });
     }
     try {
