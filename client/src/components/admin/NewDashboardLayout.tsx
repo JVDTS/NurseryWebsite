@@ -33,6 +33,7 @@ import {
   Menu, 
   ChevronDown,
   Image as ImageIcon,
+  BarChart,
   BookOpen,
   Mail,
   Newspaper,
