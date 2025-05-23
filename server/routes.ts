@@ -1063,8 +1063,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // User Management Endpoints
   
-  // Get all users - Super Admin only
-  app.get('/api/admin/users', isAuthenticated, hasRole(['super_admin']), async (req, res) => {
+  // Get all users - Super Admin only (using session-based auth for admin panel)
+  app.get('/api/admin/users', async (req, res) => {
+    // Check if user is logged in via admin session
+    if (!req.session.user || req.session.user.role !== 'super_admin') {
+      return res.status(401).json({ message: 'Super admin access required' });
+    }
     try {
       const users = await storage.getAllUsers();
       
@@ -1113,7 +1117,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Create a new user - Super Admin only
-  app.post('/api/admin/users', isAuthenticated, hasRole(['super_admin']), async (req, res) => {
+  app.post('/api/admin/users', async (req, res) => {
+    // Check if user is logged in via admin session
+    if (!req.session.user || req.session.user.role !== 'super_admin') {
+      return res.status(401).json({ message: 'Super admin access required' });
+    }
     try {
       const { email, firstName, lastName, password, role, nurseryIds } = req.body;
       
