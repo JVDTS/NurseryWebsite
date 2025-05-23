@@ -149,18 +149,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
   
-  app.get("/api/admin/me", (req, res) => {
-    if (req.session.user) {
-      res.json({ 
-        success: true, 
-        user: req.session.user 
-      });
-    } else {
-      res.status(401).json({ 
-        success: false, 
-        message: "Not authenticated" 
-      });
-    }
+  app.get("/api/admin/me", adminAuth, (req, res) => {
+    res.json({ 
+      success: true, 
+      user: req.session.user 
+    });
   });
 
   // Auth API
@@ -1040,7 +1033,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Create HTTP server
   // Admin Dashboard data
-  app.get('/api/admin/dashboard', async (req, res) => {
+  app.get('/api/admin/dashboard', adminAuth, requireAdmin, async (req, res) => {
     try {
       const newsletters = await storage.getAllNewsletters();
       const galleryImages = await storage.getAllGalleryImages();
@@ -1114,9 +1107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Create a new user - Super Admin only
-  app.post('/api/admin/users', async (req, res) => {
-    // Temporarily bypass auth check for testing
-    console.log('Creating user - session check bypassed for testing');
+  app.post('/api/admin/users', adminAuth, requireSuperAdmin, async (req, res) => {
     try {
       const { email, firstName, lastName, password, role, nurseryIds } = req.body;
       
