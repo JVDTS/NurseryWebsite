@@ -67,6 +67,7 @@ function Router() {
       <Route path="/parent-info/policies" component={PoliciesPage} />
       
       {/* New CMS routes */}
+      <Route path="/admin" component={NewDashboard} />
       <Route path="/admin/dashboard" component={NewDashboard} />
       <Route path="/admin/login" component={NewLogin} />
       <Route path="/admin/content" component={ContentManagement} />
