@@ -149,17 +149,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
   
-  app.get("/api/admin/me", (req, res) => {
-    // Temporary bypass for testing - return a valid admin user
+  app.get("/api/admin/me", adminAuth, (req, res) => {
     res.json({ 
       success: true, 
-      user: {
-        id: 1,
-        email: "admin@nurseries.com",
-        firstName: "Admin",
-        lastName: "User",
-        role: "super_admin"
-      }
+      user: req.session.user 
     });
   });
 
@@ -1065,7 +1058,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User Management Endpoints
   
   // Get all users - Super Admin only (using session-based auth for admin panel)
-  app.get('/api/admin/users', async (req, res) => {
+  app.get('/api/admin/users', adminAuth, requireSuperAdmin, async (req, res) => {
     try {
       const users = await storage.getAllUsers();
       
@@ -1114,7 +1107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Create a new user - Super Admin only
-  app.post('/api/admin/users', async (req, res) => {
+  app.post('/api/admin/users', adminAuth, requireSuperAdmin, async (req, res) => {
     try {
       const { email, firstName, lastName, password, role, nurseryIds } = req.body;
       
