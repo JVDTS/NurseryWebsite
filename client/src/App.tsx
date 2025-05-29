@@ -34,6 +34,7 @@ import EventsManagement from "@/pages/admin/EventsManagement";
 import MediaManager from "@/pages/admin/MediaManager";
 import UserManagement from "@/pages/admin/UserManagement";
 import ActivityLogs from "@/pages/admin/ActivityLogs";
+import AdminGallery from "@/pages/admin/Gallery";
 
 // Legacy Admin pages
 import AdminDashboard from "@/pages/admin/DashboardSimple";
@@ -72,6 +73,7 @@ function Router() {
       <Route path="/admin/login" component={NewLogin} />
       <Route path="/admin/content" component={ContentManagement} />
       <Route path="/admin/events" component={EventsManagement} />
+      <Route path="/admin/gallery" component={AdminGallery} />
       <Route path="/admin/media" component={MediaManager} />
       <Route path="/admin/users" component={UserManagement} />
       <Route path="/admin/activity" component={ActivityLogs} />
