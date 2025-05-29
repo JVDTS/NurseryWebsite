@@ -39,6 +39,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -65,6 +73,7 @@ const galleryImageSchema = z.object({
   imageUrl: z.string().min(1, { message: 'Please upload an image file or provide a URL' }),
   caption: z.string().min(5, { message: 'Caption must be at least 5 characters' }),
   nurseryId: z.number().optional(), // Will be set by the component for non-super admins
+  uploadToAll: z.boolean().default(false), // Option to upload to all nurseries
 });
 
 type GalleryImageFormValues = z.infer<typeof galleryImageSchema>;
@@ -81,6 +90,13 @@ export default function AdminGallery() {
   const nurseryId = user?.nurseryId || 0;
   const isSuperAdmin = user?.role === 'super_admin';
 
+  // Fetch all nurseries for dropdown (super admin only)
+  const { data: nurseriesData } = useQuery<{ nurseries: any[] }>({
+    queryKey: ['/api/nurseries'],
+    enabled: isSuperAdmin,
+  });
+  const nurseries = nurseriesData?.nurseries || [];
+
   // Create form for adding new gallery images
   const form = useForm<GalleryImageFormValues>({
     resolver: zodResolver(galleryImageSchema),
@@ -90,6 +106,7 @@ export default function AdminGallery() {
       // For super admin, default to Hayes (1) instead of 0
       // For other admins, use their assigned nursery
       nurseryId: isSuperAdmin ? 1 : nurseryId,
+      uploadToAll: false,
     },
   });
   
@@ -182,16 +199,30 @@ export default function AdminGallery() {
   // Mutation for adding a new gallery image
   const addImageMutation = useMutation({
     mutationFn: async (data: GalleryImageFormValues) => {
-      // For super admin, we need to use the nurseryId selected in the form
-      // If not a super admin, use the user's assigned nurseryId
-      const targetNurseryId = isSuperAdmin ? (data.nurseryId || 1) : nurseryId;
-      
-      console.log('Adding image to nursery:', targetNurseryId, data);
-      
-      return apiRequest('POST', `/api/admin/nurseries/${targetNurseryId}/gallery`, {
-        ...data,
-        nurseryId: targetNurseryId,
-      });
+      // Check if uploading to all nurseries (super admin only)
+      if (isSuperAdmin && data.uploadToAll) {
+        console.log('Uploading image to all nurseries:', data);
+        
+        // Upload to all nurseries
+        const uploadPromises = nurseries.map(nursery => 
+          apiRequest('POST', `/api/admin/nurseries/${nursery.id}/gallery`, {
+            ...data,
+            nurseryId: nursery.id,
+          })
+        );
+        
+        return Promise.all(uploadPromises);
+      } else {
+        // Upload to single nursery
+        const targetNurseryId = isSuperAdmin ? (data.nurseryId || 1) : nurseryId;
+        
+        console.log('Adding image to nursery:', targetNurseryId, data);
+        
+        return apiRequest('POST', `/api/admin/nurseries/${targetNurseryId}/gallery`, {
+          ...data,
+          nurseryId: targetNurseryId,
+        });
+      }
     },
     onSuccess: () => {
       toast({
