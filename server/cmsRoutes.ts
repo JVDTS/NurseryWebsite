@@ -75,7 +75,11 @@ export async function registerCMSRoutes(app: Express): Promise<void> {
         filters.category = category;
       }
 
-      let galleryImages = await storage.getGalleryImages(filters);
+      let galleryImages = await storage.getGalleryImagesByNursery(nursery.id);
+
+      if (category) {
+        galleryImages = galleryImages.filter(img => img.categoryId && img.categoryId.toString() === category);
+      }
 
       if (featured === 'true') {
         galleryImages = galleryImages.filter(img => img.featured);
@@ -102,17 +106,13 @@ export async function registerCMSRoutes(app: Express): Promise<void> {
 
       let events = await storage.getEventsByNursery(nursery.id);
 
-      if (status) {
-        events = events.filter(event => event.status === status);
-      }
-
       if (upcoming === 'true') {
         const now = new Date();
-        events = events.filter(event => new Date(event.date) >= now);
+        events = events.filter(event => new Date(event.startDate) >= now);
       }
 
-      // Sort by date
-      events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      // Sort by start date
+      events.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
 
       res.json({ data: events });
     } catch (error) {
@@ -136,12 +136,13 @@ export async function registerCMSRoutes(app: Express): Promise<void> {
 
       const newsletter = await storage.createNewsletter({
         title,
-        content,
+        description: content,
         month,
         year,
         nurseryId,
-        pdfPath,
-        createdBy: user.id
+        filename: pdfPath || '',
+        file: pdfPath || '',
+        authorId: user.id
       });
 
       res.status(201).json({ data: newsletter });
@@ -170,7 +171,8 @@ export async function registerCMSRoutes(app: Express): Promise<void> {
         nurseryId,
         featured: featured || false,
         uploadedBy: user.id,
-        status: 'approved'
+        status: 'published',
+        sortOrder: 0
       });
 
       res.status(201).json({ data: galleryImage });
@@ -194,14 +196,12 @@ export async function registerCMSRoutes(app: Express): Promise<void> {
       const event = await storage.createEvent({
         title,
         description,
-        date: new Date(date),
+        startDate: new Date(date),
+        endDate: new Date(date),
         location,
-        eventType,
-        maxParticipants,
-        registrationRequired: registrationRequired || false,
         nurseryId,
         createdBy: user.id,
-        status: 'scheduled'
+        allDay: false
       });
 
       res.status(201).json({ data: event });
