@@ -145,7 +145,7 @@ export default function HounslowNursery() {
         mapImage="/images/maps/hounslow-map.png"
       />
       
-      <NurseryGallery images={displayGalleryImages} />
+      <NurseryGallery nurseryLocation="hounslow" />
       
       <UpcomingEvents events={events} nurseryName="Hounslow" />
       

@@ -145,7 +145,7 @@ export default function HayesNursery() {
         mapImage="/images/maps/hayes-map.png"
       />
       
-      <NurseryGallery images={displayGalleryImages} />
+      <NurseryGallery nurseryLocation="hayes" />
       
       <UpcomingEvents events={events} nurseryName="Hayes" />
       

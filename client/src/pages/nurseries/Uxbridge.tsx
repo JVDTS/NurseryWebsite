@@ -145,7 +145,7 @@ export default function UxbridgeNursery() {
         mapImage="/images/maps/uxbridge-map.png"
       />
       
-      <NurseryGallery images={displayGalleryImages} />
+      <NurseryGallery nurseryLocation="uxbridge" />
       
       <UpcomingEvents events={events} nurseryName="Uxbridge" />
       
