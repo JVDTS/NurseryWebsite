@@ -296,7 +296,7 @@ export async function registerCMSRoutes(app: Express): Promise<void> {
       if (!type || type === 'gallery') {
         content.galleryImages = targetNurseryId ?
           await storage.getGalleryImagesByNursery(targetNurseryId) :
-          await storage.getGalleryImages({});
+          [];
       }
 
       res.json({ data: content });
