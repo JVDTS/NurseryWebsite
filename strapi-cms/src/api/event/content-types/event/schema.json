@@ -1,0 +1,59 @@
+{
+  "kind": "collectionType",
+  "collectionName": "events",
+  "info": {
+    "singularName": "event",
+    "pluralName": "events",
+    "displayName": "Event",
+    "description": "Nursery events and activities"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "date": {
+      "type": "datetime",
+      "required": true
+    },
+    "location": {
+      "type": "string"
+    },
+    "eventType": {
+      "type": "enumeration",
+      "enum": ["educational", "fun_day", "meeting", "workshop", "celebration", "other"],
+      "default": "other"
+    },
+    "maxParticipants": {
+      "type": "integer"
+    },
+    "registrationRequired": {
+      "type": "boolean",
+      "default": false
+    },
+    "featuredImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "nursery": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::nursery.nursery",
+      "inversedBy": "events"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["scheduled", "cancelled", "completed"],
+      "default": "scheduled"
+    }
+  }
+}
