@@ -745,16 +745,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Gallery Images API
+  // Enhanced Gallery Images API with Strapi-like functionality
   app.get("/api/gallery", async (req: Request, res: Response) => {
     try {
-      const images = await storage.getAllGalleryImages();
+      const {
+        nurseryId,
+        status,
+        categoryId,
+        search,
+        featured,
+        limit,
+        offset
+      } = req.query;
+
+      const filters: any = {};
+      
+      if (nurseryId) filters.nurseryId = parseInt(nurseryId as string);
+      if (status) filters.status = status as string;
+      if (categoryId) filters.categoryId = parseInt(categoryId as string);
+      if (search) filters.search = search as string;
+      if (featured !== undefined) filters.featured = featured === 'true';
+      if (limit) filters.limit = parseInt(limit as string);
+      if (offset) filters.offset = parseInt(offset as string);
+
+      const images = await storage.getGalleryImages(filters);
       
       // Add imageUrl property to each image for frontend display
       const imagesWithUrls = images.map(image => ({
         ...image,
-        imageUrl: `/uploads/${image.filename}`, // Match the frontend's expected property name
-        url: `/uploads/${image.filename}` // For compatibility
+        imageUrl: `/uploads/${image.filename}`,
+        url: `/uploads/${image.filename}`
       }));
       
       res.json(imagesWithUrls);
