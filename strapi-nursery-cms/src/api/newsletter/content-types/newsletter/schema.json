@@ -1,0 +1,48 @@
+{
+  "kind": "collectionType",
+  "collectionName": "newsletters",
+  "info": {
+    "singularName": "newsletter",
+    "pluralName": "newsletters",
+    "displayName": "Newsletter",
+    "description": "Nursery newsletter content type"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text"
+    },
+    "month": {
+      "type": "string",
+      "required": true
+    },
+    "year": {
+      "type": "integer",
+      "required": true
+    },
+    "pdfFile": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["files"]
+    },
+    "nursery": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::nursery.nursery",
+      "inversedBy": "newsletters"
+    },
+    "author": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    }
+  }
+}
