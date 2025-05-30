@@ -1057,8 +1057,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // User Management Endpoints
   
-  // Get all users - Super Admin only (using session-based auth for admin panel)
-  app.get('/api/admin/users', adminAuth, requireSuperAdmin, async (req, res) => {
+  // Get all users - Super Admin only
+  app.get('/api/admin/users', async (req, res) => {
+    // Simple session check
+    if (!req.session || !req.session.user || req.session.user.role !== 'super_admin') {
+      return res.status(401).json({ message: 'Super admin access required' });
+    }
     try {
       const users = await storage.getAllUsers();
       
@@ -1078,15 +1082,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Get a specific user - Super Admin or the user themselves
-  app.get('/api/admin/users/:id', isAuthenticated, async (req, res) => {
+  // Get a specific user - Super Admin only
+  app.get('/api/admin/users/:id', async (req, res) => {
+    // Simple session check
+    if (!req.session || !req.session.user || req.session.user.role !== 'super_admin') {
+      return res.status(401).json({ message: 'Super admin access required' });
+    }
     try {
       const userId = parseInt(req.params.id);
-      
-      // Only super_admin can view other users' details
-      if ((req.user as any).dbUserId !== userId && (req.user as any).role !== 'super_admin') {
-        return res.status(403).json({ message: 'Unauthorized to view this user' });
-      }
       
       const user = await storage.getUser(userId);
       
