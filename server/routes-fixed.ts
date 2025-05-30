@@ -189,9 +189,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Assign to nurseries if provided
       if (nurseryIds && nurseryIds.length > 0) {
-        for (const nurseryId of nurseryIds) {
-          await storage.assignUserToNursery(newUser.id, nurseryId);
-        }
+        await storage.assignUserToNurseries(newUser.id, nurseryIds, req.session.user.id);
       }
       
       // Log activity
@@ -235,9 +233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'User not found' });
       }
       
-      for (const nurseryId of nurseryIds) {
-        await storage.assignUserToNursery(userId, nurseryId);
-      }
+      await storage.assignUserToNurseries(userId, nurseryIds, req.session.user.id);
       
       await storage.logActivity({
         userId: req.session.user.id,
