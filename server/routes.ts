@@ -1,8 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated, hasRole } from "./replitAuth";
-import { adminAuth, requireSuperAdmin, requireAdmin, requireAnyAdmin } from "./adminAuth";
+// Removed conflicting authentication imports
 import { contactFormSchema, nurseries, galleryImages as galleryImagesTable, newsletters, events } from "@shared/schema";
 import { db } from "./db";
 import { eq, sql } from "drizzle-orm";
@@ -15,8 +14,26 @@ import fileUpload from "express-fileupload";
  * Register API routes for the CMS
  */
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
+  // Simple session configuration without conflicting auth middleware
+  const session = await import('express-session');
+  const connectPg = await import('connect-pg-simple');
+  const pgStore = connectPg.default(session.default);
+  
+  app.use(session.default({
+    store: new pgStore({
+      conString: process.env.DATABASE_URL,
+      createTableIfMissing: false,
+      tableName: 'sessions',
+    }),
+    secret: process.env.SESSION_SECRET || 'dev-secret-key-change-in-production',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Set to true in production with HTTPS
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  }));
 
   // Session-related API endpoint for theme preferences
   interface SessionData {
@@ -149,7 +166,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
   
-  app.get("/api/admin/me", adminAuth, (req, res) => {
+  app.get("/api/admin/me", (req, res) => {
+    // Simple session check
+    if (!req.session || !req.session.user) {
+      return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
     res.json({ 
       success: true, 
       user: req.session.user 
