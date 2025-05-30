@@ -1137,17 +1137,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await Promise.all(nurseryIds.map(async (nurseryId) => {
           await storage.assignUserToNursery({
             userId: newUser.id,
-            nurseryId
+            nurseryId,
+            assignedBy: (req.session as any).user.id
           });
         }));
       }
       
       // Log the activity
       await storage.logActivity({
-        userId: (req.user as any).dbUserId,
+        userId: (req.session as any).user.id,
         action: 'create',
-        resource: 'user',
-        description: `Created user ${firstName} ${lastName}`,
+        entityType: 'user',
+        entityId: newUser.id,
         metadata: { userId: newUser.id }
       });
       
@@ -1280,14 +1281,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get user's nursery assignments - Super Admin or the user themselves
-  app.get('/api/admin/users/:id/nurseries', isAuthenticated, async (req, res) => {
+  app.get('/api/admin/users/:id/nurseries', adminAuth, requireSuperAdmin, async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
       
-      // Only super_admin can view other users' assignments
-      if ((req.user as any).dbUserId !== userId && (req.user as any).role !== 'super_admin') {
-        return res.status(403).json({ message: 'Unauthorized to view these assignments' });
-      }
+      // Super admin can view any user's assignments
+      // (adminAuth + requireSuperAdmin already ensures this is a super admin)
       
       // Check if user exists
       const user = await storage.getUser(userId);
@@ -1306,7 +1305,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Update user's nursery assignments - Super Admin only
-  app.post('/api/admin/users/:id/nurseries', isAuthenticated, hasRole(['super_admin']), async (req, res) => {
+  app.post('/api/admin/users/:id/nurseries', adminAuth, requireSuperAdmin, async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
       const { nurseryIds } = req.body;
@@ -1337,7 +1336,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!currentNurseryIds.includes(nurseryId)) {
           await storage.assignUserToNursery({
             userId,
-            nurseryId
+            nurseryId,
+            assignedBy: (req.session as any).user.id
           });
         }
       }
