@@ -1107,7 +1107,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Create a new user - Super Admin only
-  app.post('/api/admin/users', adminAuth, requireSuperAdmin, async (req, res) => {
+  app.post('/api/admin/users', async (req, res) => {
+    // Simple session check
+    if (!req.session || !req.session.user || req.session.user.role !== 'super_admin') {
+      return res.status(401).json({ message: 'Super admin access required' });
+    }
     try {
       const { email, firstName, lastName, password, role, nurseryIds } = req.body;
       
@@ -1279,8 +1283,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Get user's nursery assignments - Super Admin or the user themselves
-  app.get('/api/admin/users/:id/nurseries', adminAuth, requireSuperAdmin, async (req, res) => {
+  // Get user's nursery assignments - Super Admin only
+  app.get('/api/admin/users/:id/nurseries', async (req, res) => {
+    // Simple session check
+    if (!req.session || !req.session.user || req.session.user.role !== 'super_admin') {
+      return res.status(401).json({ message: 'Super admin access required' });
+    }
     try {
       const userId = parseInt(req.params.id);
       
@@ -1304,7 +1312,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Update user's nursery assignments - Super Admin only
-  app.post('/api/admin/users/:id/nurseries', adminAuth, requireSuperAdmin, async (req, res) => {
+  app.post('/api/admin/users/:id/nurseries', async (req, res) => {
+    // Simple session check
+    if (!req.session || !req.session.user || req.session.user.role !== 'super_admin') {
+      return res.status(401).json({ message: 'Super admin access required' });
+    }
     try {
       const userId = parseInt(req.params.id);
       const { nurseryIds } = req.body;
