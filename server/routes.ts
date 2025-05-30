@@ -1216,7 +1216,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Deactivate a user - Super Admin only
-  app.post('/api/admin/users/:id/deactivate', isAuthenticated, hasRole(['super_admin']), async (req, res) => {
+  app.post('/api/admin/users/:id/deactivate', adminAuth, requireSuperAdmin, async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
       
@@ -1227,7 +1227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Prevent deactivating own account
-      if ((req.user as any).dbUserId === userId) {
+      if ((req.session as any).user.id === userId) {
         return res.status(400).json({ message: 'Cannot deactivate your own account' });
       }
       
@@ -1236,11 +1236,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Log the activity
       await storage.logActivity({
-        userId: (req.user as any).dbUserId,
+        userId: (req.session as any).user.id,
         action: 'update',
-        resource: 'user',
-        description: `Deactivated user ${user.firstName} ${user.lastName}`,
-        metadata: { userId }
+        entityType: 'user',
+        entityId: userId
       });
       
       res.json({ message: 'User deactivated successfully' });
