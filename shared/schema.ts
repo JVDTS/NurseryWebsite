@@ -154,40 +154,83 @@ export const insertEventSchema = createInsertSchema(events, {
 }).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertEvent = z.infer<typeof insertEventSchema>;
 
-// Gallery Images schema
+// Gallery Images schema - Enhanced for Strapi-like functionality
 export const galleryImages = pgTable("gallery_images", {
   id: serial("id").primaryKey(),
   title: varchar("title").notNull(),
   description: text("description"),
   filename: varchar("filename").notNull(),
+  altText: varchar("alt_text"), // For accessibility
+  fileSize: integer("file_size"), // File size in bytes
+  mimeType: varchar("mime_type"), // image/jpeg, image/png, etc.
+  dimensions: jsonb("dimensions"), // {width: number, height: number}
   nurseryId: integer("nursery_id").notNull(),
   categoryId: integer("category_id"),
+  tags: text("tags").array(), // Array of tags for better organization
+  status: varchar("status").notNull().default("published"), // draft, published, archived
+  featured: boolean("featured").default(false), // Mark images as featured
+  sortOrder: integer("sort_order").default(0), // For custom ordering
   uploadedBy: integer("uploaded_by").notNull(),
+  approvedBy: integer("approved_by"), // For approval workflow
+  approvedAt: timestamp("approved_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (table) => ({
+  nurseryIdIdx: index("gallery_images_nursery_id_idx").on(table.nurseryId),
+  categoryIdIdx: index("gallery_images_category_id_idx").on(table.categoryId),
+  statusIdx: index("gallery_images_status_idx").on(table.status),
+  featuredIdx: index("gallery_images_featured_idx").on(table.featured),
+}));
 
 export type GalleryImage = typeof galleryImages.$inferSelect;
 export const insertGalleryImageSchema = createInsertSchema(galleryImages, {
   title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().optional(),
   filename: z.string().min(1, "Filename is required"),
+  altText: z.string().optional(),
+  fileSize: z.number().int().positive().optional(),
+  mimeType: z.string().optional(),
+  dimensions: z.object({
+    width: z.number().int().positive(),
+    height: z.number().int().positive()
+  }).optional(),
   nurseryId: z.number().int().positive("Nursery must be selected"),
-  categoryId: z.number().int().positive("Category is required").optional(),
-}).omit({ id: true, createdAt: true, updatedAt: true });
+  categoryId: z.number().int().positive().optional(),
+  tags: z.array(z.string()).optional(),
+  status: z.enum(["draft", "published", "archived"]).default("published"),
+  featured: z.boolean().default(false),
+  sortOrder: z.number().int().default(0),
+}).omit({ id: true, createdAt: true, updatedAt: true, approvedBy: true, approvedAt: true });
 export type InsertGalleryImage = z.infer<typeof insertGalleryImageSchema>;
 
-// Gallery Categories schema
+// Gallery Categories schema - Enhanced with nursery-specific categories
 export const galleryCategories = pgTable("gallery_categories", {
   id: serial("id").primaryKey(),
   name: varchar("name").notNull(),
+  description: text("description"),
+  nurseryId: integer("nursery_id"), // null means global category available to all nurseries
+  color: varchar("color"), // Hex color for UI theming
+  icon: varchar("icon"), // Icon name for UI
+  isActive: boolean("is_active").notNull().default(true),
+  sortOrder: integer("sort_order").default(0),
+  createdBy: integer("created_by").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (table) => ({
+  nurseryIdIdx: index("gallery_categories_nursery_id_idx").on(table.nurseryId),
+  activeIdx: index("gallery_categories_active_idx").on(table.isActive),
+}));
 
 export type GalleryCategory = typeof galleryCategories.$inferSelect;
 export const insertGalleryCategorySchema = createInsertSchema(galleryCategories, {
   name: z.string().min(2, "Category name is required"),
-}).omit({ id: true, createdAt: true });
+  description: z.string().optional(),
+  nurseryId: z.number().int().positive().optional(),
+  color: z.string().regex(/^#[0-9A-F]{6}$/i, "Must be a valid hex color").optional(),
+  icon: z.string().optional(),
+  isActive: z.boolean().default(true),
+  sortOrder: z.number().int().default(0),
+}).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertGalleryCategory = z.infer<typeof insertGalleryCategorySchema>;
 
 // Media Library schema
