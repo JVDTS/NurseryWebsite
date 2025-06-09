@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
@@ -10,50 +9,86 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormMessage,
   FormLabel,
+  FormMessage,
+  FormDescription
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
   SelectValue 
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { 
+  MapPin, 
+  Phone, 
+  Clock, 
+  Mail,
+  Facebook, 
+  Instagram
+} from "lucide-react";
 import { contactFormSchema } from "@shared/schema";
-import { Facebook, Instagram } from "lucide-react";
+import { fadeLeft, fadeRight } from "@/lib/animations";
 
-const pageVariants = {
-  initial: { opacity: 0, y: 20 },
-  animate: { 
-    opacity: 1, 
-    y: 0,
-    transition: { 
-      duration: 0.6,
-      staggerChildren: 0.1,
-    }
-  }
-};
+interface LocationProps {
+  title: string;
+  address: string;
+  phone: string;
+  colorClass: string;
+}
 
-const itemVariants = {
-  initial: { opacity: 0, y: 20 },
-  animate: { 
-    opacity: 1, 
-    y: 0,
-    transition: { duration: 0.6 }
+const locations: LocationProps[] = [
+  {
+    title: "Hayes",
+    address: "192 Church Road, Hayes, UB3 2LT",
+    phone: "01895 272885",
+    colorClass: "bg-rainbow-red"
+  },
+  {
+    title: "Uxbridge",
+    address: "4 New Windsor Street, Uxbridge, UB8 2TU",
+    phone: "01895 272885",
+    colorClass: "bg-rainbow-blue"
+  },
+  {
+    title: "Hounslow",
+    address: "488, 490 Great West Rd, Hounslow TW5 0TA",
+    phone: "01895 272885",
+    colorClass: "bg-rainbow-green"
   }
-};
+];
+
+function Location({ title, address, phone, colorClass }: LocationProps) {
+  return (
+    <div className="flex">
+      <div className={`flex-shrink-0 w-12 h-12 ${colorClass}/20 rounded-full flex items-center justify-center mr-4`}>
+        <MapPin className={`text-2xl ${colorClass.replace('bg-', 'text-')}`} />
+      </div>
+      <div>
+        <h4 className="font-heading font-semibold text-lg" style={{ color: `var(--${colorClass.replace('bg-', '')})` }}>{title}</h4>
+        <p className="text-gray-600">{address}</p>
+        <p className="text-gray-600">{phone}</p>
+      </div>
+    </div>
+  );
+}
 
 export default function ContactSection() {
-  const [ref, inView] = useInView({
+  const [formRef, formInView] = useInView({
+    triggerOnce: false,
+    threshold: 0.1,
+  });
+
+  const [locationsRef, locationsInView] = useInView({
     triggerOnce: false,
     threshold: 0.1,
   });
 
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const form = useForm<typeof contactFormSchema._type>({
     resolver: zodResolver(contactFormSchema),
@@ -61,70 +96,202 @@ export default function ContactSection() {
       name: "",
       email: "",
       phone: "",
-      nurseryLocation: "general",
+      nurseryLocation: undefined,
       message: ""
     }
   });
 
   const onSubmit = async (data: typeof contactFormSchema._type) => {
-    setIsSubmitting(true);
-    console.log("Submitting contact form data:", data);
-    
     try {
-      // Skip CSRF for contact form temporarily to diagnose issues
-      const response = await apiRequest("POST", "/api/contact", data, { 
-        on401: "throw",
-        skipCsrf: true 
-      });
-      
-      console.log("Contact form response:", response);
+      const response = await apiRequest("POST", "/api/contact", data);
       
       if (response.emailSent) {
         toast({
           title: "Message sent!",
-          description: "Thank you for your message. We'll get back to you soon!"
+          description: "Your message has been sent to IT@kingsborough.org.uk. We'll get back to you as soon as possible."
         });
       } else {
         toast({
           title: "Message saved",
-          description: "Your message has been saved. Our team will review it shortly."
+          description: "Your message has been saved, but there was an issue sending the email notification. Our team will still review your submission."
         });
       }
       
       form.reset();
     } catch (error) {
-      console.error("Contact form submission error:", error);
       toast({
         title: "Something went wrong",
-        description: "Please try again later. See console for details.",
+        description: "Please try again later.",
         variant: "destructive"
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   return (
-    <section id="contact" className="py-20 bg-slate-50">
-      <motion.div 
-        className="container mx-auto px-4"
-        ref={ref}
-        initial="initial"
-        animate={inView ? "animate" : "initial"}
-        variants={pageVariants}
-      >
-        <div className="flex flex-col md:flex-row items-center max-w-6xl mx-auto">
-          {/* Image Column */}
+    <section id="contact" className="py-20 bg-gray-50">
+      <div className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto text-center mb-16">
+          <div className="mb-4">
+            <span className="inline-block px-4 py-1 bg-rainbow-pink/20 text-rainbow-pink font-heading font-semibold text-sm uppercase rounded-full">Get in Touch</span>
+          </div>
+          
+          <h2 className="font-heading font-bold text-3xl md:text-4xl mb-6 leading-tight bg-clip-text text-transparent bg-gradient-to-r from-rainbow-red via-rainbow-orange to-rainbow-yellow">
+            We'd love to hear from you
+          </h2>
+          
+          <p className="text-gray-600 text-lg">
+            Schedule a visit, ask questions, or inquire about enrollment - our team is here to help.
+          </p>
+        </div>
+        
+        <div className="flex flex-col lg:flex-row gap-12">
           <motion.div 
-            className="md:w-1/2 relative mb-10 md:mb-0"
-            variants={itemVariants}
+            className="lg:w-1/2"
+            ref={formRef}
+            initial="hidden"
+            animate={formInView ? "visible" : "hidden"}
+            variants={fadeRight}
           >
-            <div className="relative z-10">
-              <img 
-                src="/uploads/child-megaphone-new.png" 
-                alt="Child with megaphone" 
-                className="max-w-full"
-              />
+            <div className="bg-white p-8 rounded-xl shadow-md h-full">
+              <h3 className="font-heading font-bold text-2xl mb-6 text-rainbow-purple">Send us a message</h3>
+              
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-heading font-medium">Your Name</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="Jane Doe" 
+                            {...field} 
+                            className="px-4 py-3 focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-heading font-medium">Email Address</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="jane@example.com" 
+                            {...field} 
+                            className="px-4 py-3 focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-heading font-medium">Phone Number</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="(123) 456-7890" 
+                            {...field} 
+                            className="px-4 py-3 focus:ring-primary"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="nurseryLocation"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-heading font-medium">Nursery Location</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full px-4 py-3 focus:ring-primary">
+                              <SelectValue placeholder="Select a nursery location" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="hayes">Hayes</SelectItem>
+                            <SelectItem value="uxbridge">Uxbridge</SelectItem>
+                            <SelectItem value="hounslow">Hounslow</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          Please select the nursery location you're interested in
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="message"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-heading font-medium">Your Message</FormLabel>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="I'd like to schedule a visit..." 
+                            {...field} 
+                            className="px-4 py-3 focus:ring-primary"
+                            rows={4}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full px-6 py-6 bg-gradient-to-r from-rainbow-orange to-rainbow-pink text-white font-heading font-semibold rounded-lg shadow-md hover:shadow-lg transition-all hover:-translate-y-1 h-auto"
+                    disabled={form.formState.isSubmitting}
+                  >
+                    {form.formState.isSubmitting ? "Sending..." : "Send Message"}
+                  </Button>
+                </form>
+              </Form>
+            </div>
+          </motion.div>
+          
+          <motion.div 
+            className="lg:w-1/2"
+            ref={locationsRef}
+            initial="hidden"
+            animate={locationsInView ? "visible" : "hidden"}
+            variants={fadeLeft}
+          >
+            <div className="bg-white p-8 rounded-xl shadow-md mb-8">
+              <h3 className="font-heading font-bold text-2xl mb-6 text-rainbow-blue">Our Locations</h3>
+              
+              <div className="space-y-6">
+                {locations.map((location, index) => (
+                  <Location
+                    key={index}
+                    title={location.title}
+                    address={location.address}
+                    phone={location.phone}
+                    colorClass={location.colorClass}
+                  />
+                ))}
+              </div>
             </div>
             
             <div className="bg-white p-8 rounded-xl shadow-md">
@@ -163,127 +330,8 @@ export default function ContactSection() {
               </div>
             </div>
           </motion.div>
-          
-          {/* Form Column */}
-          <motion.div 
-            className="md:w-1/2 md:pl-12"
-            variants={itemVariants}
-          >
-            <div className="text-center md:text-left mb-8">
-              <p className="text-pink-500 uppercase font-semibold tracking-wider mb-3">CONTACT US</p>
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">Join Our Best Fun Classes</h2>
-            </div>
-            
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input 
-                          placeholder="First Name" 
-                          {...field} 
-                          className="rounded-md border border-gray-300 py-3 px-4"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input 
-                          placeholder="Email" 
-                          {...field} 
-                          className="rounded-md border border-gray-300 py-3 px-4"
-                          type="email"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="phone"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input 
-                          placeholder="Phone No." 
-                          {...field} 
-                          className="rounded-md border border-gray-300 py-3 px-4"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="nurseryLocation"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-600 font-medium">Nursery Location</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="rounded-md border border-gray-300 py-3 px-4">
-                            <SelectValue placeholder="Select a nursery location" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="hayes">Hayes</SelectItem>
-                          <SelectItem value="uxbridge">Uxbridge</SelectItem>
-                          <SelectItem value="hounslow">Hounslow</SelectItem>
-                          <SelectItem value="general">General Inquiry</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="message"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Write Comments" 
-                          {...field} 
-                          className="rounded-md border border-gray-300 py-3 px-4 min-h-[100px]"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-auto px-8 py-3 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-full transition-all"
-                >
-                  {isSubmitting ? "SUBMITTING..." : "SUBMIT NOW"}
-                </button>
-              </form>
-            </Form>
-          </motion.div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

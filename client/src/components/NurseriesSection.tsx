@@ -23,7 +23,7 @@ const nurseries: NurseryCardProps[] = [
     id: "hayes"
   },
   {
-    image: "https://images.unsplash.com/photo-1587323655395-b1c77a12c89a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    image: "https://images.unsplash.com/photo-1544487660-b86394cba400?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
     title: "Uxbridge",
     description: "A cozy nursery with state-of-the-art learning facilities at 4 New Windsor Street, Uxbridge, UB8 2TU.",
     ages: "Ages 2-5",

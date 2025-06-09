@@ -1,76 +1,50 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import { Star, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { fadeUp } from "@/lib/animations";
 import { useState, useRef, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-
-interface DaynurseriesReview {
-  id: string;
-  text: string;
-  author: string;
-  date: string;
-  rating: number;
-  nurseryName: string;
-  reviewUrl: string;
-}
 
 interface TestimonialProps {
   quote: string;
   author: string;
-  role?: string;
-  image?: string;
-  date?: string;
-  rating?: number;
+  role: string;
+  image: string;
   delay: number;
-  reviewUrl?: string;
 }
 
-// Fallback testimonials in case API fails
-const fallbackTestimonials: TestimonialProps[] = [
+const testimonials: TestimonialProps[] = [
   {
     quote: "The transformation in my daughter since she started at Coat of Many Colours has been remarkable. She's more confident, creative, and happy. The staff are phenomenal!",
     author: "Sarah Johnson",
     role: "Parent of Lily, age 4",
     image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80",
-    delay: 0.1,
-    rating: 5
+    delay: 0.1
   },
   {
     quote: "As first-time parents, we were nervous about nursery. The team made the transition so smooth and keep us involved in our son's development every step of the way.",
     author: "David Martinez",
     role: "Parent of Leo, age 2",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80",
-    delay: 0.2,
-    rating: 5
+    delay: 0.2
   },
   {
     quote: "The outdoor curriculum is what attracted us, and we haven't been disappointed. My twins are thriving and come home with stories of adventures and discoveries every day.",
     author: "Priya Nair",
     role: "Parent of Maya & Rohan, age 3",
     image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=200&q=80",
-    delay: 0.3,
-    rating: 5
+    delay: 0.3
   }
 ];
 
-function Testimonial({ quote, author, role, image, date, rating = 5, delay, reviewUrl }: TestimonialProps) {
+function Testimonial({ quote, author, role, image, delay }: TestimonialProps) {
   const [ref, inView] = useInView({
     triggerOnce: false,
     threshold: 0.1,
   });
-  
-  // Create shortened version of the quote if it's longer than 120 characters
-  const shortenedText = quote && quote.length > 120 
-    ? `${quote.substring(0, 120)}...` 
-    : quote;
-  
-  // Default URL if none provided
-  const defaultReviewUrl = "https://www.daynurseries.co.uk/daynursery.cfm/searchazref/50001010COAA";
 
   return (
     <motion.div 
-      className="bg-white p-5 sm:p-8 rounded-xl shadow-md h-full flex flex-col"
+      className="bg-white p-5 sm:p-8 rounded-xl shadow-md"
       ref={ref}
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
@@ -80,47 +54,24 @@ function Testimonial({ quote, author, role, image, date, rating = 5, delay, revi
       <div className="flex items-center mb-3 sm:mb-4">
         <div className="text-accent">
           {[...Array(5)].map((_, i) => (
-            <Star 
-              key={i} 
-              className={`inline-block h-4 w-4 sm:h-5 sm:w-5 ${i < rating ? 'fill-current' : ''}`} 
-            />
+            <Star key={i} className="inline-block h-4 w-4 sm:h-5 sm:w-5 fill-current" />
           ))}
-          {date && <span className="ml-2 text-xs text-gray-500">{date}</span>}
         </div>
       </div>
-      <div className="mb-4 sm:mb-6 flex-grow">
-        <p className="text-gray-600 italic text-sm sm:text-base">
-          "{shortenedText}"
-        </p>
-        <a 
-          href={reviewUrl || defaultReviewUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-accent text-xs sm:text-sm font-medium mt-2 inline-flex items-center hover:underline focus:outline-none focus:ring-2 focus:ring-accent rounded"
-        >
-          Read more reviews
-          <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-        </a>
-      </div>
-      <div className="flex items-center mt-auto">
-        {image ? (
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-full overflow-hidden mr-3 sm:mr-4 shrink-0">
-            <img 
-              src={image}
-              alt={author} 
-              className="w-full h-full object-cover"
-            />
-          </div>
-        ) : (
-          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-full overflow-hidden mr-3 sm:mr-4 shrink-0 flex items-center justify-center">
-            <span className="text-gray-600 font-semibold">{author.charAt(0).toUpperCase()}</span>
-          </div>
-        )}
+      <p className="text-gray-600 mb-4 sm:mb-6 italic text-sm sm:text-base">
+        "{quote}"
+      </p>
+      <div className="flex items-center">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-200 rounded-full overflow-hidden mr-3 sm:mr-4 shrink-0">
+          <img 
+            src={image}
+            alt={author} 
+            className="w-full h-full object-cover"
+          />
+        </div>
         <div>
           <h4 className="font-heading font-semibold text-sm sm:text-base">{author}</h4>
-          {role && <p className="text-xs sm:text-sm text-gray-500">{role}</p>}
+          <p className="text-xs sm:text-sm text-gray-500">{role}</p>
         </div>
       </div>
     </motion.div>
@@ -138,26 +89,6 @@ export default function TestimonialsSection() {
   const [isPaused, setIsPaused] = useState(false);
   const slideInterval = useRef<number | null>(null);
   
-  // Fetch reviews from API
-  const { data, isLoading, isError } = useQuery<{ success: boolean, reviews: DaynurseriesReview[] }>({
-    queryKey: ['/api/reviews'],
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
-  
-  // Use real reviews from API or fallback if error/loading
-  const reviews = !isLoading && !isError && data?.success && data.reviews && data.reviews.length > 0
-    ? data.reviews.map((review: DaynurseriesReview, index: number) => ({
-        quote: review.text,
-        author: review.author,
-        date: review.date,
-        rating: review.rating,
-        role: undefined,
-        image: undefined,
-        reviewUrl: review.reviewUrl,
-        delay: index * 0.1
-      }))
-    : fallbackTestimonials;
-  
   const startSlideTimer = () => {
     if (slideInterval.current !== null) {
       clearInterval(slideInterval.current);
@@ -166,7 +97,7 @@ export default function TestimonialsSection() {
     slideInterval.current = window.setInterval(() => {
       if (!isPaused) {
         setDirection(1);
-        setCurrentIndex(prevIndex => (prevIndex + 1) % reviews.length);
+        setCurrentIndex(prevIndex => (prevIndex + 1) % testimonials.length);
       }
     }, 5000);
   };
@@ -178,14 +109,14 @@ export default function TestimonialsSection() {
         clearInterval(slideInterval.current);
       }
     };
-  }, [isPaused, reviews.length]);
+  }, [isPaused]);
   
   const handlePrev = () => {
     if (slideInterval.current !== null) {
       clearInterval(slideInterval.current);
     }
     setDirection(-1);
-    setCurrentIndex(prevIndex => (prevIndex - 1 + reviews.length) % reviews.length);
+    setCurrentIndex(prevIndex => (prevIndex - 1 + testimonials.length) % testimonials.length);
     startSlideTimer();
   };
   
@@ -194,7 +125,7 @@ export default function TestimonialsSection() {
       clearInterval(slideInterval.current);
     }
     setDirection(1);
-    setCurrentIndex(prevIndex => (prevIndex + 1) % reviews.length);
+    setCurrentIndex(prevIndex => (prevIndex + 1) % testimonials.length);
     startSlideTimer();
   };
 
@@ -241,19 +172,6 @@ export default function TestimonialsSection() {
           <h2 className="font-heading font-bold text-2xl sm:text-3xl md:text-4xl mb-4 sm:mb-6 leading-tight px-4">
             Trusted by hundreds of families
           </h2>
-          
-          {isLoading && (
-            <div className="flex justify-center items-center py-4">
-              <Loader2 className="w-6 h-6 animate-spin text-accent" />
-              <span className="ml-2 text-sm text-gray-600">Loading reviews...</span>
-            </div>
-          )}
-          
-          {isError && (
-            <div className="text-sm text-amber-600">
-              Using local testimonials while we fetch the latest reviews...
-            </div>
-          )}
         </motion.div>
         
         <div className="max-w-4xl mx-auto relative px-2 sm:px-4 pb-12"
@@ -262,7 +180,7 @@ export default function TestimonialsSection() {
           onTouchStart={() => setIsPaused(true)}
           onTouchEnd={() => setIsPaused(false)}
         >
-          <div className="min-h-[320px] sm:min-h-[300px] md:min-h-[280px] overflow-hidden relative">
+          <div className="h-[320px] sm:h-[300px] md:h-[280px] overflow-hidden relative">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentIndex}
@@ -270,16 +188,13 @@ export default function TestimonialsSection() {
                 animate="visible"
                 exit="exit"
                 variants={slideVariants}
-                className="w-full"
+                className="absolute inset-0"
               >
                 <Testimonial
-                  quote={reviews[currentIndex].quote}
-                  author={reviews[currentIndex].author}
-                  role={reviews[currentIndex].role}
-                  image={reviews[currentIndex].image}
-                  date={reviews[currentIndex].date}
-                  rating={reviews[currentIndex].rating}
-                  reviewUrl={reviews[currentIndex].reviewUrl}
+                  quote={testimonials[currentIndex].quote}
+                  author={testimonials[currentIndex].author}
+                  role={testimonials[currentIndex].role}
+                  image={testimonials[currentIndex].image}
                   delay={0}
                 />
               </motion.div>
@@ -298,7 +213,7 @@ export default function TestimonialsSection() {
             </motion.button>
             
             <div className="flex space-x-3">
-              {reviews.map((_: TestimonialProps, index: number) => (
+              {testimonials.map((_, index) => (
                 <button 
                   key={index}
                   onClick={() => {

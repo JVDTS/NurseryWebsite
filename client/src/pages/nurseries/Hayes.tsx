@@ -82,7 +82,7 @@ export default function HayesNursery() {
       icon: <ShieldCheck className="text-primary w-6 h-6" />,
       title: "Secure Environment",
       description: "State-of-the-art security systems and protocols to ensure children's safety at all times.",
-      image: "https://images.unsplash.com/photo-1564429097439-e400382dc893?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1350&q=80"
+      image: "https://images.unsplash.com/photo-1584650589329-a9e8d9d04e3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
     }
   ];
 
@@ -128,12 +128,12 @@ export default function HayesNursery() {
   return (
     <NurseryLayout 
       title="Hayes Nursery" 
-      heroImage="https://images.unsplash.com/photo-1578349035260-9f3d4042f1f7?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1350&q=80"
+      heroImage="https://images.unsplash.com/photo-1565538810643-b5bdb714032a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
       themeColor="hayes"
     >
       <NurseryDescription 
         description="Welcome to our Hayes nursery, a bright, spacious facility with a beautiful garden, located in the heart of Hayes. Our purpose-built environment provides children aged 0-5 with rich, varied learning experiences that encourage exploration, creativity, and growth. We focus on creating a warm, nurturing atmosphere where each child feels secure and valued, enabling them to build confidence and develop a lifelong love of learning."
-        imageSrc="https://images.unsplash.com/photo-1592106680408-e7e63efbc7ba?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1350&q=80"
+        imageSrc="https://images.unsplash.com/photo-1570913187788-2aa6bd2054e0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
       />
       
       <NurseryFacilities facilities={facilities} />
@@ -171,23 +171,33 @@ export default function HayesNursery() {
               </div>
             </a>
             
-            <a href="/documents/Spring Summer menu 2024 updated.docx" download="Spring-Summer-Menu-2024.docx" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
+            <a href="#" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
               <div className="bg-hayes/10 p-3 rounded-full mr-4">
                 <Download className="text-hayes w-6 h-6" />
               </div>
               <div>
-                <h3 className="font-heading font-medium text-lg">Spring/Summer Menu 2024</h3>
-                <p className="text-gray-500 text-sm">DOCX document • Download</p>
+                <h3 className="font-heading font-medium text-lg">Weekly Menu Sample</h3>
+                <p className="text-gray-500 text-sm">PDF document • 1.8MB</p>
               </div>
             </a>
             
-            <a href="/documents/Parent-Handbook-2025.pdf" download="Parent-Handbook-2025.pdf" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
+            <a href="#" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
               <div className="bg-hayes/10 p-3 rounded-full mr-4">
                 <Download className="text-hayes w-6 h-6" />
               </div>
               <div>
-                <h3 className="font-heading font-medium text-lg">Parent Handbook 2025</h3>
-                <p className="text-gray-500 text-sm">PDF document • Download</p>
+                <h3 className="font-heading font-medium text-lg">Term Dates 2025-2026</h3>
+                <p className="text-gray-500 text-sm">PDF document • 0.5MB</p>
+              </div>
+            </a>
+            
+            <a href="#" className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow">
+              <div className="bg-hayes/10 p-3 rounded-full mr-4">
+                <Download className="text-hayes w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-heading font-medium text-lg">Registration Form</h3>
+                <p className="text-gray-500 text-sm">PDF document • 1.2MB</p>
               </div>
             </a>
           </div>

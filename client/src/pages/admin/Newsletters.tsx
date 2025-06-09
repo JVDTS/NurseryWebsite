@@ -434,22 +434,21 @@ export default function AdminNewsletters() {
   return (
     <ProtectedRoute>
       <DashboardLayout title="Newsletter Management">
-        <div className="space-y-6 w-full">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Newsletters</CardTitle>
-                <CardDescription>
-                  Manage newsletters for {isSuperAdmin ? 'all nurseries' : 'your nursery'}
-                </CardDescription>
-              </div>
-              <Dialog open={isAddNewsletterOpen} onOpenChange={setIsAddNewsletterOpen}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Newsletter
-                  </Button>
-                </DialogTrigger>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Newsletters</CardTitle>
+              <CardDescription>
+                Manage newsletters for {isSuperAdmin ? 'all nurseries' : 'your nursery'}
+              </CardDescription>
+            </div>
+            <Dialog open={isAddNewsletterOpen} onOpenChange={setIsAddNewsletterOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Newsletter
+                </Button>
+              </DialogTrigger>
               <DialogContent className="sm:max-w-[550px]">
                 <DialogHeader>
                   <DialogTitle>Add Newsletter</DialogTitle>
@@ -884,7 +883,6 @@ export default function AdminNewsletters() {
             </Form>
           </DialogContent>
         </Dialog>
-        </div>
       </DashboardLayout>
     </ProtectedRoute>
   );
