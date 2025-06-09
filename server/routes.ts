@@ -527,6 +527,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin newsletter delete route
+  app.delete("/api/admin/newsletters/:id", adminAuth, async (req: Request, res: Response) => {
+    try {
+      const newsletterId = parseInt(req.params.id);
+      const success = await storage.deleteNewsletter(newsletterId);
+      
+      if (!success) {
+        return res.status(404).json({ message: "Newsletter not found" });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting newsletter:", error);
+      res.status(500).json({ message: "Failed to delete newsletter" });
+    }
+  });
+
   // Posts API
   app.get("/api/posts", async (req: Request, res: Response) => {
     try {
