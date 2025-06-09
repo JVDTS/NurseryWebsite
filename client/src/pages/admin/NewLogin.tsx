@@ -31,7 +31,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 // Form validation schema
 const formSchema = z.object({
-  username: z.string().min(1, { message: 'Username is required' }),
+  email: z.string().email({ message: 'Valid email is required' }),
   password: z.string().min(1, { message: 'Password is required' }),
   remember: z.boolean().optional(),
 });
@@ -47,7 +47,7 @@ export default function NewLogin() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: '',
+      email: '',
       password: '',
       remember: false,
     },
@@ -95,7 +95,7 @@ export default function NewLogin() {
     setError(null);
     
     try {
-      const success = await login(values.username, values.password, csrfToken);
+      const success = await login(values.email, values.password, csrfToken);
       
       if (success) {
         toast({
@@ -104,7 +104,7 @@ export default function NewLogin() {
         });
         setLocation('/admin/dashboard');
       } else {
-        setError('Invalid username or password');
+        setError('Invalid email or password');
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -137,15 +137,16 @@ export default function NewLogin() {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
                   control={form.control}
-                  name="username"
+                  name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>Email</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                           <Input 
-                            placeholder="Enter your username" 
+                            type="email"
+                            placeholder="Enter your email" 
                             className="pl-10" 
                             {...field} 
                           />
