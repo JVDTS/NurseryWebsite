@@ -12,6 +12,7 @@ import AboutPage from "@/pages/About";
 import MissionPage from "@/pages/Mission";
 import NewslettersPage from "@/pages/Newsletters";
 import GalleryPage from "@/pages/Gallery";
+import ContactPage from "@/pages/Contact";
 import ViewContactSubmissions from "@/pages/ViewContactSubmissions";
 
 // Nursery pages
@@ -53,6 +54,7 @@ function Router() {
       <Route path="/mission" component={MissionPage} />
       <Route path="/newsletters" component={NewslettersPage} />
       <Route path="/gallery" component={GalleryPage} />
+      <Route path="/contact" component={ContactPage} />
       <Route path="/view-contact-submissions" component={ViewContactSubmissions} />
       
       {/* Nursery routes */}

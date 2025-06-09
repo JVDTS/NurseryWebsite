@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           'X-CSRF-Token': csrfToken,
           'Cache-Control': 'no-cache',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email: username, password }),
         credentials: 'include'
       });
       

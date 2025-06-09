@@ -43,9 +43,11 @@ export async function apiRequest<T = any>(
   if (needsCsrfToken) {
     try {
       const csrfToken = await fetchCsrfToken();
+      console.log("Using CSRF token:", csrfToken);
       headers = {
         ...headers,
-        'X-CSRF-Token': csrfToken
+        'CSRF-Token': csrfToken, // Change header name to match what csurf middleware expects
+        'X-CSRF-Token': csrfToken // Also include the X-prefixed version for backward compatibility
       };
     } catch (error) {
       console.error('Failed to fetch CSRF token for API request:', error);

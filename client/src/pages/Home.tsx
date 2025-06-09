@@ -21,14 +21,6 @@ export default function Home() {
       <GallerySection />
       <FAQSection />
       <ContactSection />
-      <div className="fixed bottom-4 right-4 z-50">
-        <a 
-          href="/view-contact-submissions" 
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-lg hover:shadow-xl transition-all"
-        >
-          View Contact Submissions
-        </a>
-      </div>
       <Footer />
     </div>
   );

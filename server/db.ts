@@ -12,7 +12,7 @@ export const pool = new Pool({
 });
 
 // Create drizzle instance with schema
-export const db = drizzle(pool);
+export const db = drizzle(pool, { schema });
 
 // Handle pool errors
 pool.on('error', (err) => {
