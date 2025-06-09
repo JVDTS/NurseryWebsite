@@ -1,4 +1,5 @@
 import type { Express, Request, Response } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, hasRole } from "./replitAuth";
@@ -44,6 +45,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     session.preferences.theme = theme;
     res.json({ success: true });
   });
+
+  // Serve uploaded files
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
   // CSRF API
   app.get("/api/csrf-token", (req, res) => {
@@ -402,7 +406,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/newsletters", async (req: Request, res: Response) => {
     try {
       const newsletters = await storage.getAllNewsletters();
-      res.json(newsletters);
+      
+      // Transform newsletters to match frontend expectations
+      const transformedNewsletters = newsletters.map(newsletter => ({
+        id: newsletter.id,
+        title: newsletter.title,
+        description: newsletter.description || '',
+        fileUrl: newsletter.filename ? `/uploads/${newsletter.filename}` : '',
+        publishDate: newsletter.createdAt,
+        nurseryId: newsletter.nurseryId,
+        tags: newsletter.tags || '',
+        month: newsletter.month,
+        year: newsletter.year,
+        filename: newsletter.filename,
+        status: newsletter.status
+      }));
+      
+      res.json(transformedNewsletters);
     } catch (error) {
       console.error("Error fetching newsletters:", error);
       res.status(500).json({ message: "Failed to fetch newsletters" });
