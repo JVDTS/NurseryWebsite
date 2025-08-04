@@ -35,21 +35,21 @@ export default function AdminDashboard() {
   });
 
   // Construct query keys based on selected nursery
-  const galleryQueryKey = selectedNurseryId 
+  const galleryQueryKey = (selectedNurseryId && selectedNurseryId !== ALL_NURSERIES)
     ? [`/api/admin/nurseries/${selectedNurseryId}/gallery`]
     : (user?.role === 'super_admin' 
       ? ['/api/admin/gallery'] 
       : [`/api/admin/nurseries/${user?.nurseryId}/gallery`]
     );
     
-  const newslettersQueryKey = selectedNurseryId 
+  const newslettersQueryKey = (selectedNurseryId && selectedNurseryId !== ALL_NURSERIES)
     ? [`/api/admin/nurseries/${selectedNurseryId}/newsletters`]
     : (user?.role === 'super_admin' 
       ? ['/api/admin/newsletters'] 
       : [`/api/admin/nurseries/${user?.nurseryId}/newsletters`]
     );
     
-  const eventsQueryKey = selectedNurseryId 
+  const eventsQueryKey = (selectedNurseryId && selectedNurseryId !== ALL_NURSERIES)
     ? [`/api/admin/nurseries/${selectedNurseryId}/events`]
     : (user?.role === 'super_admin' 
       ? ['/api/admin/events'] 
@@ -79,13 +79,10 @@ export default function AdminDashboard() {
   // Handle nursery selection change
   const handleNurseryChange = (nurseryId: number | null) => {
     console.log("Dashboard: Nursery changed to:", nurseryId);
-    // Use the global nursery selector context to update the nursery ID
     setSelectedNurseryId(nurseryId);
     
-    // Invalidate and refetch all data when nursery changes
-    queryClient.invalidateQueries({ queryKey: ['gallery'] });
-    queryClient.invalidateQueries({ queryKey: ['newsletters'] });
-    queryClient.invalidateQueries({ queryKey: ['events'] });
+    // Invalidate all cached queries to force refresh with new nursery filter
+    queryClient.invalidateQueries();
   };
   
   // Update stats with actual data when available
@@ -153,7 +150,7 @@ export default function AdminDashboard() {
       <DashboardLayout 
         title="Dashboard"
         selectedNurseryId={selectedNurseryId}
-        onNurseryChange={setSelectedNurseryId}
+        onNurseryChange={handleNurseryChange}
       >
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-2">
@@ -167,12 +164,7 @@ export default function AdminDashboard() {
         </div>
         <div className="grid gap-6 max-w-6xl mx-auto">
           {/* Stats Grid */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {/* Nursery Selector */}
-            <NurserySelector
-              onChange={handleNurseryChange}
-              selectedNurseryId={selectedNurseryId}
-            />
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             
             {/* Events Stats */}
             <Link href="/admin/events">
