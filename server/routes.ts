@@ -564,7 +564,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/newsletters", async (req: Request, res: Response) => {
+  app.post("/api/newsletters", adminAuth, async (req: Request, res: Response) => {
     try {
       console.log("Newsletter upload request:", req.body);
       
@@ -616,7 +616,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         filename: uploadedFilename, // Required field
         file: uploadedFilename, // Optional field but we'll set it to the same value
         nurseryId: parseInt(req.body.nurseryId || "1", 10),
-        authorId: parseInt(req.body.authorId || "1", 10), // Default admin user
+        authorId: req.session.user?.id || 1,
         status: req.body.status || "published"
       };
       
@@ -954,7 +954,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/gallery", async (req: Request, res: Response) => {
+  app.post("/api/gallery", adminAuth, async (req: Request, res: Response) => {
     try {
       console.log("Gallery image upload request received");
       
@@ -1001,7 +1001,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         filename: filename,
         nurseryId: parseInt(req.body.nurseryId || "1", 10),
         categoryId: req.body.categoryId && req.body.categoryId !== 'none' ? parseInt(req.body.categoryId, 10) : undefined,
-        uploadedBy: 1 // Default admin user
+        uploadedBy: req.session.user?.id || 1
       };
       
       console.log("Processed image data:", imageData);
@@ -1459,8 +1459,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Update a user - Super Admin or the user themselves
-  app.patch('/api/admin/users/:id', isAuthenticated, async (req, res) => {
+  // Update a user - Admin access with proper permissions
+  app.patch('/api/admin/users/:id', adminAuth, async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
       const { email, firstName, lastName, role, isActive } = req.body;
@@ -1471,12 +1471,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'User not found' });
       }
       
-      // Only super_admin can update other users or change roles
-      const isSelf = (req.user as any).dbUserId === userId;
-      const isSuperAdmin = (req.user as any).role === 'super_admin';
+      // Check permissions: super_admin can edit anyone, admin can edit editors in their nursery
+      const currentUser = req.session.user;
+      const isSelf = currentUser.id === userId;
+      const isSuperAdmin = currentUser.role === 'super_admin';
+      const isAdmin = currentUser.role === 'admin';
       
       if (!isSelf && !isSuperAdmin) {
-        return res.status(403).json({ message: 'Unauthorized to update this user' });
+        if (isAdmin && user.role === 'editor' && user.nurseryId === currentUser.nurseryId) {
+          // Admin can edit editors in their nursery
+        } else {
+          return res.status(403).json({ message: 'Unauthorized to update this user' });
+        }
       }
       
       // Regular users can only update their own info, not role or active status
@@ -1489,8 +1495,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (lastName) updateData.lastName = lastName;
         if (role) updateData.role = role;
         if (isActive !== undefined) updateData.isActive = isActive;
+      } else if (isAdmin && !isSelf) {
+        // Admin can update basic info and active status for editors
+        if (email) updateData.email = email;
+        if (firstName) updateData.firstName = firstName;
+        if (lastName) updateData.lastName = lastName;
+        if (isActive !== undefined) updateData.isActive = isActive;
       } else {
-        // Regular users can only update basic info
+        // Regular users can only update their own basic info
         if (email) updateData.email = email;
         if (firstName) updateData.firstName = firstName;
         if (lastName) updateData.lastName = lastName;
@@ -1500,12 +1512,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updatedUser = await storage.updateUser(userId, updateData);
       
       // Log the activity
-      await storage.logActivity({
-        userId: (req.user as any).dbUserId,
-        action: 'update',
-        resource: 'user',
-        description: `Updated user ${user.firstName} ${user.lastName}`,
-        metadata: { userId }
+      await storage.createActivityLog({
+        userId: currentUser.id,
+        action: 'update_user',
+        entityType: 'user',
+        entityId: userId,
+        details: { 
+          email: user.email,
+          changes: updateData
+        },
+        ipAddress: req.ip,
+        nurseryId: user.nurseryId
       });
       
       res.json(updatedUser);
@@ -1515,8 +1532,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Deactivate a user - Super Admin only
-  app.post('/api/admin/users/:id/deactivate', adminAuth, requireSuperAdmin, async (req, res) => {
+  // Deactivate a user - Admin access with proper permissions
+  app.post('/api/admin/users/:id/deactivate', adminAuth, async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
       const currentUser = req.session.user;
@@ -1530,6 +1547,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Prevent deactivating own account
       if (currentUser.id === userId) {
         return res.status(400).json({ message: 'Cannot deactivate your own account' });
+      }
+      
+      // Check permissions: super_admin can deactivate anyone, admin can deactivate editors in their nursery
+      const isSuperAdmin = currentUser.role === 'super_admin';
+      const isAdmin = currentUser.role === 'admin';
+      
+      if (!isSuperAdmin) {
+        if (isAdmin && user.role === 'editor' && user.nurseryId === currentUser.nurseryId) {
+          // Admin can deactivate editors in their nursery
+        } else {
+          return res.status(403).json({ message: 'Unauthorized to deactivate this user' });
+        }
       }
       
       // Update user to set isActive to false
@@ -1556,8 +1585,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Reactivate a user - Super Admin only
-  app.post('/api/admin/users/:id/reactivate', adminAuth, requireSuperAdmin, async (req, res) => {
+  // Reactivate a user - Admin access with proper permissions
+  app.post('/api/admin/users/:id/reactivate', adminAuth, async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
       const currentUser = req.session.user;
@@ -1566,6 +1595,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(userId);
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Check permissions: super_admin can reactivate anyone, admin can reactivate editors in their nursery
+      const isSuperAdmin = currentUser.role === 'super_admin';
+      const isAdmin = currentUser.role === 'admin';
+      
+      if (!isSuperAdmin) {
+        if (isAdmin && user.role === 'editor' && user.nurseryId === currentUser.nurseryId) {
+          // Admin can reactivate editors in their nursery
+        } else {
+          return res.status(403).json({ message: 'Unauthorized to reactivate this user' });
+        }
       }
       
       // Update user to set isActive to true
@@ -1726,8 +1767,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Activity Logs - Super Admin only
-  app.get('/api/admin/activity-logs', isAuthenticated, hasRole(['super_admin']), async (req, res) => {
+  // Activity Logs - Admin access
+  app.get('/api/admin/activity-logs', adminAuth, async (req, res) => {
     try {
       const activityLogs = await storage.getRecentActivityLogs(100);
       res.json(activityLogs);

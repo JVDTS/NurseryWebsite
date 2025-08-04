@@ -1,0 +1,96 @@
+Bug Sheet 
+Admin Site
+
+Site isgenerally slow to update changes
+Severity : medium
+
+
+
+
+Dashboard
+
+1. Dashboard Content overview boxes cannot be accessed i.e cannot be clicked
+Severity : Medium 
+
+2. All Nurseries Dropdown has no effect i.e user cannot switch to different nurseries7
+Severity : Medium
+
+3. Recent Activity cannot be viewed 
+Severity : High
+
+4. Upcoming events cannot be viewed and calender cannot be managed
+Severity : High
+
+5. Questions need to be asked for upload gallery images via quick actions, as image upload does not work, but there is a work around
+Severity : Medium
+
+6. Notification bell not accurate
+Severity : Medium
+
+7. My account Functionality does not work, except the log off section both at top and bottom of dashboard module
+Severity : High (Showstopper)
+
+
+
+Content
+
+1. Content Searchbox does not function
+Severity : High
+
+2. Newsletter cannot be uploaded
+Severity : High
+
+3. Actiona Functionality does not work (All subactions are ineffective)
+Priority : High
+
+
+Events
+
+1. Calender view under dev
+
+
+2. Status dropdown filter not working
+Severity : Medium
+
+
+3: Need to test the previous and next functionality
+
+
+4. Need to Improve search functionality
+Severity : Low
+
+
+Media
+1. Newsletter Edit not working
+Severity : High
+
+2. Nursery Admin cannot upload pics and Newsletters, as nursery dropdown in the add section not working
+Severity : High
+
+User Management
+
+1. Super admin cant edit other user
+Severity high
+
+2. Nursery Admin can upload to all nurseries
+Severity : High
+
+3. Deactivated accounts can stiill upload
+Severity : High
+
+4. Deactivated supper admin still has super admin priviledges
+Severity : High
+
+
+Activity Logs 
+
+1. Functionality not working at all
+Severity : High
+
+
+Settings
+1. Page displaying 404 error
+severity : High
+
+
+

@@ -43,6 +43,9 @@ export default function NurserySelector({ selectedNurseryId, onChange }: Nursery
     console.log("Nurseries data:", nurseriesData);
     if (nurseriesData?.nurseries) {
       setNurseries(nurseriesData.nurseries);
+    } else if (nurseriesData && Array.isArray(nurseriesData)) {
+      // Handle case where API returns array directly
+      setNurseries(nurseriesData);
     }
   }, [nurseriesData]);
   

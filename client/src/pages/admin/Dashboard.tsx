@@ -171,58 +171,64 @@ export default function AdminDashboard() {
             />
             
             {/* Events Stats */}
-            <Card className="overflow-hidden">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-teal-100 bg-opacity-50">
-                <CardTitle className="text-sm font-medium">
-                  Events
-                </CardTitle>
-                <div className="rounded-md bg-teal-500 p-2">
-                  <Calendar className="h-4 w-4 text-white" />
-                </div>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="text-3xl font-bold">{stats.events}</div>
-                <p className="text-xs text-gray-500 mt-1">
-                  {selectedNurseryId ? `For selected nursery` : 'Across all nurseries'}
-                </p>
-              </CardContent>
-            </Card>
+            <Link href="/admin/events">
+              <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-teal-100 bg-opacity-50">
+                  <CardTitle className="text-sm font-medium">
+                    Events
+                  </CardTitle>
+                  <div className="rounded-md bg-teal-500 p-2">
+                    <Calendar className="h-4 w-4 text-white" />
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="text-3xl font-bold">{stats.events}</div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {selectedNurseryId ? `For selected nursery` : 'Across all nurseries'}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
             
             {/* Gallery Stats */}
-            <Card className="overflow-hidden">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-orange-100 bg-opacity-50">
-                <CardTitle className="text-sm font-medium">
-                  Gallery
-                </CardTitle>
-                <div className="rounded-md bg-orange-500 p-2">
-                  <Image className="h-4 w-4 text-white" />
-                </div>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="text-3xl font-bold">{stats.galleryImages}</div>
-                <p className="text-xs text-gray-500 mt-1">
-                  {selectedNurseryId ? `For selected nursery` : 'Across all nurseries'}
-                </p>
-              </CardContent>
-            </Card>
+            <Link href="/admin/gallery">
+              <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-orange-100 bg-opacity-50">
+                  <CardTitle className="text-sm font-medium">
+                    Gallery
+                  </CardTitle>
+                  <div className="rounded-md bg-orange-500 p-2">
+                    <Image className="h-4 w-4 text-white" />
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="text-3xl font-bold">{stats.galleryImages}</div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {selectedNurseryId ? `For selected nursery` : 'Across all nurseries'}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
             
             {/* Newsletters Stats */}
-            <Card className="overflow-hidden">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-blue-100 bg-opacity-50">
-                <CardTitle className="text-sm font-medium">
-                  Newsletters
-                </CardTitle>
-                <div className="rounded-md bg-blue-500 p-2">
-                  <Newspaper className="h-4 w-4 text-white" />
-                </div>
-              </CardHeader>
-              <CardContent className="pt-6">
-                <div className="text-3xl font-bold">{stats.newsletters}</div>
-                <p className="text-xs text-gray-500 mt-1">
-                  {selectedNurseryId ? `For selected nursery` : 'Across all nurseries'}
-                </p>
-              </CardContent>
-            </Card>
+            <Link href="/admin/content-management">
+              <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-blue-100 bg-opacity-50">
+                  <CardTitle className="text-sm font-medium">
+                    Newsletters
+                  </CardTitle>
+                  <div className="rounded-md bg-blue-500 p-2">
+                    <Newspaper className="h-4 w-4 text-white" />
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="text-3xl font-bold">{stats.newsletters}</div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {selectedNurseryId ? `For selected nursery` : 'Across all nurseries'}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
 
           {/* Admin Activities Section */}

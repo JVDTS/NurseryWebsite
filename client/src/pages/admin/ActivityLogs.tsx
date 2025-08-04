@@ -39,17 +39,17 @@ export default function ActivityLogs() {
   const [dateFilter, setDateFilter] = useState<Date | null>(null);
 
   // Fetch activity logs
-  const { data: logs = [], isLoading, refetch: refetchLogs } = useQuery({
+  const { data: logs = [], isLoading, refetch: refetchLogs } = useQuery<any[]>({
     queryKey: ["/api/admin/activity-logs"],
   });
 
   // Fetch users for filter dropdown
-  const { data: users = [] } = useQuery({
+  const { data: users = [] } = useQuery<any[]>({
     queryKey: ["/api/admin/users"],
   });
 
   // Fetch nurseries for filtering
-  const { data: nurseries = [] } = useQuery({
+  const { data: nurseries = [] } = useQuery<any[]>({
     queryKey: ["/api/nurseries"],
   });
 
