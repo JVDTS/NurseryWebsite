@@ -1448,11 +1448,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new user - Super Admin only
   app.post('/api/admin/users', adminAuth, requireSuperAdmin, async (req, res) => {
     try {
-      const { email, firstName, lastName, password, role, nurseryIds } = req.body;
+      const { email, firstName, lastName, password, role, nurseryId } = req.body;
       
       // Validate required fields
       if (!email || !firstName || !lastName || !password || !role) {
         return res.status(400).json({ message: 'Missing required fields' });
+      }
+      
+      // For admin/editor roles, nursery assignment is required
+      if ((role === "admin" || role === "editor") && !nurseryId) {
+        return res.status(400).json({ message: 'Nursery assignment is required for admin/editor users' });
       }
       
       // Check if email already exists
@@ -1461,25 +1466,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Email already in use' });
       }
       
-      // Create the user
+      // Create the user with single nursery assignment
       const newUser = await storage.createUser({
         email,
         firstName,
         lastName,
         password, // Will be hashed in the storage implementation
         role,
+        nurseryId: (role === "admin" || role === "editor") ? nurseryId : null,
         isActive: true
       });
       
-      // If nursery assignments were provided, create them
-      if (nurseryIds && nurseryIds.length > 0) {
-        await Promise.all(nurseryIds.map(async (nurseryId) => {
-          await storage.assignUserToNursery({
-            userId: newUser.id,
-            nurseryId,
-            assignedBy: (req.session as any).user.id
-          });
-        }));
+      // If a nursery assignment was provided, create the mapping in user_nurseries table
+      if (nurseryId && (role === "admin" || role === "editor")) {
+        await storage.assignUserToNursery({
+          userId: newUser.id,
+          nurseryId,
+          assignedBy: (req.session as any).user.id
+        });
       }
       
       // Log the activity

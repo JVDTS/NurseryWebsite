@@ -56,7 +56,7 @@ interface NewUser {
   lastName: string;
   password: string;
   role: "admin" | "super_admin";
-  assignedNurseries: number[];
+  nurseryId: number | null; // Single nursery assignment instead of array
 }
 
 export default function UserManagement() {
@@ -77,7 +77,7 @@ export default function UserManagement() {
     lastName: "",
     password: "",
     role: "admin",
-    assignedNurseries: []
+    nurseryId: null
   });
 
   const [editUser, setEditUser] = useState({
@@ -106,6 +106,11 @@ export default function UserManagement() {
       // Client-side validation
       if (!userData.email || !userData.password || !userData.firstName) {
         throw new Error("Please fill out all required fields.");
+      }
+
+      // For admin/editor roles, nursery assignment is required
+      if ((userData.role === "admin" || userData.role === "editor") && !userData.nurseryId) {
+        throw new Error("Please select a nursery for admin/editor users.");
       }
 
       const response = await fetch("/api/admin/users", {
@@ -258,7 +263,7 @@ export default function UserManagement() {
       lastName: "",
       password: "",
       role: "admin",
-      assignedNurseries: []
+      nurseryId: null
     });
   };
 
@@ -308,10 +313,7 @@ export default function UserManagement() {
       return;
     }
 
-    createUserMutation.mutate({
-      ...newUser,
-      nurseryIds: newUser.assignedNurseries.length > 0 ? newUser.assignedNurseries : undefined
-    });
+    createUserMutation.mutate(newUser);
   };
 
   // Handle updating a user
@@ -353,28 +355,17 @@ export default function UserManagement() {
     return false;
   });
 
-  // Handle toggling a nursery selection for assignment
-  const toggleNurserySelection = (nurseryId: number) => {
-    if (userNurseryAssignments.includes(nurseryId)) {
-      setUserNurseryAssignments(userNurseryAssignments.filter(id => id !== nurseryId));
-    } else {
-      setUserNurseryAssignments([...userNurseryAssignments, nurseryId]);
-    }
+  // Handle selecting a single nursery for assignment (for existing users)
+  const handleNurseryAssignmentSelection = (nurseryId: string) => {
+    setUserNurseryAssignments([parseInt(nurseryId)]);
   };
   
-  // Handle toggling a nursery selection when creating a new user
-  const toggleNewUserNurserySelection = (nurseryId: number) => {
-    if (newUser.assignedNurseries.includes(nurseryId)) {
-      setNewUser({
-        ...newUser,
-        assignedNurseries: newUser.assignedNurseries.filter(id => id !== nurseryId)
-      });
-    } else {
-      setNewUser({
-        ...newUser,
-        assignedNurseries: [...newUser.assignedNurseries, nurseryId]
-      });
-    }
+  // Handle selecting a single nursery when creating a new user
+  const handleNewUserNurserySelection = (nurseryId: string) => {
+    setNewUser({
+      ...newUser,
+      nurseryId: parseInt(nurseryId)
+    });
   };
 
   return (
@@ -552,28 +543,32 @@ export default function UserManagement() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label>Assign to Nurseries</Label>
-              <ScrollArea className="h-36 border rounded-md p-2">
-                <div className="space-y-2">
-                  {nurseries.map((nursery: any) => (
-                    <div key={nursery.id} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={`nursery-${nursery.id}`}
-                        checked={newUser.assignedNurseries.includes(nursery.id)}
-                        onCheckedChange={() => toggleNewUserNurserySelection(nursery.id)}
-                      />
-                      <Label 
-                        htmlFor={`nursery-${nursery.id}`}
-                        className="cursor-pointer"
-                      >
-                        {nursery.location}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
+            {(newUser.role === "admin" || newUser.role === "editor") && (
+              <div className="space-y-2">
+                <Label>Assign to Nursery</Label>
+                <Select
+                  value={newUser.nurseryId?.toString() || ""}
+                  onValueChange={handleNewUserNurserySelection}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a nursery" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Nurseries</SelectLabel>
+                      {nurseries.map((nursery: any) => (
+                        <SelectItem key={nursery.id} value={nursery.id.toString()}>
+                          {nursery.location} - {nursery.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500">
+                  {newUser.role === "admin" ? "Administrator" : "Editor"} can only be assigned to one nursery
+                </p>
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button
@@ -675,35 +670,40 @@ export default function UserManagement() {
         </DialogContent>
       </Dialog>
 
-      {/* Assign Nurseries Dialog */}
+      {/* Assign Nursery Dialog */}
       <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Assign Nurseries</DialogTitle>
+            <DialogTitle>Assign Nursery</DialogTitle>
             <DialogDescription>
-              Select the nurseries this user can manage.
+              Select the nursery this user can manage. Each user can only be assigned to one nursery.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <ScrollArea className="h-60 border rounded-md p-4">
-              <div className="space-y-3">
-                {nurseries.map((nursery: any) => (
-                  <div key={nursery.id} className="flex items-center space-x-2">
-                    <Checkbox 
-                      id={`assign-nursery-${nursery.id}`}
-                      checked={userNurseryAssignments.includes(nursery.id)}
-                      onCheckedChange={() => toggleNurserySelection(nursery.id)}
-                    />
-                    <Label 
-                      htmlFor={`assign-nursery-${nursery.id}`}
-                      className="cursor-pointer flex-grow"
-                    >
-                      {nursery.location}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
+            <div className="space-y-2">
+              <Label>Select Nursery</Label>
+              <Select
+                value={userNurseryAssignments[0]?.toString() || ""}
+                onValueChange={handleNurseryAssignmentSelection}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a nursery" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Nurseries</SelectLabel>
+                    {nurseries.map((nursery: any) => (
+                      <SelectItem key={nursery.id} value={nursery.id.toString()}>
+                        {nursery.location} - {nursery.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500">
+                User will be assigned to only one nursery
+              </p>
+            </div>
           </div>
           <DialogFooter>
             <Button
@@ -716,11 +716,12 @@ export default function UserManagement() {
               onClick={handleSubmitNurseryAssignment} 
               disabled={assignNurseryMutation.isPending}
             >
-              {assignNurseryMutation.isPending ? "Saving..." : "Save Assignments"}
+              {assignNurseryMutation.isPending ? "Saving..." : "Save Assignment"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
       </NewDashboardLayout>
     </ProtectedRoute>
   );
