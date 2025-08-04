@@ -11,6 +11,7 @@ import {
   galleryImages, GalleryImage, InsertGalleryImage,
   galleryCategories, GalleryCategory, InsertGalleryCategory,
   activityLogs, ActivityLog, InsertActivityLog,
+  notifications, Notification, InsertNotification,
   invitations, Invitation, InsertInvitation,
   contactSubmissions, ContactSubmission, InsertContact, InsertContactSubmission
 } from '../shared/schema';
@@ -100,6 +101,15 @@ export interface IStorage {
   getActivityLogsByUser(userId: number): Promise<ActivityLog[]>;
   getActivityLogsByNursery(nurseryId: number): Promise<ActivityLog[]>;
   getRecentActivityLogs(limit?: number): Promise<ActivityLog[]>;
+
+  // Notification operations
+  createNotification(notification: InsertNotification): Promise<Notification>;
+  getNotificationsByUser(userId: number): Promise<Notification[]>;
+  getUnreadNotificationsByUser(userId: number): Promise<Notification[]>;
+  markNotificationAsRead(id: number): Promise<boolean>;
+  markAllNotificationsAsRead(userId: number): Promise<boolean>;
+  deleteNotification(id: number): Promise<boolean>;
+  deleteAllNotificationsByUser(userId: number): Promise<boolean>;
 
   // Invitation operations
   createInvitation(invitation: InsertInvitation): Promise<Invitation>;
@@ -726,6 +736,57 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(contactSubmissions)
       .orderBy(desc(contactSubmissions.createdAt));
+  }
+
+  // Notification implementations
+  async createNotification(notification: InsertNotification): Promise<Notification> {
+    const [result] = await db.insert(notifications).values(notification).returning();
+    return result;
+  }
+
+  async getNotificationsByUser(userId: number): Promise<Notification[]> {
+    return await db.select().from(notifications)
+      .where(eq(notifications.userId, userId))
+      .orderBy(desc(notifications.createdAt));
+  }
+
+  async getUnreadNotificationsByUser(userId: number): Promise<Notification[]> {
+    return await db.select().from(notifications)
+      .where(and(
+        eq(notifications.userId, userId),
+        eq(notifications.isRead, false)
+      ))
+      .orderBy(desc(notifications.createdAt));
+  }
+
+  async markNotificationAsRead(id: number): Promise<boolean> {
+    const result = await db.update(notifications)
+      .set({ isRead: true })
+      .where(eq(notifications.id, id))
+      .returning();
+    return result.length > 0;
+  }
+
+  async markAllNotificationsAsRead(userId: number): Promise<boolean> {
+    const result = await db.update(notifications)
+      .set({ isRead: true })
+      .where(eq(notifications.userId, userId))
+      .returning();
+    return result.length > 0;
+  }
+
+  async deleteNotification(id: number): Promise<boolean> {
+    const result = await db.delete(notifications)
+      .where(eq(notifications.id, id))
+      .returning();
+    return result.length > 0;
+  }
+
+  async deleteAllNotificationsByUser(userId: number): Promise<boolean> {
+    const result = await db.delete(notifications)
+      .where(eq(notifications.userId, userId))
+      .returning();
+    return result.length > 0;
   }
 
   // Helper methods

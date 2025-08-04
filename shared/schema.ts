@@ -250,6 +250,27 @@ export const insertActivityLogSchema = createInsertSchema(activityLogs, {
 }).omit({ id: true, createdAt: true });
 export type InsertActivityLog = z.infer<typeof insertActivityLogSchema>;
 
+// Notifications schema
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull(),
+  title: varchar("title").notNull(),
+  message: text("message").notNull(),
+  type: varchar("type").notNull(), // 'info', 'success', 'warning', 'error'
+  isRead: boolean("is_read").default(false),
+  nurseryId: integer("nursery_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Notification = typeof notifications.$inferSelect;
+export const insertNotificationSchema = createInsertSchema(notifications, {
+  userId: z.number().int().positive("User ID is required"),
+  title: z.string().min(1, "Title is required"),
+  message: z.string().min(1, "Message is required"),
+  type: z.enum(['info', 'success', 'warning', 'error']),
+}).omit({ id: true, createdAt: true });
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+
 // User invitations schema
 export const invitations = pgTable("invitations", {
   id: serial("id").primaryKey(),

@@ -1836,6 +1836,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Notification API endpoints
+  app.get('/api/admin/notifications', adminAuth, async (req, res) => {
+    try {
+      const currentUser = req.session.user;
+      if (!currentUser.isActive) {
+        return res.status(403).json({ message: 'Account is deactivated' });
+      }
+      
+      const notifications = await storage.getNotificationsByUser(currentUser.id);
+      res.json(notifications);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      res.status(500).json({ message: 'Failed to fetch notifications' });
+    }
+  });
+
+  app.patch('/api/admin/notifications/:id/read', adminAuth, async (req, res) => {
+    try {
+      const currentUser = req.session.user;
+      if (!currentUser.isActive) {
+        return res.status(403).json({ message: 'Account is deactivated' });
+      }
+      
+      const notificationId = parseInt(req.params.id);
+      const success = await storage.markNotificationAsRead(notificationId);
+      
+      if (!success) {
+        return res.status(404).json({ message: 'Notification not found' });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      res.status(500).json({ message: 'Failed to mark notification as read' });
+    }
+  });
+
+  app.patch('/api/admin/notifications/mark-all-read', adminAuth, async (req, res) => {
+    try {
+      const currentUser = req.session.user;
+      if (!currentUser.isActive) {
+        return res.status(403).json({ message: 'Account is deactivated' });
+      }
+      
+      await storage.markAllNotificationsAsRead(currentUser.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      res.status(500).json({ message: 'Failed to mark all notifications as read' });
+    }
+  });
+
+  app.delete('/api/admin/notifications', adminAuth, async (req, res) => {
+    try {
+      const currentUser = req.session.user;
+      if (!currentUser.isActive) {
+        return res.status(403).json({ message: 'Account is deactivated' });
+      }
+      
+      await storage.deleteAllNotificationsByUser(currentUser.id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error clearing all notifications:', error);
+      res.status(500).json({ message: 'Failed to clear all notifications' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
