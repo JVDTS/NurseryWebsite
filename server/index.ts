@@ -66,8 +66,13 @@ if (!fs.existsSync(publicDir)) {
   fs.mkdirSync(publicDir, { recursive: true });
 }
 
-// Serve public files (PDFs, etc.) statically
-app.use(express.static(publicDir));
+// Serve public files with support for large files and range requests
+app.use(express.static(publicDir, {
+  maxAge: '1d', // Cache for 1 day
+  etag: true,
+  lastModified: true,
+  acceptRanges: true // Enable range requests for large files like videos
+}));
 
 // API request logger middleware
 app.use((req, res, next) => {
