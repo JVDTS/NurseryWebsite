@@ -90,12 +90,21 @@ export default function AdminGallery() {
   const nurseryId = user?.nurseryId || 0;
   const isSuperAdmin = user?.role === 'super_admin';
 
-  // Fetch all nurseries for dropdown (super admin only)
-  const { data: nurseriesData } = useQuery<{ nurseries: any[] }>({
+  // Fetch user's assigned nurseries or all nurseries for super admin
+  const { data: userNurseriesData } = useQuery({
+    queryKey: ['/api/admin/me/nurseries'],
+    enabled: !!user,
+  });
+  const assignedNurseries = userNurseriesData || [];
+  
+  // For super admin, also fetch all nurseries
+  const { data: allNurseriesData } = useQuery<{ nurseries: any[] }>({
     queryKey: ['/api/nurseries'],
     enabled: isSuperAdmin,
   });
-  const nurseries = nurseriesData?.nurseries || [];
+  
+  // Use assigned nurseries for regular users, all nurseries for super admin
+  const nurseries = isSuperAdmin ? (allNurseriesData?.nurseries || []) : assignedNurseries;
 
   // Create form for adding new gallery images
   const form = useForm<GalleryImageFormValues>({

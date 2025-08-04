@@ -566,6 +566,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/newsletters", adminAuth, async (req: Request, res: Response) => {
     try {
+      const currentUser = req.session.user;
+      
+      // Check if user is active
+      if (!currentUser.isActive) {
+        return res.status(403).json({ message: 'Account is deactivated' });
+      }
+      
+      // Check nursery permissions for uploads
+      const nurseryId = parseInt(req.body.nurseryId || "1", 10);
+      if (currentUser.role !== 'super_admin') {
+        // Non-super admins can only upload to their assigned nursery
+        if (currentUser.nurseryId !== nurseryId) {
+          return res.status(403).json({ message: 'Cannot upload to this nursery' });
+        }
+      }
+      
       console.log("Newsletter upload request:", req.body);
       
       // Process file upload
@@ -648,8 +664,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/newsletters/:id", isAuthenticated, hasRole(["super_admin", "admin", "editor"]), async (req: Request, res: Response) => {
+  app.put("/api/newsletters/:id", adminAuth, async (req: Request, res: Response) => {
     try {
+      const currentUser = req.session.user;
+      
+      // Check if user is active
+      if (!currentUser.isActive) {
+        return res.status(403).json({ message: 'Account is deactivated' });
+      }
+      
       const newsletterId = parseInt(req.params.id);
       const newsletter = await storage.updateNewsletter(newsletterId, req.body);
       
@@ -956,6 +979,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/gallery", adminAuth, async (req: Request, res: Response) => {
     try {
+      const currentUser = req.session.user;
+      
+      // Check if user is active
+      if (!currentUser.isActive) {
+        return res.status(403).json({ message: 'Account is deactivated' });
+      }
+      
+      // Check nursery permissions for uploads
+      const nurseryId = parseInt(req.body.nurseryId || "1", 10);
+      if (currentUser.role !== 'super_admin') {
+        // Non-super admins can only upload to their assigned nursery
+        if (currentUser.nurseryId !== nurseryId) {
+          return res.status(403).json({ message: 'Cannot upload to this nursery' });
+        }
+      }
+      
       console.log("Gallery image upload request received");
       
       // Process the file upload first if there is one
@@ -1474,8 +1513,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check permissions: super_admin can edit anyone, admin can edit editors in their nursery
       const currentUser = req.session.user;
       const isSelf = currentUser.id === userId;
-      const isSuperAdmin = currentUser.role === 'super_admin';
-      const isAdmin = currentUser.role === 'admin';
+      const isSuperAdmin = currentUser.role === 'super_admin' && currentUser.isActive;
+      const isAdmin = currentUser.role === 'admin' && currentUser.isActive;
+      
+      // Deactivated users cannot perform actions
+      if (!currentUser.isActive) {
+        return res.status(403).json({ message: 'Account is deactivated' });
+      }
       
       if (!isSelf && !isSuperAdmin) {
         if (isAdmin && user.role === 'editor' && user.nurseryId === currentUser.nurseryId) {
@@ -1550,8 +1594,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check permissions: super_admin can deactivate anyone, admin can deactivate editors in their nursery
-      const isSuperAdmin = currentUser.role === 'super_admin';
-      const isAdmin = currentUser.role === 'admin';
+      const isSuperAdmin = currentUser.role === 'super_admin' && currentUser.isActive;
+      const isAdmin = currentUser.role === 'admin' && currentUser.isActive;
+      
+      // Deactivated users cannot perform actions
+      if (!currentUser.isActive) {
+        return res.status(403).json({ message: 'Account is deactivated' });
+      }
       
       if (!isSuperAdmin) {
         if (isAdmin && user.role === 'editor' && user.nurseryId === currentUser.nurseryId) {
@@ -1598,8 +1647,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check permissions: super_admin can reactivate anyone, admin can reactivate editors in their nursery
-      const isSuperAdmin = currentUser.role === 'super_admin';
-      const isAdmin = currentUser.role === 'admin';
+      const isSuperAdmin = currentUser.role === 'super_admin' && currentUser.isActive;
+      const isAdmin = currentUser.role === 'admin' && currentUser.isActive;
+      
+      // Deactivated users cannot perform actions
+      if (!currentUser.isActive) {
+        return res.status(403).json({ message: 'Account is deactivated' });
+      }
       
       if (!isSuperAdmin) {
         if (isAdmin && user.role === 'editor' && user.nurseryId === currentUser.nurseryId) {

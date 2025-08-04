@@ -84,6 +84,7 @@ function Router() {
       <Route path="/admin-old/dashboard" component={AdminDashboard} />
       <Route path="/admin-old/login" component={AdminLogin} />
       <Route path="/admin-old/settings" component={AdminSettings} />
+      <Route path="/admin/settings" component={AdminSettings} />
       
       <Route component={NotFound} />
     </Switch>

@@ -123,6 +123,7 @@ export default function NurserySelector({ selectedNurseryId, onChange }: Nursery
         <Select 
           onValueChange={handleSelectionChange} 
           value={selectedNurseryId === ALL_NURSERIES || selectedNurseryId === null ? 'all' : selectedNurseryId?.toString()}
+          key={`nursery-selector-${selectedNurseryId}`}
         >
           <SelectTrigger>
             <SelectValue placeholder={getSelectedNurseryName()} />
