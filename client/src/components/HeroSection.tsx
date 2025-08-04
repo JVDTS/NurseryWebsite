@@ -19,7 +19,11 @@ export default function HeroSection() {
           loop 
           muted 
           playsInline
+          preload="auto"
           className="absolute w-full h-full object-cover"
+          onError={(e) => console.error('Video error:', e)}
+          onLoadStart={() => console.log('Video loading started')}
+          onCanPlay={() => console.log('Video can play')}
         >
           <source src="/videos/nursery-background.mp4" type="video/mp4" />
           Your browser does not support the video tag.
