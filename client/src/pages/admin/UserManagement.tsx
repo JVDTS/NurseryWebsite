@@ -100,6 +100,11 @@ export default function UserManagement() {
     queryKey: ["/api/nurseries"],
   });
 
+  // Fetch current user to check role permissions
+  const { data: currentUser } = useQuery({
+    queryKey: ["/api/admin/me"],
+  });
+
   // Create user mutation
   const createUserMutation = useMutation({
     mutationFn: async (userData: NewUser) => {
@@ -425,6 +430,7 @@ export default function UserManagement() {
                   <UsersTable 
                     users={filteredUsers} 
                     nurseries={nurseries}
+                    currentUser={currentUser}
                     onEdit={handleEditUser} 
                     onDeactivate={(id) => deactivateUserMutation.mutate(id)}
                     onReactivate={(id) => reactivateUserMutation.mutate(id)}
@@ -436,6 +442,7 @@ export default function UserManagement() {
                   <UsersTable 
                     users={filteredUsers} 
                     nurseries={nurseries}
+                    currentUser={currentUser}
                     onEdit={handleEditUser} 
                     onDeactivate={(id) => deactivateUserMutation.mutate(id)}
                     onReactivate={(id) => reactivateUserMutation.mutate(id)}
@@ -447,6 +454,7 @@ export default function UserManagement() {
                   <UsersTable 
                     users={filteredUsers} 
                     nurseries={nurseries}
+                    currentUser={currentUser}
                     onEdit={handleEditUser} 
                     onDeactivate={(id) => deactivateUserMutation.mutate(id)}
                     onReactivate={(id) => reactivateUserMutation.mutate(id)}
@@ -730,6 +738,7 @@ export default function UserManagement() {
 interface UsersTableProps {
   users: any[];
   nurseries: any[];
+  currentUser?: any;
   onEdit: (user: any) => void;
   onDeactivate: (id: number) => void;
   onReactivate: (id: number) => void;
@@ -740,6 +749,7 @@ interface UsersTableProps {
 function UsersTable({ 
   users, 
   nurseries,
+  currentUser,
   onEdit, 
   onDeactivate, 
   onReactivate,
@@ -825,9 +835,11 @@ function UsersTable({
                       <DropdownMenuItem onClick={() => onEdit(user)}>
                         <Edit className="mr-2 h-4 w-4" /> Edit
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onAssignNurseries(user)}>
-                        <UserPlus className="mr-2 h-4 w-4" /> Assign Nurseries
-                      </DropdownMenuItem>
+                      {currentUser?.role === 'super_admin' && (
+                        <DropdownMenuItem onClick={() => onAssignNurseries(user)}>
+                          <UserPlus className="mr-2 h-4 w-4" /> Assign Nursery
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuSeparator />
                       {user.isActive ? (
                         <DropdownMenuItem onClick={() => onDeactivate(user.id)}>
