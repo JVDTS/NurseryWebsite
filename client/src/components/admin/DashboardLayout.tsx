@@ -27,9 +27,11 @@ import NotificationDropdown from './NotificationDropdown';
 interface DashboardLayoutProps {
   children: ReactNode;
   title: string;
+  selectedNurseryId?: number | null;
+  onNurseryChange?: (nurseryId: number | null) => void;
 }
 
-export default function DashboardLayout({ children, title }: DashboardLayoutProps) {
+export default function DashboardLayout({ children, title, selectedNurseryId, onNurseryChange }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -314,11 +316,11 @@ export default function DashboardLayout({ children, title }: DashboardLayoutProp
                 </svg>
               </button>
             </div>
-            {user?.role === 'super_admin' && (
+            {user?.role === 'super_admin' && onNurseryChange && (
               <div className="ml-6">
                 <NurserySelector 
-                  onChange={(id) => console.log("Selected nursery:", id)}
-                  selectedNurseryId={null}
+                  onChange={onNurseryChange}
+                  selectedNurseryId={selectedNurseryId || null}
                 />
               </div>
             )}

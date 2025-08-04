@@ -150,7 +150,11 @@ export default function AdminDashboard() {
 
   return (
     <ProtectedRoute>
-      <DashboardLayout title="Dashboard">
+      <DashboardLayout 
+        title="Dashboard"
+        selectedNurseryId={selectedNurseryId}
+        onNurseryChange={setSelectedNurseryId}
+      >
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-2">
             {getWelcomeMessage()}, {user?.firstName}
